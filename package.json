@@ -1,0 +1,33 @@
+{
+  "name": "inmation-healthmonitor",
+  "version": "1.0.0",
+  "description": "Health monitoring application",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "test": "vitest"
+  },
+  "keywords": [
+    "health",
+    "monitoring"
+  ],
+  "author": "victorgonzalezmateos",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^5.0.0",
+    "eslint": "^8.50.0",
+    "eslint-plugin-react": "^7.33.0",
+    "prettier": "^3.0.0",
+    "vitest": "^1.0.0"
+  }
+}
