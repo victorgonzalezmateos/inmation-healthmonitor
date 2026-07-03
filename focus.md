@@ -25,8 +25,8 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** that ac
 
 ## Current Phase
 
-**Architecture complete — AR-02 awaiting review.**  
-Data wiring in `docs/architecture/AR-02-data-wiring-and-components.md`. Mark AR-02 **Green** to unlock **UP-01**.
+**UI Parity — UP-01 complete (awaiting review).**  
+Bayer visual system in `docs/ui/`. Mark UP-01 **Green** to unlock **UP-02**.
 
 ## Task Groups (see `docs/PROJECT_PLAN.md`)
 

@@ -1,0 +1,47 @@
+{
+  "name": "bayer-health-monitor",
+  "version": "1.0.0",
+  "theme": "light",
+  "colors": {
+    "bayer-nav": "#10384f",
+    "bayer-green": "#89d329",
+    "bayer-green-dark": "#76ba24",
+    "bayer-blue": "#00bcff",
+    "surface-page": "#ffffff",
+    "surface-muted": "#f8fafc",
+    "surface-panel": "#ffffff",
+    "border-default": "#ededed",
+    "text-primary": "#10384f",
+    "text-on-nav": "#ffffff",
+    "text-secondary": "#64748b",
+    "state-good-bg": "#d4f1d4",
+    "state-bad-bg": "#f1d4d4",
+    "state-empty-bg": "#f0edf0",
+    "state-disabled-bg": "#e2e8f0"
+  },
+  "typography": {
+    "fontFamily": "Inter, 'Segoe UI', sans-serif",
+    "fontFamilyMono": "Consolas, monospace",
+    "appTitle": { "fontSize": "18px", "fontWeight": "700" },
+    "tableHeader": { "fontSize": "12px", "fontWeight": "600" },
+    "tableBody": { "fontSize": "12px", "fontWeight": "400" }
+  },
+  "spacing": {
+    "radiusSm": "4px",
+    "radiusMd": "8px",
+    "radiusLg": "12px",
+    "paddingPanel": "16px",
+    "paddingCompact": "8px"
+  },
+  "shadows": {
+    "panel": "0 1px 3px rgba(16, 56, 79, 0.08)",
+    "elevated": "0 4px 12px rgba(16, 56, 79, 0.12)"
+  },
+  "stateCellStyles": {
+    "Good": { "backgroundColor": "#d4f1d4", "color": "#10384f" },
+    "Bad": { "backgroundColor": "#f1d4d4", "color": "#10384f" },
+    "Empty": { "backgroundColor": "#f0edf0", "color": "#10384f" },
+    "Disabled": { "backgroundColor": "#e2e8f0", "color": "#64748b" },
+    "Neutral": { "backgroundColor": "#ffffff", "color": "#10384f" }
+  }
+}
