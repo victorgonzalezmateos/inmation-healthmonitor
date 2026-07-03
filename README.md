@@ -57,6 +57,7 @@ See [docs/GETTING_STARTED.md](./docs/GETTING_STARTED.md) for the full workflow.
 |------|---------|
 | [focus.md](./focus.md) | Goals, phase, milestones |
 | [docs/PROJECT_PLAN.md](./docs/PROJECT_PLAN.md) | All 14 tasks and dependency order |
+| [docs/source-contracts/](./docs/source-contracts/) | Frozen Health Monitor backend contracts (DC-01) |
 | [docs/GETTING_STARTED.md](./docs/GETTING_STARTED.md) | How to use Kanvas in Obsidian |
 | [AGENTS.md](./AGENTS.md) | Agent CLI commands and protocol |
 | [RULES.md](./RULES.md) | Color codes, permissions, Canvas Watcher |
@@ -78,7 +79,7 @@ python canvas-tool.py "Project.canvas" finish DC-01
 
 ## Current Phase
 
-Planning complete on `Project.canvas`. Next step: approve **DC-01** in Obsidian (Purple → Red), then begin Discovery Contracts work.
+DC-01 complete — source contracts in `docs/source-contracts/`. Mark DC-01 **Green** in Obsidian to unlock DC-02 and AR-01.
 
 ## Repository
 

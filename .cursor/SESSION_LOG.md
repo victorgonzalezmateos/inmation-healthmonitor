@@ -15,22 +15,16 @@
 | **Git branch** | `master` (tracks `origin/master`) |
 | **Workflow tool** | Kanvas — `canvas-tool.py` + Obsidian Canvas (`Project.canvas`) |
 | **App stack** | React + Vite (scaffold; feature work not started) |
-| **Phase** | Planning complete — awaiting DC-01 approval in Obsidian |
+| **Phase** | DC-01 complete (cyan, awaiting human Green) |
 
 ### Board status
-- 14 tasks across 6 groups on `Project.canvas`
-- All tasks **Purple** (proposed) — none ready until human approves (Purple → Red)
-- First task: **DC-01** Freeze captured Health Monitor source contracts
-
-### Documentation added
-- `README.md` — project overview and links
-- `focus.md` — goals, phase, milestones
-- `docs/GETTING_STARTED.md` — Obsidian/Kanvas guide for humans
-- `docs/PROJECT_PLAN.md` — task plan summary
+- **DC-01** — Cyan (ready for review): source contracts in `docs/source-contracts/DC-01-source-contracts.md`
+- **DC-02, AR-01, AR-02** — Purple (blocked until DC-01 marked Green)
+- Next after Green: approve and start DC-02 or AR-01
 
 ### Not yet done
-- [ ] Approve DC-01 in Obsidian (Purple → Red)
-- [ ] Agent starts DC-01
+- [ ] Mark DC-01 Green in Obsidian
+- [ ] DC-02 Define source-state display policy
 - [ ] `npm install` and verify `npm run dev`
 - [ ] Implement health monitor features
 
@@ -114,6 +108,21 @@ npm run dev
 3. **Committed and pushed** to `origin/master`.
 
 **Next step:** User approves DC-01 in Obsidian (Purple → Red), then agent starts DC-01.
+
+---
+
+### 2026-07-03 — Session 3: DC-01 executed
+
+**Goal:** Start DC-01 — freeze Health Monitor source contracts.
+
+**What happened:**
+1. User approved DC-01 (Purple → Red) in Obsidian.
+2. Agent started DC-01, created `docs/source-contracts/DC-01-source-contracts.md` and index.
+3. Finished DC-01 (Orange → Cyan). Awaiting user Green in Obsidian.
+
+**Deliverable:** `docs/source-contracts/DC-01-source-contracts.md`
+
+**Next:** User marks DC-01 Green → unlocks DC-02, AR-01, AR-02.
 
 ---
 

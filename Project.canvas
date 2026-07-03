@@ -1,6 +1,60 @@
 {
 	"nodes": [
 		{
+			"id": "group-uipari",
+			"type": "group",
+			"x": 880,
+			"y": 0,
+			"width": 380,
+			"height": 940,
+			"label": "UI Parity"
+		},
+		{
+			"id": "group-discov",
+			"type": "group",
+			"x": 0,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Discovery Contracts"
+		},
+		{
+			"id": "group-archit",
+			"type": "group",
+			"x": 440,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Architecture"
+		},
+		{
+			"id": "group-webstu",
+			"type": "group",
+			"x": 1320,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Webstudio Runtime"
+		},
+		{
+			"id": "group-valida",
+			"type": "group",
+			"x": 1760,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Validation"
+		},
+		{
+			"id": "group-postpa",
+			"type": "group",
+			"x": 2200,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Post Parity Enhancements"
+		},
+		{
 			"id": "canvas-errors",
 			"type": "text",
 			"text": "## Errors\n✓ None",
@@ -31,68 +85,14 @@
 			"color": "3"
 		},
 		{
-			"id": "group-discov",
-			"type": "group",
-			"x": 0,
-			"y": 0,
-			"width": 380,
-			"height": 700,
-			"label": "Discovery Contracts"
-		},
-		{
-			"id": "group-archit",
-			"type": "group",
-			"x": 440,
-			"y": 0,
-			"width": 380,
-			"height": 700,
-			"label": "Architecture"
-		},
-		{
-			"id": "group-uipari",
-			"type": "group",
-			"x": 880,
-			"y": 0,
-			"width": 380,
-			"height": 940,
-			"label": "UI Parity"
-		},
-		{
-			"id": "group-webstu",
-			"type": "group",
-			"x": 1320,
-			"y": 0,
-			"width": 380,
-			"height": 700,
-			"label": "Webstudio Runtime"
-		},
-		{
-			"id": "group-valida",
-			"type": "group",
-			"x": 1760,
-			"y": 0,
-			"width": 380,
-			"height": 700,
-			"label": "Validation"
-		},
-		{
-			"id": "group-postpa",
-			"type": "group",
-			"x": 2200,
-			"y": 0,
-			"width": 380,
-			"height": 700,
-			"label": "Post Parity Enhancements"
-		},
-		{
 			"id": "0d37e5f1",
 			"type": "text",
-			"text": "## DC-01 Freeze captured Health Monitor source contracts\nDocument confirmed source contracts from dashboard_compilation, fetchNavigationTree, fetchNavigationTable, fetchObjProps, fetchPerformanceCountersTable, and chart calls. Mark fetchLogTable as optional unless logs are required in version 1. Preserve raw source field names and state values.",
+			"text": "## DC-01 Freeze captured Health Monitor source contracts\nFrozen source contracts in docs/source-contracts/DC-01-source-contracts.md. Covers dashboard_compilation, ProcessState, fetchNavigationTree, fetchNavigationTable, fetchObjProps, fetchPerformanceCountersTable, chart calls (createtrend/createtrendpen/readhistoricaldata). fetchLogTable marked optional for v1. Raw field names and state values preserved.",
 			"x": 20,
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "5"
 		},
 		{
 			"id": "93902c3f",
