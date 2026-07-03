@@ -172,17 +172,17 @@
 			"y": 760,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "c0a5c610",
 			"type": "text",
-			"text": "## WR-01 Define deployment identifiers\nChoose the final custom Webstudio context, library name, and screen function name for the Bayer Health Monitor app URL. Keep the URL pattern aligned with existing Health Monitor and PMM examples using secp=iwa and ssl=true.",
+			"text": "## WR-01 Define deployment identifiers\nDeployment IDs in docs/deployment/WR-01-deployment-identifiers.md. ctx=bayerhm lib=HealthMonitor func=BayerHealthMonitorMain; dashboard name Bayer Health Monitor; secp=iwa ssl=true URL templates; reuse HM Lua lib.",
 			"x": 1340,
 			"y": 40,
 			"width": 280,
-			"height": 160,
-			"color": "6"
+			"height": 340,
+			"color": "5"
 		},
 		{
 			"id": "ce7a166a",
