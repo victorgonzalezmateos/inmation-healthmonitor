@@ -3,6 +3,7 @@
 | Document | Task | Status |
 |----------|------|--------|
 | [AR-01-webstudio-runtime-architecture.md](./AR-01-webstudio-runtime-architecture.md) | AR-01 Design Webstudio app runtime architecture | Frozen 2026-07-03 |
+| [AR-02-data-wiring-and-components.md](./AR-02-data-wiring-and-components.md) | AR-02 Design data wiring and component boundaries | Frozen 2026-07-03 |
 
 ## Runtime at a glance
 

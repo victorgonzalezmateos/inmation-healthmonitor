@@ -216,7 +216,7 @@ Exact widget grid defined in UP-01/UP-02 implementations; this is the logical bo
 | Final `ctx`, `lib`, `func` | WR-01 |
 | Host object path for Custom Properties | WR-01 |
 | Dashboard name in CustomPropertyName | WR-01 |
-| Per-widget dataSource mapping | AR-02 |
+| Per-widget dataSource mapping | AR-02 | Done → [AR-02-data-wiring-and-components.md](./AR-02-data-wiring-and-components.md) |
 | PMM style catalog attachment | UP-01 |
 
 ---

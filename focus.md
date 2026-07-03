@@ -25,8 +25,8 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** that ac
 
 ## Current Phase
 
-**Architecture — AR-01 complete (awaiting review).**  
-Webstudio runtime design in `docs/architecture/`. Mark AR-01 **Green** in Obsidian to unlock AR-02.
+**Architecture complete — AR-02 awaiting review.**  
+Data wiring in `docs/architecture/AR-02-data-wiring-and-components.md`. Mark AR-02 **Green** to unlock **UP-01**.
 
 ## Task Groups (see `docs/PROJECT_PLAN.md`)
 

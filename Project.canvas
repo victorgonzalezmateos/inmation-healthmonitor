@@ -112,17 +112,17 @@
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "d6a3b8fd",
 			"type": "text",
-			"text": "## AR-02 Design data wiring and component boundaries\nMap each UI surface to existing backend sources: ProcessState for monitor availability, fetchNavigationTree for topology/icons, fetchNavigationTable for hierarchy health states, fetchObjProps for selected-object properties, fetchPerformanceCountersTable for details, and chart calls for drill-down. No duplicated monitoring logic.",
+			"text": "## AR-02 Design data wiring and component boundaries\nData wiring in docs/architecture/AR-02-data-wiring-and-components.md. Widget catalog hm-process-state through hm-chart mapped to ProcessState and fetch* sources; selection.path drives props/counters; chart chain createtrend→createtrendpen→readhistoricaldata; fetchLogTable deferred v1.",
 			"x": 460,
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "5"
 		},
 		{
 			"id": "84d0d28b",
