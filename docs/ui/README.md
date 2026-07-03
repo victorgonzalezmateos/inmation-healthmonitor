@@ -6,6 +6,7 @@
 | [UP-02-overview-hierarchy.md](./UP-02-overview-hierarchy.md) | UP-02 Implement Overview hierarchy parity | Implemented 2026-07-03 |
 | [UP-03-properties-panel.md](./UP-03-properties-panel.md) | UP-03 Implement property panel parity | Implemented 2026-07-03 |
 | [UP-04-performance-counters.md](./UP-04-performance-counters.md) | UP-04 Implement performance counters parity | Implemented 2026-07-03 |
+| [UP-05-chart-drill-down.md](./UP-05-chart-drill-down.md) | UP-05 Implement chart drill-down parity | Implemented 2026-07-03 |
 | [design-tokens.json](./design-tokens.json) | Machine-readable tokens | Frozen 2026-07-03 |
 
 ## Brand summary

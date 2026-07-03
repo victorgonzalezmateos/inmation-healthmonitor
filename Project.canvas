@@ -162,17 +162,17 @@
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "c61a2a2c",
 			"type": "text",
-			"text": "## UP-05 Implement chart drill-down parity\nReplicate Submit to Chart behavior using the same selected counter rows and chart concepts observed in createtrend, createtrendpen, and readhistoricaldata: chart shell, pens, one-day time range, aggregate, T/V/Q interval values, and pen metadata.",
+			"text": "## UP-05 Implement chart drill-down parity\nChart in compilations/bayer-health-monitor-chart.json + docs/ui/UP-05-chart-drill-down.md. hm-chart chain createtrend→createtrendpen→readhistoricaldata; 1d range; T/V/Q intervals; pens from selectedCounterRow only.",
 			"x": 900,
 			"y": 760,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "5"
 		},
 		{
 			"id": "c0a5c610",

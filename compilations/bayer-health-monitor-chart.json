@@ -1,0 +1,117 @@
+{
+  "version": "1",
+  "name": "bayer-health-monitor-chart",
+  "description": "UP-05 Chart tab — createtrend chain + readhistoricaldata. Add as tab in hm-detail-tabs.",
+  "tab": {
+    "id": "tab-chart",
+    "title": "Chart",
+    "compilation": {
+      "version": "1",
+      "options": {
+        "numberOfColumns": 96,
+        "numberOfRows": { "type": "count", "value": 44 }
+      },
+      "widgets": [
+        {
+          "id": "hm-chart",
+          "type": "chart",
+          "captionBar": true,
+          "label": "Trend — Submit to Chart",
+          "layout": { "x": 0, "y": 0, "w": 96, "h": 40, "static": true },
+          "dataSourceChain": [
+            {
+              "step": 1,
+              "lib": "HealthMonitor",
+              "func": "createtrend",
+              "ctx": "bayerhm",
+              "inputFrom": "selectedCounterRow",
+              "contextMap": {
+                "path": "path",
+                "penName": "penName",
+                "ObjectName": "ObjectName"
+              }
+            },
+            {
+              "step": 2,
+              "lib": "HealthMonitor",
+              "func": "createtrendpen",
+              "ctx": "bayerhm",
+              "inputFrom": "step1.trendId",
+              "contextMap": {
+                "penName": "selectedCounterRow.penName",
+                "path": "selectedCounterRow.path",
+                "trendId": "step1.trendId"
+              }
+            },
+            {
+              "step": 3,
+              "lib": "HealthMonitor",
+              "func": "readhistoricaldata",
+              "ctx": "bayerhm",
+              "inputFrom": "step2.pens",
+              "context": {
+                "timeRange": "1d",
+                "aggregate": "default",
+                "intervals": ["T", "V", "Q"]
+              }
+            }
+          ],
+          "chart": {
+            "timeRange": {
+              "default": "1d",
+              "presets": ["1d"]
+            },
+            "aggregate": "default",
+            "intervals": {
+              "T": { "field": "t", "label": "Time" },
+              "V": { "field": "v", "label": "Value" },
+              "Q": { "field": "q", "label": "Quality" }
+            },
+            "pensFrom": "step2.pens",
+            "penMetadata": {
+              "name": "penName",
+              "path": "path",
+              "unit": "Unit"
+            }
+          },
+          "options": {
+            "emptyMessage": "Select a counter row and click Submit to Chart on the Performance Counters tab.",
+            "showLegend": true,
+            "showQualityBands": true,
+            "style": {
+              "backgroundColor": "#ffffff",
+              "border": "1px solid #ededed",
+              "borderRadius": "8px",
+              "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)"
+            },
+            "penColors": ["#00bcff", "#89d329", "#10384f"],
+            "gridColor": "#ededed",
+            "axisColor": "#64748b"
+          },
+          "dataKeys": ["selectedCounterRow", "selectedPath"]
+        },
+        {
+          "id": "hm-chart-meta",
+          "type": "text",
+          "captionBar": false,
+          "text": "",
+          "layout": { "x": 0, "y": 40, "w": 96, "h": 4, "static": true },
+          "dataSource": {
+            "type": "derived",
+            "from": "hm-chart",
+            "template": "Pen: {{penName}} | Path: {{path}} | Range: 1 day | Intervals: T/V/Q"
+          },
+          "options": {
+            "style": {
+              "fontSize": "11px",
+              "color": "#64748b",
+              "padding": "8px 16px",
+              "backgroundColor": "#f8fafc",
+              "borderRadius": "0 0 8px 8px"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
