@@ -25,8 +25,8 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** that ac
 
 ## Current Phase
 
-**UI Parity — UP-02 complete (awaiting review).**  
-Overview compilation in `compilations/`. Mark UP-02 **Green** to unlock **UP-03**.
+**UI Parity — UP-03 complete (awaiting review).**  
+Property panel in `compilations/bayer-health-monitor-properties.json`. Mark UP-03 **Green** to unlock **UP-04**.
 
 ## Task Groups (see `docs/PROJECT_PLAN.md`)
 

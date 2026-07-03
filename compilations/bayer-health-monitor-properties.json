@@ -1,0 +1,121 @@
+{
+  "version": "1",
+  "name": "bayer-health-monitor-properties",
+  "description": "UP-03 Properties tab — fetchObjProps panel. Merge below Overview section in full compilation.",
+  "options": {
+    "background": { "style": { "backgroundColor": "#ffffff" } },
+    "numberOfColumns": 96,
+    "numberOfRows": { "type": "count", "value": 48 }
+  },
+  "widgets": [
+    {
+      "id": "hm-detail-tabs",
+      "type": "tabs",
+      "captionBar": false,
+      "layout": { "x": 0, "y": 0, "w": 96, "h": 48, "static": true },
+      "options": {
+        "tabBarStyle": {
+          "backgroundColor": "#10384f",
+          "color": "#ffffff",
+          "fontSize": "13px",
+          "fontWeight": "600",
+          "activeIndicatorColor": "#89d329",
+          "activeIndicatorHeight": "3px"
+        }
+      },
+      "tabs": [
+        {
+          "id": "tab-properties",
+          "title": "Properties",
+          "compilation": {
+            "version": "1",
+            "options": {
+              "numberOfColumns": 96,
+              "numberOfRows": { "type": "count", "value": 44 }
+            },
+            "widgets": [
+              {
+                "id": "hm-props-panel",
+                "type": "form",
+                "captionBar": true,
+                "label": "Selected object",
+                "layout": { "x": 0, "y": 0, "w": 96, "h": 44, "static": true },
+                "dataSource": {
+                  "type": "function",
+                  "lib": "HealthMonitor",
+                  "func": "fetchObjProps",
+                  "ctx": "bayerhm"
+                },
+                "entries": [
+                  { "id": "ObjectName", "label": "ObjectName", "type": "readonly", "field": "ObjectName" },
+                  { "id": "Type", "label": "Type", "type": "readonly", "field": "Type" },
+                  { "id": "ObjectID", "label": "ObjectID", "type": "readonly", "field": "ObjectID" },
+                  { "id": "ObjectIDExtended", "label": "ObjectIDExtended", "type": "readonly", "field": "ObjectIDExtended" },
+                  { "id": "Path", "label": "Path", "type": "readonly", "field": "Path", "wrap": true },
+                  { "id": "ConfigVersion", "label": "ConfigVersion", "type": "readonly", "field": "ConfigVersion" },
+                  { "id": "ClassVersion", "label": "ClassVersion", "type": "readonly", "field": "ClassVersion" },
+                  { "id": "Created", "label": "Created", "type": "readonly", "field": "Created" },
+                  { "id": "Modified", "label": "Modified", "type": "readonly", "field": "Modified" },
+                  {
+                    "id": "State",
+                    "label": "State",
+                    "type": "readonly",
+                    "field": "State",
+                    "wrap": true,
+                    "monospace": true,
+                    "showSegmentBreakdown": true
+                  },
+                  { "id": "Image", "label": "Image", "type": "readonly", "field": "Image" },
+                  { "id": "access", "label": "access", "type": "readonly", "field": "access", "hiddenWhenEmpty": true }
+                ],
+                "options": {
+                  "readOnly": true,
+                  "showToolbar": false,
+                  "layout": "twoColumn",
+                  "labelWidth": "35%",
+                  "emptyMessage": "Select an object in Overview to view properties.",
+                  "respectAccessField": true,
+                  "style": {
+                    "backgroundColor": "#ffffff",
+                    "border": "1px solid #ededed",
+                    "borderRadius": "8px",
+                    "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)",
+                    "padding": "16px",
+                    "fontSize": "12px",
+                    "labelColor": "#64748b",
+                    "valueColor": "#10384f"
+                  },
+                  "fieldStyles": {
+                    "State": {
+                      "fontFamily": "Consolas, monospace",
+                      "fontSize": "11px",
+                      "whiteSpace": "pre-wrap",
+                      "wordBreak": "break-all",
+                      "backgroundColor": "#f8fafc",
+                      "padding": "8px",
+                      "borderRadius": "4px"
+                    },
+                    "Path": {
+                      "fontSize": "11px",
+                      "wordBreak": "break-all"
+                    }
+                  },
+                  "stateRowAccent": {
+                    "contains": {
+                      "COMM_ERROR": { "backgroundColor": "#f1d4d4" },
+                      "STATE_ERROR": { "backgroundColor": "#f1d4d4" },
+                      "OBJ_DISABLED": { "backgroundColor": "#e2e8f0" },
+                      "COMM_GOOD": { "backgroundColor": "#d4f1d4" }
+                    },
+                    "applyToField": "State"
+                  }
+                },
+                "dataKeys": ["selectedPath"]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
