@@ -248,7 +248,7 @@ When comparing default vs custom UI:
 |------|-------|-------|
 | Live response snapshots per function | AR-02 / UP phase | Attach JSON samples when connected to target inmation host |
 | Final ctx/lib/func identifiers | WR-01 | Deployment URL parameters |
-| DC-02 display policy | DC-02 | Formatting rules for state strings (display-only) |
+| DC-02 display policy | DC-02 | Done → [DC-02-source-state-display-policy.md](./DC-02-source-state-display-policy.md) |
 
 ---
 

@@ -25,8 +25,8 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** that ac
 
 ## Current Phase
 
-**Discovery Contracts — DC-01 complete (awaiting review).**  
-Source contracts frozen in `docs/source-contracts/DC-01-source-contracts.md`. Next: approve DC-01 Green in Obsidian, then DC-02 and AR-01 unlock.
+**Discovery Contracts — DC-02 complete (awaiting review).**  
+DC-01 + DC-02 frozen in `docs/source-contracts/`. Mark DC-02 **Green** in Obsidian to unlock AR-02.
 
 ## Task Groups (see `docs/PROJECT_PLAN.md`)
 
@@ -42,7 +42,8 @@ Source contracts frozen in `docs/source-contracts/DC-01-source-contracts.md`. Ne
 1. ~~Connect local project to GitHub~~ ✓ (2026-07-03)
 2. ~~Initialize Kanvas workflow~~ ✓ (2026-07-03)
 3. ~~Define project plan on `Project.canvas`~~ ✓ (2026-07-03)
-4. ~~DC-01 Freeze source contracts~~ ✓ (2026-07-03) — **mark Green in Obsidian to unlock DC-02**
+4. ~~DC-01 Freeze source contracts~~ ✓ (2026-07-03)
+5. ~~DC-02 Source-state display policy~~ ✓ (2026-07-03) — **mark Green in Obsidian to unlock AR-02**
 5. Implement health monitor features (UI Parity phase)
 6. Deploy / integrate with inmation Webstudio
 

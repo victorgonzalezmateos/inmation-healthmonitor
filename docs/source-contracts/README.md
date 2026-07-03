@@ -5,6 +5,7 @@ Frozen backend source documentation for the Bayer Health Monitor Webstudio app.
 | Document | Task | Status |
 |----------|------|--------|
 | [DC-01-source-contracts.md](./DC-01-source-contracts.md) | DC-01 Freeze captured Health Monitor source contracts | Frozen 2026-07-03 |
+| [DC-02-source-state-display-policy.md](./DC-02-source-state-display-policy.md) | DC-02 Define source-state display policy | Frozen 2026-07-03 |
 
 ## Functions covered
 
@@ -21,5 +22,5 @@ Frozen backend source documentation for the Bayer Health Monitor Webstudio app.
 
 ## Next
 
-- **DC-02** — Define source-state display policy (formatting without transformation)
-- **AR-02** — Map UI components to these sources; capture live JSON snapshots when connected
+- **AR-02** — Map UI components to sources; apply this display policy in components
+- **UP-01** — Bayer visual tokens (`#10384F`, `#d4f1d4`, `#f1d4d4`, etc.)

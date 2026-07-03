@@ -18,13 +18,14 @@
 | **Phase** | DC-01 complete (cyan, awaiting human Green) |
 
 ### Board status
-- **DC-01** — Cyan (ready for review): source contracts in `docs/source-contracts/DC-01-source-contracts.md`
-- **DC-02, AR-01, AR-02** — Purple (blocked until DC-01 marked Green)
-- Next after Green: approve and start DC-02 or AR-01
+- **DC-01** — Green (done)
+- **DC-02** — Cyan (ready for review): `docs/source-contracts/DC-02-source-state-display-policy.md`
+- **AR-02** — Purple (blocked until DC-02 Green)
+- **AR-01** — available if approved (depends only on DC-01)
 
 ### Not yet done
-- [ ] Mark DC-01 Green in Obsidian
-- [ ] DC-02 Define source-state display policy
+- [ ] Mark DC-02 Green in Obsidian
+- [ ] AR-01 / AR-02 architecture work
 - [ ] `npm install` and verify `npm run dev`
 - [ ] Implement health monitor features
 
@@ -122,7 +123,17 @@ npm run dev
 
 **Deliverable:** `docs/source-contracts/DC-01-source-contracts.md`
 
-**Next:** User marks DC-01 Green → unlocks DC-02, AR-01, AR-02.
+**Next:** User marks DC-02 Green → unlocks AR-02.
+
+---
+
+### 2026-07-03 — Session 4: DC-02 executed
+
+**Goal:** Define source-state display policy.
+
+**Deliverable:** `docs/source-contracts/DC-02-source-state-display-policy.md`
+
+**Next:** User marks DC-02 Green → unlocks AR-02.
 
 ---
 
