@@ -25,8 +25,8 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** that ac
 
 ## Current Phase
 
-**Discovery Contracts — DC-02 complete (awaiting review).**  
-DC-01 + DC-02 frozen in `docs/source-contracts/`. Mark DC-02 **Green** in Obsidian to unlock AR-02.
+**Architecture — AR-01 complete (awaiting review).**  
+Webstudio runtime design in `docs/architecture/`. Mark AR-01 **Green** in Obsidian to unlock AR-02.
 
 ## Task Groups (see `docs/PROJECT_PLAN.md`)
 

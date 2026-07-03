@@ -102,17 +102,17 @@
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "34ca4a04",
 			"type": "text",
-			"text": "## AR-01 Design Webstudio app runtime architecture\nPlan the custom Health Monitor as a Webstudio app using the same URL/auth pattern as default Health Monitor and PMM: /apps/webstudio with secp=iwa, ssl=true, and custom ctx/lib/func. Do not introduce custom login. Respect backend access fields.",
+			"text": "## AR-01 Design Webstudio app runtime architecture\nRuntime architecture in docs/architecture/AR-01-webstudio-runtime-architecture.md. Webstudio delivery via /apps/webstudio secp=iwa ssl=true; custom ctx/lib/func TBD in WR-01; Custom Properties compilation; reuse HM Lua fetch* layer; IWA only no custom login; respect access fields.",
 			"x": 460,
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "5"
 		},
 		{
 			"id": "d6a3b8fd",
@@ -122,7 +122,7 @@
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "0"
 		},
 		{
 			"id": "84d0d28b",
