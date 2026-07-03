@@ -4,53 +4,43 @@
 
 Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** that achieves **parity** with the default Health Monitor UI while applying the **PMM Bayer visual system**. The app must use existing backend sources only — no client-side health calculation, no state transformation, and no custom login (`secp=iwa`, `ssl=true`).
 
-## Key Features (planned)
+## Key Features (v1 — delivered)
 
-- [ ] Overview hierarchy — unhealthy sites/cores/connectors/datasources emphasized
-- [ ] Selected-object property panel (`fetchObjProps`)
-- [ ] Performance counters detail (`fetchPerformanceCountersTable`)
-- [ ] Chart drill-down parity (Submit to Chart behavior)
-- [ ] PMM Bayer visual system (dark blue nav, Bayer green accents, light theme)
-- [ ] Default-vs-custom parity validation checklist
-- [ ] Optional: logs integration (`fetchLogTable`) — post-v1
-- [ ] Optional: Bayer operational widgets — post-parity
+- [x] Overview hierarchy — unhealthy sites/cores/connectors/datasources emphasized
+- [x] Selected-object property panel (`fetchObjProps`)
+- [x] Performance counters detail (`fetchPerformanceCountersTable`)
+- [x] Chart drill-down parity (Submit to Chart behavior)
+- [x] PMM Bayer visual system (dark blue nav, Bayer green accents, light theme)
+- [x] Default-vs-custom parity validation checklist
+- [x] Audit-friendly behavior validation
+- [ ] Optional: logs integration (`fetchLogTable`) — **deferred v2** (PPE-01)
+- [ ] Optional: Bayer operational widgets — **planned v2** (PPE-02)
 
 ## Tech Stack
 
-- **Runtime:** inmation Webstudio (`/apps/webstudio`, custom ctx/lib/func — TBD in WR-01)
-- **Frontend:** React + Vite (scaffold in place)
-- **Data:** Existing Health Monitor sources (no duplicated monitoring logic)
+- **Runtime:** inmation Webstudio (`ctx=bayerhm`, `lib=HealthMonitor`, `func=BayerHealthMonitorMain`)
+- **Host object:** `/System/Core/_Global Core Logic/Development/Smart Sentinel AI/Bayer Health Monitor`
+- **Compilation:** [`compilations/bayer-health-monitor-full.json`](compilations/bayer-health-monitor-full.json)
 - **Workflow:** Kanvas + Obsidian Canvas (`Project.canvas`) + `canvas-tool.py`
 - **Repo:** [victorgonzalezmateos/inmation-healthmonitor](https://github.com/victorgonzalezmateos/inmation-healthmonitor)
 
 ## Current Phase
 
-**Validation complete — VA-02 awaiting review.**  
-Audit checklist in `docs/validation/VA-02-audit-friendly-behavior.md`. Mark VA-02 **Green** to unlock **PPE-01** / **PPE-02**.
+**v1 plan complete — all 14 canvas tasks delivered.**  
+Mark PPE-01 / PPE-02 **Green** in Obsidian to close the board. Next: live test on inmation host + VA-01 walkthrough.
 
-## Task Groups (see `docs/PROJECT_PLAN.md`)
+## Milestones
 
-1. Discovery Contracts (DC-01, DC-02)
-2. Architecture (AR-01, AR-02)
-3. UI Parity (UP-01 → UP-05)
-4. Webstudio Runtime (WR-01)
-5. Validation (VA-01, VA-02)
-6. Post Parity Enhancements (PPE-01, PPE-02)
-
-## Important Milestones
-
-1. ~~Connect local project to GitHub~~ ✓ (2026-07-03)
-2. ~~Initialize Kanvas workflow~~ ✓ (2026-07-03)
-3. ~~Define project plan on `Project.canvas`~~ ✓ (2026-07-03)
-4. ~~DC-01 Freeze source contracts~~ ✓ (2026-07-03)
-5. ~~DC-02 Source-state display policy~~ ✓ (2026-07-03) — **mark Green in Obsidian to unlock AR-02**
-5. Implement health monitor features (UI Parity phase)
-6. Deploy / integrate with inmation Webstudio
+1. ~~Discovery Contracts (DC-01, DC-02)~~ ✓
+2. ~~Architecture (AR-01, AR-02)~~ ✓
+3. ~~UI Parity (UP-01 → UP-05)~~ ✓
+4. ~~Webstudio Runtime (WR-01)~~ ✓
+5. ~~Validation (VA-01, VA-02)~~ ✓
+6. ~~Post-parity plans (PPE-01, PPE-02)~~ ✓
+7. **Live publish & parity test** ← current
 
 ## Notes for Future Sessions
 
 - Session history: [`.cursor/SESSION_LOG.md`](.cursor/SESSION_LOG.md)
-- Human workflow: [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)
-- Agent workflow: [`AGENTS.md`](AGENTS.md)
-- Kanvas init (if needed): `python "..\Kanvas\canvas-tool.py" init .`
-- App dev: `npm install` then `npm run dev`
+- Webstudio insert: [`compilations/WEBSTUDIO-INSERT.md`](compilations/WEBSTUDIO-INSERT.md)
+- Post-parity v2: [`docs/post-parity/`](docs/post-parity/)

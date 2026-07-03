@@ -1,342 +1,45 @@
 {
-	"nodes": [
-		{
-			"id": "group-uipari",
-			"type": "group",
-			"x": 880,
-			"y": 0,
-			"width": 380,
-			"height": 940,
-			"label": "UI Parity"
-		},
-		{
-			"id": "group-discov",
-			"type": "group",
-			"x": 0,
-			"y": 0,
-			"width": 380,
-			"height": 700,
-			"label": "Discovery Contracts"
-		},
-		{
-			"id": "group-archit",
-			"type": "group",
-			"x": 440,
-			"y": 0,
-			"width": 380,
-			"height": 700,
-			"label": "Architecture"
-		},
-		{
-			"id": "group-webstu",
-			"type": "group",
-			"x": 1320,
-			"y": 0,
-			"width": 380,
-			"height": 700,
-			"label": "Webstudio Runtime"
-		},
-		{
-			"id": "group-valida",
-			"type": "group",
-			"x": 1760,
-			"y": 0,
-			"width": 380,
-			"height": 700,
-			"label": "Validation"
-		},
-		{
-			"id": "group-postpa",
-			"type": "group",
-			"x": 2200,
-			"y": 0,
-			"width": 380,
-			"height": 700,
-			"label": "Post Parity Enhancements"
-		},
-		{
-			"id": "canvas-errors",
-			"type": "text",
-			"text": "## Errors\n✓ None",
-			"x": -540,
-			"y": -750,
-			"width": 380,
-			"height": 200,
-			"color": "1"
-		},
-		{
-			"id": "legend",
-			"type": "text",
-			"text": "## Legend\n🔴 **Red** = To Do (ready)\n⬜ **Gray** = Blocked\n🟠 **Orange** = Doing\n🔵 **Cyan** = Ready to review\n🟢 **Green** = Done\n🟣 **Purple** = Proposed by agent",
-			"x": -540,
-			"y": -310,
-			"width": 380,
-			"height": 230,
-			"color": "0"
-		},
-		{
-			"id": "canvas-warnings",
-			"type": "text",
-			"text": "## Warnings\n✓ None",
-			"x": -540,
-			"y": -530,
-			"width": 380,
-			"height": 200,
-			"color": "3"
-		},
-		{
-			"id": "0d37e5f1",
-			"type": "text",
-			"text": "## DC-01 Freeze captured Health Monitor source contracts\nFrozen source contracts in docs/source-contracts/DC-01-source-contracts.md. Covers dashboard_compilation, ProcessState, fetchNavigationTree, fetchNavigationTable, fetchObjProps, fetchPerformanceCountersTable, chart calls (createtrend/createtrendpen/readhistoricaldata). fetchLogTable marked optional for v1. Raw field names and state values preserved.",
-			"x": 20,
-			"y": 40,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "93902c3f",
-			"type": "text",
-			"text": "## DC-02 Define source-state display policy\nDisplay policy in docs/source-contracts/DC-02-source-state-display-policy.md. ProcessState verbatim; CommState/ObjectState/WorstState exact text with Bayer color-by-value; compound State full string plus optional pipe segment breakdown; collapse on WorstState===Good only. No semantic transformation.",
-			"x": 20,
-			"y": 220,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "34ca4a04",
-			"type": "text",
-			"text": "## AR-01 Design Webstudio app runtime architecture\nRuntime architecture in docs/architecture/AR-01-webstudio-runtime-architecture.md. Webstudio delivery via /apps/webstudio secp=iwa ssl=true; custom ctx/lib/func TBD in WR-01; Custom Properties compilation; reuse HM Lua fetch* layer; IWA only no custom login; respect access fields.",
-			"x": 460,
-			"y": 40,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "d6a3b8fd",
-			"type": "text",
-			"text": "## AR-02 Design data wiring and component boundaries\nData wiring in docs/architecture/AR-02-data-wiring-and-components.md. Widget catalog hm-process-state through hm-chart mapped to ProcessState and fetch* sources; selection.path drives props/counters; chart chain createtrend→createtrendpen→readhistoricaldata; fetchLogTable deferred v1.",
-			"x": 460,
-			"y": 220,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "84d0d28b",
-			"type": "text",
-			"text": "## UP-01 Design PMM Bayer visual system for Health Monitor\nPMM Bayer visual system in docs/ui/UP-01-pmm-bayer-visual-system.md + design-tokens.json. Light theme, #10384f nav, #89d329 active, white panels, compact tables, DC-02 state colors, lowercase hex for PMM validation.",
-			"x": 900,
-			"y": 40,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "4201ff89",
-			"type": "text",
-			"text": "## UP-02 Implement Overview hierarchy parity\nOverview in compilations/bayer-health-monitor-overview.json + docs/ui/UP-02-overview-hierarchy.md. hm-nav-tree + hm-overview-table wired to fetchNavigationTree/Table; DC-02 collapse on WorstState===Good; unhealthy emphasis; Bayer UP-01 styles.",
-			"x": 900,
-			"y": 220,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "9322344e",
-			"type": "text",
-			"text": "## UP-03 Implement selected-object property panel parity\nProperties in compilations/bayer-health-monitor-properties.json + docs/ui/UP-03-properties-panel.md. hm-props-panel fetchObjProps all DC-01 fields; State compound verbatim + optional segment breakdown; access respected; UP-01 styles.",
-			"x": 900,
-			"y": 400,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "4dbc4e5a",
-			"type": "text",
-			"text": "## UP-04 Implement performance counters detail parity\nCounters in compilations/bayer-health-monitor-counters.json + docs/ui/UP-04-performance-counters.md. hm-counters-table fetchPerformanceCountersTable; cList expand; healthy vs bad datasource; Submit to Chart button; all DC-01 fields preserved.",
-			"x": 900,
-			"y": 580,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "c61a2a2c",
-			"type": "text",
-			"text": "## UP-05 Implement chart drill-down parity\nChart in compilations/bayer-health-monitor-chart.json + docs/ui/UP-05-chart-drill-down.md. hm-chart chain createtrend→createtrendpen→readhistoricaldata; 1d range; T/V/Q intervals; pens from selectedCounterRow only.",
-			"x": 900,
-			"y": 760,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "c0a5c610",
-			"type": "text",
-			"text": "## WR-01 Define deployment identifiers\nDeployment IDs in docs/deployment/WR-01-deployment-identifiers.md. ctx=bayerhm lib=HealthMonitor func=BayerHealthMonitorMain; dashboard name Bayer Health Monitor; secp=iwa ssl=true URL templates; reuse HM Lua lib.",
-			"x": 1340,
-			"y": 40,
-			"width": 280,
-			"height": 340,
-			"color": "4"
-		},
-		{
-			"id": "ce7a166a",
-			"type": "text",
-			"text": "## VA-01 Create default-vs-custom parity checklist\nParity checklist in docs/validation/VA-01-parity-checklist.md. Sections: hierarchy, states Good/Bad/Empty/Disabled/Neutral, properties, counters healthy+bad, chart pens 1d T/V/Q, ProcessState; sign-off and failure log.",
-			"x": 1780,
-			"y": 40,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "7589dced",
-			"type": "text",
-			"text": "## VA-02 Validate audit-friendly behavior\nAudit validation in docs/validation/VA-02-audit-friendly-behavior.md. Static repo audit PASS on compilations; no client health calc, no state transform, no custom login, HM lib only; runtime checklist F/R sections; data lineage matrix.",
-			"x": 1780,
-			"y": 220,
-			"width": 280,
-			"height": 160,
-			"color": "5"
-		},
-		{
-			"id": "eb483b7b",
-			"type": "text",
-			"text": "## PPE-01 Plan optional logs integration\nDecide whether fetchLogTable belongs in version 1 or later. If included, capture healthy and bad log examples and add a logs tab/detail panel without changing health logic.",
-			"x": 2220,
-			"y": 40,
-			"width": 280,
-			"height": 160,
-			"color": "6"
-		},
-		{
-			"id": "a3d5c056",
-			"type": "text",
-			"text": "## PPE-02 Plan Bayer-specific operational widgets\nAfter parity is proven, define optional widgets such as unhealthy-first summary, site/core filters, collapsed healthy branch counts, quick links to counters/logs/properties, and operator notes. Widgets may organize/filter source data but must not calculate health.",
-			"x": 2220,
-			"y": 220,
-			"width": 280,
-			"height": 160,
-			"color": "6"
-		}
+	"nodes":[
+		{"id":"group-uipari","type":"group","x":880,"y":0,"width":380,"height":940,"label":"UI Parity"},
+		{"id":"group-discov","type":"group","x":0,"y":0,"width":380,"height":700,"label":"Discovery Contracts"},
+		{"id":"group-archit","type":"group","x":440,"y":0,"width":380,"height":700,"label":"Architecture"},
+		{"id":"group-webstu","type":"group","x":1320,"y":0,"width":380,"height":700,"label":"Webstudio Runtime"},
+		{"id":"group-valida","type":"group","x":1760,"y":0,"width":380,"height":700,"label":"Validation"},
+		{"id":"group-postpa","type":"group","x":2200,"y":0,"width":380,"height":700,"label":"Post Parity Enhancements"},
+		{"id":"canvas-errors","type":"text","text":"## Errors\n✓ None","x":-540,"y":-750,"width":380,"height":200,"color":"1"},
+		{"id":"legend","type":"text","text":"## Legend\n🔴 **Red** = To Do (ready)\n⬜ **Gray** = Blocked\n🟠 **Orange** = Doing\n🔵 **Cyan** = Ready to review\n🟢 **Green** = Done\n🟣 **Purple** = Proposed by agent","x":-540,"y":-310,"width":380,"height":230,"color":"0"},
+		{"id":"canvas-warnings","type":"text","text":"## Warnings\n✓ None","x":-540,"y":-530,"width":380,"height":200,"color":"3"},
+		{"id":"0d37e5f1","type":"text","text":"## DC-01 Freeze captured Health Monitor source contracts\nFrozen source contracts in docs/source-contracts/DC-01-source-contracts.md. Covers dashboard_compilation, ProcessState, fetchNavigationTree, fetchNavigationTable, fetchObjProps, fetchPerformanceCountersTable, chart calls (createtrend/createtrendpen/readhistoricaldata). fetchLogTable marked optional for v1. Raw field names and state values preserved.","x":20,"y":40,"width":280,"height":160,"color":"4"},
+		{"id":"93902c3f","type":"text","text":"## DC-02 Define source-state display policy\nDisplay policy in docs/source-contracts/DC-02-source-state-display-policy.md. ProcessState verbatim; CommState/ObjectState/WorstState exact text with Bayer color-by-value; compound State full string plus optional pipe segment breakdown; collapse on WorstState===Good only. No semantic transformation.","x":20,"y":220,"width":280,"height":160,"color":"4"},
+		{"id":"34ca4a04","type":"text","text":"## AR-01 Design Webstudio app runtime architecture\nRuntime architecture in docs/architecture/AR-01-webstudio-runtime-architecture.md. Webstudio delivery via /apps/webstudio secp=iwa ssl=true; custom ctx/lib/func TBD in WR-01; Custom Properties compilation; reuse HM Lua fetch* layer; IWA only no custom login; respect access fields.","x":460,"y":40,"width":280,"height":160,"color":"4"},
+		{"id":"d6a3b8fd","type":"text","text":"## AR-02 Design data wiring and component boundaries\nData wiring in docs/architecture/AR-02-data-wiring-and-components.md. Widget catalog hm-process-state through hm-chart mapped to ProcessState and fetch* sources; selection.path drives props/counters; chart chain createtrend→createtrendpen→readhistoricaldata; fetchLogTable deferred v1.","x":460,"y":220,"width":280,"height":160,"color":"4"},
+		{"id":"84d0d28b","type":"text","text":"## UP-01 Design PMM Bayer visual system for Health Monitor\nPMM Bayer visual system in docs/ui/UP-01-pmm-bayer-visual-system.md + design-tokens.json. Light theme, #10384f nav, #89d329 active, white panels, compact tables, DC-02 state colors, lowercase hex for PMM validation.","x":900,"y":40,"width":280,"height":160,"color":"4"},
+		{"id":"4201ff89","type":"text","text":"## UP-02 Implement Overview hierarchy parity\nOverview in compilations/bayer-health-monitor-overview.json + docs/ui/UP-02-overview-hierarchy.md. hm-nav-tree + hm-overview-table wired to fetchNavigationTree/Table; DC-02 collapse on WorstState===Good; unhealthy emphasis; Bayer UP-01 styles.","x":900,"y":220,"width":280,"height":160,"color":"4"},
+		{"id":"9322344e","type":"text","text":"## UP-03 Implement selected-object property panel parity\nProperties in compilations/bayer-health-monitor-properties.json + docs/ui/UP-03-properties-panel.md. hm-props-panel fetchObjProps all DC-01 fields; State compound verbatim + optional segment breakdown; access respected; UP-01 styles.","x":900,"y":400,"width":280,"height":160,"color":"4"},
+		{"id":"4dbc4e5a","type":"text","text":"## UP-04 Implement performance counters detail parity\nCounters in compilations/bayer-health-monitor-counters.json + docs/ui/UP-04-performance-counters.md. hm-counters-table fetchPerformanceCountersTable; cList expand; healthy vs bad datasource; Submit to Chart button; all DC-01 fields preserved.","x":900,"y":580,"width":280,"height":160,"color":"4"},
+		{"id":"c61a2a2c","type":"text","text":"## UP-05 Implement chart drill-down parity\nChart in compilations/bayer-health-monitor-chart.json + docs/ui/UP-05-chart-drill-down.md. hm-chart chain createtrend→createtrendpen→readhistoricaldata; 1d range; T/V/Q intervals; pens from selectedCounterRow only.","x":900,"y":760,"width":280,"height":160,"color":"4"},
+		{"id":"c0a5c610","type":"text","text":"## WR-01 Define deployment identifiers\nDeployment IDs in docs/deployment/WR-01-deployment-identifiers.md. ctx=bayerhm lib=HealthMonitor func=BayerHealthMonitorMain; dashboard name Bayer Health Monitor; secp=iwa ssl=true URL templates; reuse HM Lua lib.","x":1340,"y":40,"width":280,"height":340,"color":"4"},
+		{"id":"ce7a166a","type":"text","text":"## VA-01 Create default-vs-custom parity checklist\nParity checklist in docs/validation/VA-01-parity-checklist.md. Sections: hierarchy, states Good/Bad/Empty/Disabled/Neutral, properties, counters healthy+bad, chart pens 1d T/V/Q, ProcessState; sign-off and failure log.","x":1780,"y":40,"width":280,"height":160,"color":"4"},
+		{"id":"7589dced","type":"text","text":"## VA-02 Validate audit-friendly behavior\nAudit validation in docs/validation/VA-02-audit-friendly-behavior.md. Static repo audit PASS on compilations; no client health calc, no state transform, no custom login, HM lib only; runtime checklist F/R sections; data lineage matrix.","x":1780,"y":220,"width":280,"height":160,"color":"4"},
+		{"id":"eb483b7b","type":"text","text":"## PPE-01 Plan optional logs integration\nPlan in docs/post-parity/PPE-01-logs-integration-plan.md. Decision: defer fetchLogTable to v2; capture requirements for healthy/bad samples; hm-logs-table sketch for future tab.","x":2220,"y":40,"width":280,"height":160,"color":"4"},
+		{"id":"a3d5c056","type":"text","text":"## PPE-02 Plan Bayer-specific operational widgets\nPlan in docs/post-parity/PPE-02-operational-widgets-plan.md. v2 widgets: unhealthy summary, site/core filters, collapse counts, quick links; organize/filter only no health calc.","x":2220,"y":220,"width":280,"height":160,"color":"5"}
 	],
-	"edges": [
-		{
-			"id": "edge-001",
-			"fromNode": "0d37e5f1",
-			"fromSide": "bottom",
-			"toNode": "93902c3f",
-			"toSide": "top"
-		},
-		{
-			"id": "edge-002",
-			"fromNode": "0d37e5f1",
-			"fromSide": "right",
-			"toNode": "34ca4a04",
-			"toSide": "left"
-		},
-		{
-			"id": "edge-003",
-			"fromNode": "0d37e5f1",
-			"fromSide": "bottom",
-			"toNode": "d6a3b8fd",
-			"toSide": "top"
-		},
-		{
-			"id": "edge-004",
-			"fromNode": "93902c3f",
-			"fromSide": "right",
-			"toNode": "d6a3b8fd",
-			"toSide": "left"
-		},
-		{
-			"id": "edge-005",
-			"fromNode": "34ca4a04",
-			"fromSide": "bottom",
-			"toNode": "d6a3b8fd",
-			"toSide": "top"
-		},
-		{
-			"id": "edge-006",
-			"fromNode": "d6a3b8fd",
-			"fromSide": "right",
-			"toNode": "84d0d28b",
-			"toSide": "left"
-		},
-		{
-			"id": "edge-007",
-			"fromNode": "84d0d28b",
-			"fromSide": "bottom",
-			"toNode": "4201ff89",
-			"toSide": "top"
-		},
-		{
-			"id": "edge-008",
-			"fromNode": "4201ff89",
-			"fromSide": "bottom",
-			"toNode": "9322344e",
-			"toSide": "top"
-		},
-		{
-			"id": "edge-009",
-			"fromNode": "9322344e",
-			"fromSide": "bottom",
-			"toNode": "4dbc4e5a",
-			"toSide": "top"
-		},
-		{
-			"id": "edge-010",
-			"fromNode": "4dbc4e5a",
-			"fromSide": "bottom",
-			"toNode": "c61a2a2c",
-			"toSide": "top"
-		},
-		{
-			"id": "edge-011",
-			"fromNode": "34ca4a04",
-			"fromSide": "right",
-			"toNode": "c0a5c610",
-			"toSide": "left"
-		},
-		{
-			"id": "edge-012",
-			"fromNode": "c61a2a2c",
-			"fromSide": "right",
-			"toNode": "ce7a166a",
-			"toSide": "left"
-		},
-		{
-			"id": "edge-013",
-			"fromNode": "c0a5c610",
-			"fromSide": "right",
-			"toNode": "ce7a166a",
-			"toSide": "left"
-		},
-		{
-			"id": "edge-014",
-			"fromNode": "ce7a166a",
-			"fromSide": "bottom",
-			"toNode": "7589dced",
-			"toSide": "top"
-		},
-		{
-			"id": "edge-015",
-			"fromNode": "7589dced",
-			"fromSide": "right",
-			"toNode": "eb483b7b",
-			"toSide": "left"
-		},
-		{
-			"id": "edge-016",
-			"fromNode": "7589dced",
-			"fromSide": "right",
-			"toNode": "a3d5c056",
-			"toSide": "left"
-		}
+	"edges":[
+		{"id":"edge-001","fromNode":"0d37e5f1","fromSide":"bottom","toNode":"93902c3f","toSide":"top"},
+		{"id":"edge-002","fromNode":"0d37e5f1","fromSide":"right","toNode":"34ca4a04","toSide":"left"},
+		{"id":"edge-003","fromNode":"0d37e5f1","fromSide":"bottom","toNode":"d6a3b8fd","toSide":"top"},
+		{"id":"edge-004","fromNode":"93902c3f","fromSide":"right","toNode":"d6a3b8fd","toSide":"left"},
+		{"id":"edge-005","fromNode":"34ca4a04","fromSide":"bottom","toNode":"d6a3b8fd","toSide":"top"},
+		{"id":"edge-006","fromNode":"d6a3b8fd","fromSide":"right","toNode":"84d0d28b","toSide":"left"},
+		{"id":"edge-007","fromNode":"84d0d28b","fromSide":"bottom","toNode":"4201ff89","toSide":"top"},
+		{"id":"edge-008","fromNode":"4201ff89","fromSide":"bottom","toNode":"9322344e","toSide":"top"},
+		{"id":"edge-009","fromNode":"9322344e","fromSide":"bottom","toNode":"4dbc4e5a","toSide":"top"},
+		{"id":"edge-010","fromNode":"4dbc4e5a","fromSide":"bottom","toNode":"c61a2a2c","toSide":"top"},
+		{"id":"edge-011","fromNode":"34ca4a04","fromSide":"right","toNode":"c0a5c610","toSide":"left"},
+		{"id":"edge-012","fromNode":"c61a2a2c","fromSide":"right","toNode":"ce7a166a","toSide":"left"},
+		{"id":"edge-013","fromNode":"c0a5c610","fromSide":"right","toNode":"ce7a166a","toSide":"left"},
+		{"id":"edge-014","fromNode":"ce7a166a","fromSide":"bottom","toNode":"7589dced","toSide":"top"},
+		{"id":"edge-015","fromNode":"7589dced","fromSide":"right","toNode":"eb483b7b","toSide":"left"},
+		{"id":"edge-016","fromNode":"7589dced","fromSide":"right","toNode":"a3d5c056","toSide":"left"}
 	]
 }
