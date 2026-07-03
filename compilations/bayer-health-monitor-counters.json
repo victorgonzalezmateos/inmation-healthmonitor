@@ -1,0 +1,101 @@
+{
+  "version": "1",
+  "name": "bayer-health-monitor-counters",
+  "description": "UP-04 Counters tab — fetchPerformanceCountersTable. Add as tab in hm-detail-tabs alongside Properties.",
+  "tab": {
+    "id": "tab-counters",
+    "title": "Performance Counters",
+    "compilation": {
+      "version": "1",
+      "options": {
+        "numberOfColumns": 96,
+        "numberOfRows": { "type": "count", "value": 44 }
+      },
+      "widgets": [
+        {
+          "id": "hm-counters-table",
+          "type": "table",
+          "captionBar": true,
+          "label": "Performance counters",
+          "layout": { "x": 0, "y": 0, "w": 80, "h": 40, "static": true },
+          "dataSource": {
+            "type": "function",
+            "lib": "HealthMonitor",
+            "func": "fetchPerformanceCountersTable",
+            "ctx": "bayerhm"
+          },
+          "columns": [
+            { "field": "ObjectName", "label": "ObjectName", "width": "20%" },
+            { "field": "type", "label": "type", "width": "10%" },
+            { "field": "group", "label": "group", "width": "12%" },
+            { "field": "Value", "label": "Value", "width": "12%", "align": "right" },
+            { "field": "Unit", "label": "Unit", "width": "8%" },
+            { "field": "penName", "label": "penName", "width": "14%" },
+            { "field": "path", "label": "path", "width": "18%", "wrap": true },
+            { "field": "cList.exists", "label": "cList.exists", "width": "6%", "align": "center" }
+          ],
+          "options": {
+            "readOnly": true,
+            "compact": true,
+            "expandNested": {
+              "field": "cList",
+              "when": { "cList.exists": true }
+            },
+            "emptyMessage": "Select an object in Overview to view performance counters.",
+            "minimalRowsMessage": "Health calculation rows only (datasource unhealthy).",
+            "style": {
+              "backgroundColor": "#ffffff",
+              "border": "1px solid #ededed",
+              "borderRadius": "8px",
+              "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)",
+              "fontSize": "12px",
+              "headerBackground": "#f8fafc",
+              "headerColor": "#10384f",
+              "headerFontWeight": "600"
+            },
+            "valueColumnStyle": {
+              "Value": { "textAlign": "right", "fontVariantNumeric": "tabular-nums" },
+              "Unit": { "color": "#64748b" }
+            },
+            "selectedRowStyle": {
+              "outline": "2px solid #89d329"
+            }
+          },
+          "actions": {
+            "onRowSelect": [
+              { "id": "hm-submit-chart-btn", "type": "enable" }
+            ]
+          },
+          "dataKeys": ["selectedPath", "selectedCounterRow"]
+        },
+        {
+          "id": "hm-submit-chart-btn",
+          "type": "button",
+          "captionBar": false,
+          "label": "Submit to Chart",
+          "layout": { "x": 82, "y": 0, "w": 14, "h": 6, "static": true },
+          "options": {
+            "disabled": true,
+            "style": {
+              "backgroundColor": "#10384f",
+              "color": "#ffffff",
+              "fontSize": "13px",
+              "fontWeight": "bold",
+              "borderRadius": "4px",
+              "border": "none"
+            },
+            "hoverStyle": {
+              "backgroundColor": "#0f2d3f"
+            }
+          },
+          "actions": {
+            "onClick": [
+              { "id": "hm-chart", "type": "refresh" }
+            ]
+          },
+          "dataKeys": ["selectedCounterRow"]
+        }
+      ]
+    }
+  }
+}

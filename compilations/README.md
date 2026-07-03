@@ -4,6 +4,7 @@
 |------|------|-------------|
 | [bayer-health-monitor-overview.json](./bayer-health-monitor-overview.json) | UP-02 | Overview section: header, process state, nav tree, hierarchy table |
 | [bayer-health-monitor-properties.json](./bayer-health-monitor-properties.json) | UP-03 | Properties tab: `hm-props-panel` / `fetchObjProps` |
+| [bayer-health-monitor-counters.json](./bayer-health-monitor-counters.json) | UP-04 | Counters tab: `hm-counters-table` / `fetchPerformanceCountersTable` |
 
 Publish via Custom Properties (see [AR-01](../docs/architecture/AR-01-webstudio-runtime-architecture.md)).
 

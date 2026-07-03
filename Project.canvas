@@ -152,17 +152,17 @@
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "4dbc4e5a",
 			"type": "text",
-			"text": "## UP-04 Implement performance counters detail parity\nDisplay selected-object counters from fetchPerformanceCountersTable. Support healthy objects with many counters and cList, and bad datasources with only health calculation rows. Preserve fields such as ObjectName, type, group, Value, Unit, penName, path, and cList.exists.",
+			"text": "## UP-04 Implement performance counters detail parity\nCounters in compilations/bayer-health-monitor-counters.json + docs/ui/UP-04-performance-counters.md. hm-counters-table fetchPerformanceCountersTable; cList expand; healthy vs bad datasource; Submit to Chart button; all DC-01 fields preserved.",
 			"x": 900,
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "5"
 		},
 		{
 			"id": "c61a2a2c",
