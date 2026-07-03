@@ -1,24 +1,55 @@
-# Project Focus - inmation-healthmonitor
+# Project Focus — inmation-healthmonitor
 
 ## Project Goal
-[Add your project's main purpose and goals here]
 
-## Key Features
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
+Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** that achieves **parity** with the default Health Monitor UI while applying the **PMM Bayer visual system**. The app must use existing backend sources only — no client-side health calculation, no state transformation, and no custom login (`secp=iwa`, `ssl=true`).
+
+## Key Features (planned)
+
+- [ ] Overview hierarchy — unhealthy sites/cores/connectors/datasources emphasized
+- [ ] Selected-object property panel (`fetchObjProps`)
+- [ ] Performance counters detail (`fetchPerformanceCountersTable`)
+- [ ] Chart drill-down parity (Submit to Chart behavior)
+- [ ] PMM Bayer visual system (dark blue nav, Bayer green accents, light theme)
+- [ ] Default-vs-custom parity validation checklist
+- [ ] Optional: logs integration (`fetchLogTable`) — post-v1
+- [ ] Optional: Bayer operational widgets — post-parity
 
 ## Tech Stack
-- Node.js/React/JavaScript
-- [Add your specific tools/libraries]
+
+- **Runtime:** inmation Webstudio (`/apps/webstudio`, custom ctx/lib/func — TBD in WR-01)
+- **Frontend:** React + Vite (scaffold in place)
+- **Data:** Existing Health Monitor sources (no duplicated monitoring logic)
+- **Workflow:** Kanvas + Obsidian Canvas (`Project.canvas`) + `canvas-tool.py`
+- **Repo:** [victorgonzalezmateos/inmation-healthmonitor](https://github.com/victorgonzalezmateos/inmation-healthmonitor)
 
 ## Current Phase
-[Planning/Development/Testing/Deployment]
+
+**Planning complete — ready to execute.**  
+14 tasks defined on `Project.canvas` across 6 groups. All tasks are Purple (proposed). Awaiting human approval of **DC-01** in Obsidian before agent work begins.
+
+## Task Groups (see `docs/PROJECT_PLAN.md`)
+
+1. Discovery Contracts (DC-01, DC-02)
+2. Architecture (AR-01, AR-02)
+3. UI Parity (UP-01 → UP-05)
+4. Webstudio Runtime (WR-01)
+5. Validation (VA-01, VA-02)
+6. Post Parity Enhancements (PPE-01, PPE-02)
 
 ## Important Milestones
-1. [Milestone 1]
-2. [Milestone 2]
-3. [Milestone 3]
+
+1. ~~Connect local project to GitHub~~ ✓ (2026-07-03)
+2. ~~Initialize Kanvas workflow~~ ✓ (2026-07-03)
+3. ~~Define project plan on `Project.canvas`~~ ✓ (2026-07-03)
+4. **Approve DC-01 and begin Discovery Contracts** ← current
+5. Implement health monitor features (UI Parity phase)
+6. Deploy / integrate with inmation Webstudio
 
 ## Notes for Future Sessions
-[Quick notes to help you jump back in]
+
+- Session history: [`.cursor/SESSION_LOG.md`](.cursor/SESSION_LOG.md)
+- Human workflow: [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)
+- Agent workflow: [`AGENTS.md`](AGENTS.md)
+- Kanvas init (if needed): `python "..\Kanvas\canvas-tool.py" init .`
+- App dev: `npm install` then `npm run dev`

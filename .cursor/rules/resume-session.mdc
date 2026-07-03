@@ -1,0 +1,25 @@
+---
+description: Resume multi-day project sessions — read session log before asking setup questions
+alwaysApply: true
+---
+
+# Session Resume Protocol
+
+This is a **multi-day project**. Do not ask the user to re-explain environment setup.
+
+## At the start of every session
+
+1. Read `.cursor/SESSION_LOG.md` — especially **Current State** and the latest **Session History** entry.
+2. Read `focus.md` for project goals and phase.
+3. If using Kanvas workflow, run `python canvas-tool.py "Project.canvas" status` and report board state.
+4. Continue from where the last session left off. Only ask clarifying questions about *new* work, not paths, GitHub, or Kanvas setup.
+
+## When the session ends or a milestone is reached
+
+Append a dated entry to `.cursor/SESSION_LOG.md` and update the **Current State** table.
+
+## Known paths (do not re-ask)
+
+- Project: `C:\Users\GOAKJ\Documents\Cursor Project\inmation-healthmonitor`
+- Kanvas: `C:\Users\GOAKJ\Documents\Cursor Project\Kanvas`
+- GitHub: `victorgonzalezmateos/inmation-healthmonitor` on branch `master`

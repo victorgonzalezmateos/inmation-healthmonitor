@@ -1,8 +1,342 @@
 {
-	"nodes":[
-		{"id":"canvas-errors","type":"text","text":"## Errors\n✓ None","x":-540,"y":-750,"width":380,"height":200,"color":"1"},
-		{"id":"legend","type":"text","text":"## Legend\n🔴 **Red** = To Do (ready)\n⬜ **Gray** = Blocked\n🟠 **Orange** = Doing\n🔵 **Cyan** = Ready to review\n🟢 **Green** = Done\n🟣 **Purple** = Proposed by agent","x":-540,"y":-310,"width":380,"height":230,"color":"0"},
-		{"id":"canvas-warnings","type":"text","text":"## Warnings\n✓ None","x":-540,"y":-530,"width":380,"height":200,"color":"3"}
+	"nodes": [
+		{
+			"id": "canvas-errors",
+			"type": "text",
+			"text": "## Errors\n✓ None",
+			"x": -540,
+			"y": -750,
+			"width": 380,
+			"height": 200,
+			"color": "1"
+		},
+		{
+			"id": "legend",
+			"type": "text",
+			"text": "## Legend\n🔴 **Red** = To Do (ready)\n⬜ **Gray** = Blocked\n🟠 **Orange** = Doing\n🔵 **Cyan** = Ready to review\n🟢 **Green** = Done\n🟣 **Purple** = Proposed by agent",
+			"x": -540,
+			"y": -310,
+			"width": 380,
+			"height": 230,
+			"color": "0"
+		},
+		{
+			"id": "canvas-warnings",
+			"type": "text",
+			"text": "## Warnings\n✓ None",
+			"x": -540,
+			"y": -530,
+			"width": 380,
+			"height": 200,
+			"color": "3"
+		},
+		{
+			"id": "group-discov",
+			"type": "group",
+			"x": 0,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Discovery Contracts"
+		},
+		{
+			"id": "group-archit",
+			"type": "group",
+			"x": 440,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Architecture"
+		},
+		{
+			"id": "group-uipari",
+			"type": "group",
+			"x": 880,
+			"y": 0,
+			"width": 380,
+			"height": 940,
+			"label": "UI Parity"
+		},
+		{
+			"id": "group-webstu",
+			"type": "group",
+			"x": 1320,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Webstudio Runtime"
+		},
+		{
+			"id": "group-valida",
+			"type": "group",
+			"x": 1760,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Validation"
+		},
+		{
+			"id": "group-postpa",
+			"type": "group",
+			"x": 2200,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Post Parity Enhancements"
+		},
+		{
+			"id": "0d37e5f1",
+			"type": "text",
+			"text": "## DC-01 Freeze captured Health Monitor source contracts\nDocument confirmed source contracts from dashboard_compilation, fetchNavigationTree, fetchNavigationTable, fetchObjProps, fetchPerformanceCountersTable, and chart calls. Mark fetchLogTable as optional unless logs are required in version 1. Preserve raw source field names and state values.",
+			"x": 20,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "93902c3f",
+			"type": "text",
+			"text": "## DC-02 Define source-state display policy\nDefine how the UI displays source states without transforming them: ProcessState values, CommState/ObjectState/WorstState values Good/Empty/Disabled/Bad/Neutral, and compound object State values such as COMM_GOOD|STATE_GOOD|OBJ_ENABLED and COMM_ERROR|STATE_ERROR|OBJ_ENABLED.",
+			"x": 20,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "34ca4a04",
+			"type": "text",
+			"text": "## AR-01 Design Webstudio app runtime architecture\nPlan the custom Health Monitor as a Webstudio app using the same URL/auth pattern as default Health Monitor and PMM: /apps/webstudio with secp=iwa, ssl=true, and custom ctx/lib/func. Do not introduce custom login. Respect backend access fields.",
+			"x": 460,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "d6a3b8fd",
+			"type": "text",
+			"text": "## AR-02 Design data wiring and component boundaries\nMap each UI surface to existing backend sources: ProcessState for monitor availability, fetchNavigationTree for topology/icons, fetchNavigationTable for hierarchy health states, fetchObjProps for selected-object properties, fetchPerformanceCountersTable for details, and chart calls for drill-down. No duplicated monitoring logic.",
+			"x": 460,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "84d0d28b",
+			"type": "text",
+			"text": "## UP-01 Design PMM Bayer visual system for Health Monitor\nUse PMM references from PMMTool-GetScreen-response-2 and PMMTool-CompilationModelEditor: light theme, white background, dark blue #10384F navigation/tab surfaces, Bayer green active indicator, compact sans-serif tables, rounded white panels, and subtle shadows.",
+			"x": 900,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "4201ff89",
+			"type": "text",
+			"text": "## UP-02 Implement Overview hierarchy parity\nCreate the Overview experience that answers which site/core/connector/datasource is unhealthy right now. Use fetchNavigationTable as the source of state, combine with tree/icon topology as needed, show full hierarchy, visually collapse healthy branches, and emphasize unhealthy branches.",
+			"x": 900,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "9322344e",
+			"type": "text",
+			"text": "## UP-03 Implement selected-object property panel parity\nDisplay selected-object properties from fetchObjProps: ObjectName, Type, ObjectID, ObjectIDExtended, Path, ConfigVersion, ClassVersion, Created, Modified, State, Image, and access. Preserve compound State text exactly.",
+			"x": 900,
+			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "4dbc4e5a",
+			"type": "text",
+			"text": "## UP-04 Implement performance counters detail parity\nDisplay selected-object counters from fetchPerformanceCountersTable. Support healthy objects with many counters and cList, and bad datasources with only health calculation rows. Preserve fields such as ObjectName, type, group, Value, Unit, penName, path, and cList.exists.",
+			"x": 900,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "c61a2a2c",
+			"type": "text",
+			"text": "## UP-05 Implement chart drill-down parity\nReplicate Submit to Chart behavior using the same selected counter rows and chart concepts observed in createtrend, createtrendpen, and readhistoricaldata: chart shell, pens, one-day time range, aggregate, T/V/Q interval values, and pen metadata.",
+			"x": 900,
+			"y": 760,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "c0a5c610",
+			"type": "text",
+			"text": "## WR-01 Define deployment identifiers\nChoose the final custom Webstudio context, library name, and screen function name for the Bayer Health Monitor app URL. Keep the URL pattern aligned with existing Health Monitor and PMM examples using secp=iwa and ssl=true.",
+			"x": 1340,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "ce7a166a",
+			"type": "text",
+			"text": "## VA-01 Create default-vs-custom parity checklist\nCreate validation checks comparing default Health Monitor and custom UI: same hierarchy, same unhealthy objects, same Good/Bad/Disabled/Neutral/Empty state values, same object properties, same performance counters, and same selected chart pens/data behavior.",
+			"x": 1780,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "7589dced",
+			"type": "text",
+			"text": "## VA-02 Validate audit-friendly behavior\nVerify there is no client-side health calculation, no state transformation, no invented monitoring logic, no custom login, and that all displayed states trace back to existing Health Monitor sources.",
+			"x": 1780,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "eb483b7b",
+			"type": "text",
+			"text": "## PPE-01 Plan optional logs integration\nDecide whether fetchLogTable belongs in version 1 or later. If included, capture healthy and bad log examples and add a logs tab/detail panel without changing health logic.",
+			"x": 2220,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "a3d5c056",
+			"type": "text",
+			"text": "## PPE-02 Plan Bayer-specific operational widgets\nAfter parity is proven, define optional widgets such as unhealthy-first summary, site/core filters, collapsed healthy branch counts, quick links to counters/logs/properties, and operator notes. Widgets may organize/filter source data but must not calculate health.",
+			"x": 2220,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		}
 	],
-	"edges":[]
+	"edges": [
+		{
+			"id": "edge-001",
+			"fromNode": "0d37e5f1",
+			"fromSide": "bottom",
+			"toNode": "93902c3f",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-002",
+			"fromNode": "0d37e5f1",
+			"fromSide": "right",
+			"toNode": "34ca4a04",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-003",
+			"fromNode": "0d37e5f1",
+			"fromSide": "bottom",
+			"toNode": "d6a3b8fd",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-004",
+			"fromNode": "93902c3f",
+			"fromSide": "right",
+			"toNode": "d6a3b8fd",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-005",
+			"fromNode": "34ca4a04",
+			"fromSide": "bottom",
+			"toNode": "d6a3b8fd",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-006",
+			"fromNode": "d6a3b8fd",
+			"fromSide": "right",
+			"toNode": "84d0d28b",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-007",
+			"fromNode": "84d0d28b",
+			"fromSide": "bottom",
+			"toNode": "4201ff89",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-008",
+			"fromNode": "4201ff89",
+			"fromSide": "bottom",
+			"toNode": "9322344e",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-009",
+			"fromNode": "9322344e",
+			"fromSide": "bottom",
+			"toNode": "4dbc4e5a",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-010",
+			"fromNode": "4dbc4e5a",
+			"fromSide": "bottom",
+			"toNode": "c61a2a2c",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-011",
+			"fromNode": "34ca4a04",
+			"fromSide": "right",
+			"toNode": "c0a5c610",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-012",
+			"fromNode": "c61a2a2c",
+			"fromSide": "right",
+			"toNode": "ce7a166a",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-013",
+			"fromNode": "c0a5c610",
+			"fromSide": "right",
+			"toNode": "ce7a166a",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-014",
+			"fromNode": "ce7a166a",
+			"fromSide": "bottom",
+			"toNode": "7589dced",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-015",
+			"fromNode": "7589dced",
+			"fromSide": "right",
+			"toNode": "eb483b7b",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-016",
+			"fromNode": "7589dced",
+			"fromSide": "right",
+			"toNode": "a3d5c056",
+			"toSide": "left"
+		}
+	]
 }
