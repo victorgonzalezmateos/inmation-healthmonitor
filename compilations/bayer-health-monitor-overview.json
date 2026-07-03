@@ -1,0 +1,158 @@
+{
+  "version": "1",
+  "name": "bayer-health-monitor-overview",
+  "description": "UP-02 Overview section — nav tree + hierarchy table. Bind to Health Monitor Lua lib (WR-01).",
+  "options": {
+    "background": {
+      "style": {
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "margin": { "x": 0, "y": 0 },
+    "numberOfColumns": 96,
+    "numberOfRows": { "type": "count", "value": 64 },
+    "padding": { "x": 8, "y": 8 },
+    "spacing": { "x": 8, "y": 8 },
+    "stacking": "none",
+    "theme": "light"
+  },
+  "widgets": [
+    {
+      "id": "hm-header",
+      "type": "text",
+      "captionBar": false,
+      "text": "Bayer Health Monitor",
+      "layout": { "x": 0, "y": 0, "w": 96, "h": 5, "static": true },
+      "options": {
+        "style": {
+          "backgroundColor": "#10384f",
+          "color": "#ffffff",
+          "fontSize": "18px",
+          "fontWeight": "bold",
+          "textAlign": "left",
+          "padding": "12px 16px",
+          "borderRadius": "8px 8px 0 0"
+        }
+      }
+    },
+    {
+      "id": "hm-process-state",
+      "type": "text",
+      "captionBar": false,
+      "text": "ProcessState: —",
+      "layout": { "x": 0, "y": 5, "w": 96, "h": 3, "static": true },
+      "dataSource": {
+        "type": "function",
+        "lib": "HealthMonitor",
+        "func": "ProcessState",
+        "ctx": "bayerhm"
+      },
+      "options": {
+        "refreshInterval": 30,
+        "showRefreshButton": true,
+        "style": {
+          "backgroundColor": "#10384f",
+          "color": "#e2e8f0",
+          "fontSize": "12px",
+          "textAlign": "right",
+          "padding": "4px 16px 8px"
+        }
+      }
+    },
+    {
+      "id": "hm-nav-tree",
+      "type": "tree",
+      "captionBar": true,
+      "label": "Navigation",
+      "layout": { "x": 0, "y": 8, "w": 28, "h": 52, "static": true },
+      "dataSource": {
+        "type": "function",
+        "lib": "HealthMonitor",
+        "func": "fetchNavigationTree",
+        "ctx": "bayerhm"
+      },
+      "options": {
+        "refreshInterval": 30,
+        "showRefreshButton": true,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "border": "1px solid #ededed",
+          "borderRadius": "8px",
+          "fontSize": "12px",
+          "color": "#10384f"
+        },
+        "selection": {
+          "indicatorColor": "#89d329",
+          "indicatorWidth": "3px"
+        }
+      },
+      "actions": {
+        "onNodeSelect": [
+          { "id": "hm-overview-table", "type": "refresh" },
+          { "id": "hm-props-panel", "type": "refresh" },
+          { "id": "hm-counters-table", "type": "refresh" }
+        ]
+      },
+      "dataKeys": ["selectedPath"]
+    },
+    {
+      "id": "hm-overview-table",
+      "type": "table",
+      "captionBar": true,
+      "label": "Overview — hierarchy health",
+      "layout": { "x": 30, "y": 8, "w": 66, "h": 52, "static": true },
+      "dataSource": {
+        "type": "function",
+        "lib": "HealthMonitor",
+        "func": "fetchNavigationTable",
+        "ctx": "bayerhm"
+      },
+      "columns": [
+        { "field": "ObjectName", "label": "Name", "width": "22%" },
+        { "field": "Type", "label": "Type", "width": "12%" },
+        { "field": "CommState", "label": "CommState", "width": "12%", "stateStyle": true },
+        { "field": "ObjectState", "label": "ObjectState", "width": "12%", "stateStyle": true },
+        { "field": "WorstState", "label": "WorstState", "width": "12%", "stateStyle": true },
+        { "field": "State", "label": "State", "width": "30%", "monospace": true }
+      ],
+      "options": {
+        "refreshInterval": 30,
+        "showRefreshButton": true,
+        "compact": true,
+        "collapseHealthyBranches": true,
+        "collapseWhen": { "field": "WorstState", "value": "Good" },
+        "emphasizeWhen": {
+          "anyOf": [
+            { "field": "WorstState", "not": "Good" },
+            { "field": "CommState", "value": "Bad" },
+            { "field": "ObjectState", "value": "Bad" }
+          ]
+        },
+        "stateCellStyles": {
+          "Good": { "backgroundColor": "#d4f1d4", "color": "#10384f" },
+          "Bad": { "backgroundColor": "#f1d4d4", "color": "#10384f" },
+          "Empty": { "backgroundColor": "#f0edf0", "color": "#10384f" },
+          "Disabled": { "backgroundColor": "#e2e8f0", "color": "#64748b" },
+          "Neutral": { "backgroundColor": "#ffffff", "color": "#10384f" }
+        },
+        "style": {
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #ededed",
+          "borderRadius": "8px",
+          "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)",
+          "fontSize": "12px"
+        },
+        "selectedRowStyle": {
+          "outline": "2px solid #89d329"
+        }
+      },
+      "actions": {
+        "onRowSelect": [
+          { "id": "hm-props-panel", "type": "refresh" },
+          { "id": "hm-counters-table", "type": "refresh" }
+        ]
+      },
+      "dataKeys": ["selectedPath"]
+    }
+  ]
+}

@@ -60,6 +60,7 @@ See [docs/GETTING_STARTED.md](./docs/GETTING_STARTED.md) for the full workflow.
 | [docs/source-contracts/](./docs/source-contracts/) | Frozen Health Monitor backend contracts (DC-01) |
 | [docs/architecture/](./docs/architecture/) | Webstudio runtime architecture (AR-01) |
 | [docs/ui/](./docs/ui/) | PMM Bayer visual system (UP-01) |
+| [compilations/](./compilations/) | Webstudio compilation JSON (UP-02+) |
 | [docs/GETTING_STARTED.md](./docs/GETTING_STARTED.md) | How to use Kanvas in Obsidian |
 | [AGENTS.md](./AGENTS.md) | Agent CLI commands and protocol |
 | [RULES.md](./RULES.md) | Color codes, permissions, Canvas Watcher |
