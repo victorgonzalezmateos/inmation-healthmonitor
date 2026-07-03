@@ -6,8 +6,9 @@
 | [bayer-health-monitor-properties.json](./bayer-health-monitor-properties.json) | UP-03 | Properties tab: `hm-props-panel` / `fetchObjProps` |
 | [bayer-health-monitor-counters.json](./bayer-health-monitor-counters.json) | UP-04 | Counters tab: `hm-counters-table` / `fetchPerformanceCountersTable` |
 | [bayer-health-monitor-chart.json](./bayer-health-monitor-chart.json) | UP-05 | Chart tab: `hm-chart` / createtrend chain |
+| **[bayer-health-monitor-full.json](./bayer-health-monitor-full.json)** | **All UP** | **← Paste this into Webstudio / Custom Properties** |
 
-**Publish artifact:** merge section files → `bayer-health-monitor-full.json` (see WR-01).
+See **[WEBSTUDIO-INSERT.md](./WEBSTUDIO-INSERT.md)** for step-by-step testing instructions.
 
 ## Deployment identifiers (WR-01 — frozen)
 
