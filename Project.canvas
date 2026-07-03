@@ -192,17 +192,17 @@
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "7589dced",
 			"type": "text",
-			"text": "## VA-02 Validate audit-friendly behavior\nVerify there is no client-side health calculation, no state transformation, no invented monitoring logic, no custom login, and that all displayed states trace back to existing Health Monitor sources.",
+			"text": "## VA-02 Validate audit-friendly behavior\nAudit validation in docs/validation/VA-02-audit-friendly-behavior.md. Static repo audit PASS on compilations; no client health calc, no state transform, no custom login, HM lib only; runtime checklist F/R sections; data lineage matrix.",
 			"x": 1780,
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "5"
 		},
 		{
 			"id": "eb483b7b",

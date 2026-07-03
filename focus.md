@@ -25,8 +25,8 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** that ac
 
 ## Current Phase
 
-**Validation — VA-01 complete (awaiting review).**  
-Parity checklist in `docs/validation/`. Mark VA-01 **Green** to unlock **VA-02**.
+**Validation complete — VA-02 awaiting review.**  
+Audit checklist in `docs/validation/VA-02-audit-friendly-behavior.md`. Mark VA-02 **Green** to unlock **PPE-01** / **PPE-02**.
 
 ## Task Groups (see `docs/PROJECT_PLAN.md`)
 

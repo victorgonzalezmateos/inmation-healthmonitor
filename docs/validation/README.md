@@ -3,6 +3,7 @@
 | Document | Task | Status |
 |----------|------|--------|
 | [VA-01-parity-checklist.md](./VA-01-parity-checklist.md) | VA-01 Default vs custom parity checklist | Frozen 2026-07-03 |
+| [VA-02-audit-friendly-behavior.md](./VA-02-audit-friendly-behavior.md) | VA-02 Audit-friendly behavior validation | Frozen 2026-07-03 |
 
 ## How to run
 
