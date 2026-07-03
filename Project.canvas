@@ -182,17 +182,17 @@
 			"y": 40,
 			"width": 280,
 			"height": 340,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "ce7a166a",
 			"type": "text",
-			"text": "## VA-01 Create default-vs-custom parity checklist\nCreate validation checks comparing default Health Monitor and custom UI: same hierarchy, same unhealthy objects, same Good/Bad/Disabled/Neutral/Empty state values, same object properties, same performance counters, and same selected chart pens/data behavior.",
+			"text": "## VA-01 Create default-vs-custom parity checklist\nParity checklist in docs/validation/VA-01-parity-checklist.md. Sections: hierarchy, states Good/Bad/Empty/Disabled/Neutral, properties, counters healthy+bad, chart pens 1d T/V/Q, ProcessState; sign-off and failure log.",
 			"x": 1780,
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "5"
 		},
 		{
 			"id": "7589dced",

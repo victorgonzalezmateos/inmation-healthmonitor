@@ -25,8 +25,8 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** that ac
 
 ## Current Phase
 
-**WR-01 complete (awaiting review).**  
-Deployment IDs in `docs/deployment/`. Mark WR-01 **Green**, then approve **VA-01** (Purple → Red) on `Project.canvas` for validation phase.
+**Validation — VA-01 complete (awaiting review).**  
+Parity checklist in `docs/validation/`. Mark VA-01 **Green** to unlock **VA-02**.
 
 ## Task Groups (see `docs/PROJECT_PLAN.md`)
 
