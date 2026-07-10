@@ -49,7 +49,7 @@ python compilations/build-bayer-deploy.py
 ### Not yet done (next week)
 - [ ] Chart tab from default HM capture
 - [ ] VA-01 parity checklist live run
-- [ ] Optional: commit remaining `compilations/` + `docs/discovery/` to GitHub if not all pushed
+- [x] GitHub: core builders + deploy artifacts + `docs/discovery/` pushed (`d28dcfc`, `a3d0280`)
 
 ### Board status
 - Canvas tasks in repo docs; live milestone is Smart Sentinel full layout on host
@@ -234,7 +234,7 @@ npm run dev
 1. Read `.cursor/SESSION_LOG.md` + `focus.md`
 2. `python compilations/build-bayer-deploy.py` before any layout change
 3. Next features: Chart tab, VA-01 parity checklist
-4. User pushed to GitHub; ensure `compilations/` + `docs/discovery/` committed if needed
+4. User pushed to GitHub — commits `d28dcfc` + `a3d0280` on `origin/master`
 
 **User sign-off:** Layout and properties "look amazing" — work paused for the week.
 
