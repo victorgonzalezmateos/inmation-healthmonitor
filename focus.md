@@ -2,45 +2,79 @@
 
 ## Project Goal
 
-Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** that achieves **parity** with the default Health Monitor UI while applying the **PMM Bayer visual system**. The app must use existing backend sources only — no client-side health calculation, no state transformation, and no custom login (`secp=iwa`, `ssl=true`).
+Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** with parity to the default Health Monitor UI and PMM Bayer styling. No client-side health calculation, no custom login (`secp=iwa`, `ssl=true`).
 
-## Key Features (v1 — delivered)
+## Reset (2026-07-10)
 
-- [x] Overview hierarchy — unhealthy sites/cores/connectors/datasources emphasized
-- [x] Selected-object property panel (`fetchObjProps`)
-- [x] Performance counters detail (`fetchPerformanceCountersTable`)
-- [x] Chart drill-down parity (Submit to Chart behavior)
-- [x] PMM Bayer visual system (dark blue nav, Bayer green accents, light theme)
-- [x] Default-vs-custom parity validation checklist
-- [x] Audit-friendly behavior validation
-- [ ] Optional: logs integration (`fetchLogTable`) — **deferred v2** (PPE-01)
-- [ ] Optional: Bayer operational widgets — **planned v2** (PPE-02)
+**Previous v1 deliverables (docs + JSON) did not work on the live host.** They were authored without a captured copy of the real default Health Monitor compilation.
 
-## Tech Stack
+### What we know works on your host
 
-- **Runtime:** inmation Webstudio (`ctx=bayerhm`, `lib=HealthMonitor`, `func=BayerHealthMonitorMain`)
-- **Host object:** `/System/Core/_Global Core Logic/Development/Smart Sentinel AI/Bayer Health Monitor`
-- **Compilation:** [`compilations/bayer-health-monitor-full.json`](compilations/bayer-health-monitor-full.json)
-- **Workflow:** Kanvas + Obsidian Canvas (`Project.canvas`) + `canvas-tool.py`
-- **Repo:** [victorgonzalezmateos/inmation-healthmonitor](https://github.com/victorgonzalezmateos/inmation-healthmonitor)
+| Item | Value |
+|------|-------|
+| Default HM URL | `lib=syslib.app-webstudio-healthmonitor` `func=dashboard_compilation` |
+| Host | `byus00876m1.bayer.cnb:8002` |
+| Your script library | Folder **Smart Sentinel AI** — module `bayer.healthmonitor` |
+| Script library path | `/System/Core/_Global Core Logic/Development/Smart Sentinel AI` |
+
+### What was wrong before
+
+- Wrong data `lib` (`HealthMonitor` instead of `syslib.app-webstudio-healthmonitor`)
+- Wrong entry pattern (`ctx=bayerhm`, `BayerHealthMonitorMain` — not on host)
+- Nav tree widget type (`tree`) never validated against real Webstudio
+- Script library on **Smart Sentinel AI folder** (not a child object) — needs `ctx` in launch URL
+
+### New approach — evidence first, then minimal build
+
+1. ~~**Capture** default HM compilation from browser DevTools → `docs/discovery/`~~ ✓ (2026-07-10)
+2. ~~**Smoke test** — clone default HM layout with real widgets, prove data loads~~ ✓ layout + data live (2026-07-10)
+3. **Bayer skin** — apply PMM colors incrementally on working base ✓
+4. **Smart Sentinel layout** — nav/overview toggle, properties panel, right counters ✓ (2026-07-10)
+5. **Parity** — Chart tab + VA-01 checklist ← **next week**
 
 ## Current Phase
 
-**v1 plan complete — all 14 canvas tasks delivered.**  
-Mark PPE-01 / PPE-02 **Green** in Obsidian to close the board. Next: live test on inmation host + VA-01 walkthrough.
+**Phase 2 complete — Smart Sentinel HM layout live on host.** Next: Chart tab + VA-01 parity checklist.
 
-## Milestones
+## Deployment (confirmed working)
 
-1. ~~Discovery Contracts (DC-01, DC-02)~~ ✓
-2. ~~Architecture (AR-01, AR-02)~~ ✓
-3. ~~UI Parity (UP-01 → UP-05)~~ ✓
-4. ~~Webstudio Runtime (WR-01)~~ ✓
-5. ~~Validation (VA-01, VA-02)~~ ✓
-6. ~~Post-parity plans (PPE-01, PPE-02)~~ ✓
-7. **Live publish & parity test** ← current
+| Item | Value |
+|------|-------|
+| Folder | `/System/Core/_Global Core Logic/Development/Smart Sentinel AI` |
+| CustomPropertyName | `Bayer Health Monitor` |
+| App title | `Smart Sentinel` |
+| Build | `python compilations/build-bayer-deploy.py` |
+| Deploy | `compilations/smart-sentinel-ai-upsert-full.lua` in DataStudio console |
+| Module name | `bayer.healthmonitor` (unchanged; Custom Properties path does not use it) |
 
-## Notes for Future Sessions
+## Layout (validated 2026-07-10)
+
+- **Left top:** Navigation \| Overview tab buttons
+- **Left middle:** Tree (Navigation) or overview table (Overview) — layout toggle via `w/h=0`
+- **Left bottom:** Object properties panel (Navigation only) — nested HM worker + objprop pattern
+- **Right:** Performance Counters full height — direct `modify` on click (proven pattern)
+
+## Files to use now
+
+| File | Purpose |
+|------|---------|
+| `compilations/bayer-skinned-smoke.json` | Flat layout baseline |
+| `compilations/bayer-skinned-full.json` | **Generated** — full Smart Sentinel layout |
+| `compilations/build-bayer-deploy.py` | **Run to rebuild** JSON + upsert Lua |
+| `compilations/build-bayer-full-tabs.py` | Layout builder |
+| `compilations/bayer_properties_panel.py` | Properties panel (nested compilation + delegate routes) |
+| `compilations/smart-sentinel-ai-upsert-full.lua` | **Deploy to host** |
+| `compilations/default-hm-tree-tab-clone.json` | HM properties reference |
+| `docs/discovery/default-hm-compilation.json` | Captured default HM |
+
+## Host paths
+
+- Script library path: `/System/Core/_Global Core Logic/Development/Smart Sentinel AI`
+- Setup notes: [`docs/discovery/SMART-SENTINEL-AI-SETUP.md`](docs/discovery/SMART-SENTINEL-AI-SETUP.md)
+- Compilation (target): `compilations/` (will be rebuilt from captured reference)
+
+## Notes
 
 - Session history: [`.cursor/SESSION_LOG.md`](.cursor/SESSION_LOG.md)
-- Webstudio insert: [`compilations/WEBSTUDIO-INSERT.md`](compilations/WEBSTUDIO-INSERT.md)
-- Post-parity v2: [`docs/post-parity/`](docs/post-parity/)
+- Old full JSON (reference only): [`compilations/bayer-health-monitor-full.json`](compilations/bayer-health-monitor-full.json)
+- Lua generator (after capture): [`compilations/build-dashboard-lua.py`](compilations/build-dashboard-lua.py)
