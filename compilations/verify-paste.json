@@ -1,0 +1,34 @@
+{
+  "version": "1",
+  "name": "Bayer Health Monitor",
+  "description": "One-widget check that CustomPropertyValue was saved",
+  "options": {
+    "background": { "style": { "backgroundColor": "#ffffff" } },
+    "margin": { "x": 0, "y": 0 },
+    "numberOfColumns": 96,
+    "numberOfRows": { "type": "count", "value": 20 },
+    "padding": { "x": 8, "y": 8 },
+    "spacing": { "x": 8, "y": 8 },
+    "stacking": "none",
+    "theme": "light"
+  },
+  "widgets": [
+    {
+      "id": "verify-paste",
+      "type": "text",
+      "captionBar": false,
+      "text": "PASTE VERIFIED - if you see this, Custom Properties saved correctly. Next: paste smoke-test-minimal.json",
+      "layout": { "x": 0, "y": 0, "w": 96, "h": 20, "static": true },
+      "options": {
+        "style": {
+          "backgroundColor": "#16a34a",
+          "color": "#ffffff",
+          "fontSize": "24px",
+          "fontWeight": "bold",
+          "textAlign": "center",
+          "padding": "48px"
+        }
+      }
+    }
+  ]
+}

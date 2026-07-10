@@ -1,0 +1,32 @@
+{
+  "source": "PMMTool-GetScreen-response-2",
+  "appBarHeight": "48px",
+  "gradient": "-webkit-linear-gradient(-18deg, #FFFFFF 50%, #7C84C2 50%,  #34B4E4 83%, #60C5EB 100%)",
+  "gradientColors": [
+    "#16364e",
+    "#34B4E4",
+    "#60C5EB",
+    "#7C84C2",
+    "#FFFFFF"
+  ],
+  "border": "1px solid #EDEDED",
+  "pageTitle": {
+    "color": "#16364e",
+    "fontSize": "16px",
+    "fontWeight": "bold"
+  },
+  "userGuideButton": {
+    "background": "#76BA24",
+    "borderRadius": "8.5px",
+    "width": "140px",
+    "height": "30px"
+  },
+  "navTreeToolbar": "#10384f",
+  "tabBar": "#51596d",
+  "bayerBrand": {
+    "nav": "#10384f",
+    "green": "#89d329",
+    "greenDark": "#76ba24",
+    "titleOnWhite": "#16364e"
+  }
+}

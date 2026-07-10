@@ -1,0 +1,119 @@
+{
+  "version": "1",
+  "name": "Default HM Tree Widget Only",
+  "options": {
+    "stacking": "none",
+    "numberOfColumns": 24,
+    "numberOfRows": {
+      "type": "count",
+      "value": 32
+    },
+    "padding": {
+      "x": 0,
+      "y": 0
+    },
+    "spacing": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "widgets": [
+    {
+      "id": "tree-navigation",
+      "type": "tree",
+      "name": "Navigation Tree",
+      "captionBar": false,
+      "dataSource": {
+        "type": "function",
+        "lib": "syslib.app-webstudio-healthmonitor",
+        "func": "fetchNavigationTree"
+      },
+      "actions": {
+        "didUpdate": [
+          {
+            "type": "refresh",
+            "id": "worker-property-panel"
+          }
+        ],
+        "onClick": [
+          {
+            "type": "transform",
+            "aggregateOne": [
+              {
+                "$project": {
+                  "ObjectName": "$n",
+                  "ObjectID": "$i",
+                  "Path": "$path",
+                  "Image": "$image"
+                }
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "worker-property-panel",
+            "set": [
+              {
+                "name": "model.dataSource",
+                "value": {
+                  "type": "function",
+                  "lib": "syslib.app-webstudio-healthmonitor",
+                  "func": "fetchObjProps",
+                  "farg": {
+                    "ObjectName": "$payload.ObjectName",
+                    "ObjectID": "$payload.ObjectID",
+                    "Path": "$payload.Path",
+                    "Image": "$payload.Image"
+                  },
+                  "catch": {
+                    "type": "break",
+                    "action": [
+                      {
+                        "type": "notify",
+                        "title": "Error",
+                        "text": "See browser console for more details!",
+                        "duration": 12000,
+                        "transition": "slide",
+                        "styleByTheme": {
+                          "light": {
+                            "backgroundColor": "#f20d0d"
+                          },
+                          "dark": {
+                            "backgroundColor": "#cc0000"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "action",
+            "name": "sendToActiveDisplayTab"
+          }
+        ]
+      },
+      "state": {
+        "expandedNodes": [
+          "1",
+          281474976907264,
+          281474977300480,
+          "2"
+        ]
+      },
+      "options": {
+        "showToolbar": false,
+        "showRefreshButton": true
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 24,
+        "static": true
+      }
+    }
+  ]
+}

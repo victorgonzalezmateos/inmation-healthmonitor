@@ -1,0 +1,30 @@
+{
+  "version": "1",
+  "name": "Bayer Health Monitor",
+  "options": {
+    "stacking": "none",
+    "numberOfColumns": 1,
+    "numberOfRows": { "type": "count", "value": 1 },
+    "padding": { "x": 0, "y": 0 },
+    "spacing": { "x": 0, "y": 0 },
+    "theme": "light"
+  },
+  "widgets": [
+    {
+      "id": "hello",
+      "type": "text",
+      "captionBar": false,
+      "text": "Bayer diagnostic OK — Custom Properties path works",
+      "layout": { "x": 0, "y": 0, "w": 1, "h": 1, "static": true },
+      "options": {
+        "style": {
+          "backgroundColor": "#10384f",
+          "color": "#ffffff",
+          "fontSize": "18px",
+          "fontWeight": "bold",
+          "padding": "24px"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,346 @@
+{
+  "version": "1",
+  "name": "Bayer Health Monitor",
+  "description": "Phase 1 smoke test - tree + overview table + counters on click (from captured default HM)",
+  "options": {
+    "background": {
+      "style": {
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "margin": {
+      "x": 0,
+      "y": 0
+    },
+    "numberOfColumns": 96,
+    "numberOfRows": {
+      "type": "count",
+      "value": 104
+    },
+    "padding": {
+      "x": 8,
+      "y": 8
+    },
+    "spacing": {
+      "x": 8,
+      "y": 8
+    },
+    "stacking": "none",
+    "theme": "light"
+  },
+  "widgets": [
+    {
+      "id": "bayer-header",
+      "type": "text",
+      "captionBar": false,
+      "text": "Bayer Health Monitor - Smoke Test (tree + tables, no tabs)",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 6,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "#10384f",
+          "color": "#ffffff",
+          "fontSize": "18px",
+          "fontWeight": "bold",
+          "textAlign": "left",
+          "padding": "12px 16px",
+          "borderRadius": "8px 8px 0 0"
+        }
+      }
+    },
+    {
+      "id": "bayer-process-state",
+      "type": "text",
+      "captionBar": false,
+      "text": "",
+      "layout": {
+        "x": 0,
+        "y": 6,
+        "w": 96,
+        "h": 2,
+        "static": true
+      },
+      "dataSource": {
+        "type": "subscribe",
+        "path": "/System/Core/_Global Core Logic/System Monitoring/Health Monitor.HMDiagnostics.ProcessState"
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "#10384f",
+          "color": "#e2e8f0",
+          "fontSize": "12px",
+          "textAlign": "right",
+          "padding": "4px 16px 8px"
+        }
+      }
+    },
+    {
+      "id": "bayer-tree",
+      "type": "tree",
+      "name": "Navigation Tree",
+      "captionBar": false,
+      "dataSource": {
+        "type": "function",
+        "lib": "syslib.app-webstudio-healthmonitor",
+        "func": "fetchNavigationTree"
+      },
+      "actions": {
+        "didUpdate": [
+          {
+            "type": "refresh",
+            "id": "bayer-counters-table"
+          }
+        ],
+        "onClick": [
+          {
+            "type": "transform",
+            "aggregateOne": [
+              {
+                "$project": {
+                  "ObjectName": "$n",
+                  "ObjectID": "$i",
+                  "Path": "$path",
+                  "Image": "$image"
+                }
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-counters-table",
+            "set": [
+              {
+                "name": "model.dataSource",
+                "value": {
+                  "type": "function",
+                  "lib": "syslib.app-webstudio-healthmonitor",
+                  "func": "fetchPerformanceCountersTable",
+                  "farg": {
+                    "ObjectID": "$payload.ObjectID"
+                  },
+                  "catch": {
+                    "type": "break",
+                    "action": [
+                      {
+                        "type": "notify",
+                        "title": "Error",
+                        "text": "Could not load performance counters for selected object.",
+                        "duration": 8000
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showToolbar": false,
+        "showRefreshButton": true,
+        "style": {
+          "backgroundColor": "#f8fafc",
+          "border": "1px solid #ededed",
+          "borderRadius": "8px",
+          "fontSize": "12px",
+          "color": "#10384f"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 8,
+        "w": 30,
+        "h": 52,
+        "static": true
+      }
+    },
+    {
+      "id": "bayer-overview-table",
+      "type": "table",
+      "name": "Overview Table",
+      "captionBar": false,
+      "dataSource": {
+        "type": "function",
+        "lib": "syslib.app-webstudio-healthmonitor",
+        "func": "fetchNavigationTable",
+        "catch": {
+          "type": "break",
+          "action": [
+            {
+              "type": "notify",
+              "title": "Error",
+              "text": "See browser console for more details!",
+              "duration": 12000,
+              "transition": "slide",
+              "styleByTheme": {
+                "light": {
+                  "backgroundColor": "#f20d0d"
+                },
+                "dark": {
+                  "backgroundColor": "#cc0000"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "actions": {},
+      "schema": [
+        {
+          "name": "ObjectName",
+          "title": "Name"
+        },
+        {
+          "name": "Type",
+          "title": "Type",
+          "filter": "select"
+        },
+        {
+          "name": "ObjectState",
+          "title": "Object",
+          "filter": "select"
+        },
+        {
+          "name": "CommState",
+          "title": "Comm.",
+          "filter": "select"
+        },
+        {
+          "hidden": true,
+          "name": "WorstState",
+          "title": "WorstState"
+        },
+        {
+          "hidden": true,
+          "name": "ObjectID",
+          "title": "ObjectID"
+        }
+      ],
+      "options": {
+        "rules": [
+          {
+            "name": "WorstState",
+            "value": "Warning",
+            "styleByTheme": {
+              "light": {
+                "backgroundColor": "#fbde02"
+              },
+              "dark": {
+                "backgroundColor": "#ae930f"
+              }
+            }
+          },
+          {
+            "name": "WorstState",
+            "value": "Bad",
+            "styleByTheme": {
+              "light": {
+                "backgroundColor": "#f20d0d"
+              },
+              "dark": {
+                "backgroundColor": "#cc0000"
+              }
+            }
+          },
+          {
+            "name": "WorstState",
+            "value": "Disabled",
+            "style": {
+              "color": "grey"
+            }
+          },
+          {
+            "name": "ObjectState",
+            "value": "Neutral",
+            "style": {
+              "fontStyle": "italic"
+            }
+          },
+          {
+            "name": "CommState",
+            "value": "Neutral",
+            "style": {
+              "fontStyle": "italic"
+            }
+          }
+        ],
+        "allowSorting": true,
+        "alternateColumnColoring": false,
+        "alternateRowColoring": true,
+        "multi": false,
+        "pagination": false,
+        "showHoverHighLight": true,
+        "style": {
+          "fontSize": "12px",
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #ededed",
+          "borderRadius": "8px"
+        }
+      },
+      "layout": {
+        "x": 32,
+        "y": 8,
+        "w": 64,
+        "h": 52,
+        "static": true
+      }
+    },
+    {
+      "id": "bayer-counters-table",
+      "type": "table",
+      "name": "Performance Counters",
+      "captionBar": true,
+      "label": "Performance Counters (select a tree node)",
+      "layout": {
+        "x": 0,
+        "y": 62,
+        "w": 96,
+        "h": 40,
+        "static": true
+      },
+      "schema": [
+        {
+          "name": "ObjectName",
+          "title": "Name"
+        },
+        {
+          "name": "type",
+          "title": "Type"
+        },
+        {
+          "name": "Value",
+          "title": "Value"
+        },
+        {
+          "name": "Unit",
+          "title": "Unit"
+        },
+        {
+          "name": "penName",
+          "title": "penName"
+        },
+        {
+          "name": "path",
+          "title": "path"
+        }
+      ],
+      "options": {
+        "pagination": true,
+        "pageSize": 50,
+        "showHoverHighLight": true,
+        "alternateRowColoring": true,
+        "style": {
+          "fontSize": "12px",
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #ededed",
+          "borderRadius": "8px"
+        }
+      }
+    }
+  ]
+}

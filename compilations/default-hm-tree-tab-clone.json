@@ -1,0 +1,911 @@
+{
+  "version": "1",
+  "name": "Default HM Tree Tab Clone",
+  "description": "Exact tab-tree compilation from default HM",
+  "options": {
+    "stacking": "none",
+    "numberOfColumns": 24,
+    "numberOfRows": {
+      "type": "count",
+      "value": 32
+    },
+    "padding": {
+      "x": 0,
+      "y": 0
+    },
+    "spacing": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "actions": {
+    "modifyPropertyPanelDefault": [
+      {
+        "type": "modify",
+        "id": "objprop-image",
+        "set": [
+          {
+            "name": "model.url",
+            "value": "$payload.Image"
+          }
+        ]
+      },
+      {
+        "type": "modify",
+        "id": "objprop-name-value",
+        "set": [
+          {
+            "name": "model.text",
+            "value": "$payload.ObjectName"
+          }
+        ]
+      },
+      {
+        "type": "modify",
+        "id": "objprop-name-value",
+        "set": [
+          {
+            "name": "model.layout.w",
+            "value": 30
+          }
+        ]
+      }
+    ],
+    "modifyPropertyPanelDetails": [
+      {
+        "type": "modify",
+        "id": "objprop-type-value",
+        "set": [
+          {
+            "name": "model.text",
+            "value": "$payload.Type"
+          }
+        ]
+      },
+      {
+        "type": "modify",
+        "id": "objprop-objectid-value",
+        "set": [
+          {
+            "name": "model.text",
+            "value": "$payload.ObjectIDExtended"
+          }
+        ]
+      },
+      {
+        "type": "modify",
+        "id": "objprop-path-value",
+        "set": [
+          {
+            "name": "model.text",
+            "value": "$payload.Path"
+          }
+        ]
+      },
+      {
+        "type": "modify",
+        "id": "objprop-configversion-value",
+        "set": [
+          {
+            "name": "model.text",
+            "value": "$payload.ConfigVersion"
+          }
+        ]
+      },
+      {
+        "type": "modify",
+        "id": "objprop-classversion-value",
+        "set": [
+          {
+            "name": "model.text",
+            "value": "$payload.ClassVersion"
+          }
+        ]
+      },
+      {
+        "type": "send",
+        "to": "objprop-created-value-date"
+      },
+      {
+        "type": "modify",
+        "id": "objprop-created-value-user",
+        "set": [
+          {
+            "name": "model.text",
+            "value": "$payload.Created.user"
+          }
+        ]
+      },
+      {
+        "type": "send",
+        "to": "objprop-modified-value-date"
+      },
+      {
+        "type": "modify",
+        "id": "objprop-modified-value-user",
+        "set": [
+          {
+            "name": "model.text",
+            "value": "$payload.Modified.user"
+          }
+        ]
+      },
+      {
+        "type": "modify",
+        "id": "objprop-state-value",
+        "set": [
+          {
+            "name": "model.text",
+            "value": "$payload.State"
+          }
+        ]
+      }
+    ]
+  },
+  "widgets": [
+    {
+      "id": "tree-navigation",
+      "type": "tree",
+      "name": "Navigation Tree",
+      "captionBar": false,
+      "dataSource": {
+        "type": "function",
+        "lib": "syslib.app-webstudio-healthmonitor",
+        "func": "fetchNavigationTree"
+      },
+      "actions": {
+        "didUpdate": [
+          {
+            "type": "refresh",
+            "id": "worker-property-panel"
+          }
+        ],
+        "onClick": [
+          {
+            "type": "transform",
+            "aggregateOne": [
+              {
+                "$project": {
+                  "ObjectName": "$n",
+                  "ObjectID": "$i",
+                  "Path": "$path",
+                  "Image": "$image"
+                }
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "worker-property-panel",
+            "set": [
+              {
+                "name": "model.dataSource",
+                "value": {
+                  "type": "function",
+                  "lib": "syslib.app-webstudio-healthmonitor",
+                  "func": "fetchObjProps",
+                  "farg": {
+                    "ObjectName": "$payload.ObjectName",
+                    "ObjectID": "$payload.ObjectID",
+                    "Path": "$payload.Path",
+                    "Image": "$payload.Image"
+                  },
+                  "catch": {
+                    "type": "break",
+                    "action": [
+                      {
+                        "type": "notify",
+                        "title": "Error",
+                        "text": "See browser console for more details!",
+                        "duration": 12000,
+                        "transition": "slide",
+                        "styleByTheme": {
+                          "light": {
+                            "backgroundColor": "#f20d0d"
+                          },
+                          "dark": {
+                            "backgroundColor": "#cc0000"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "action",
+            "name": "sendToActiveDisplayTab"
+          }
+        ]
+      },
+      "state": {
+        "expandedNodes": [
+          "1",
+          281474976907264,
+          281474977300480,
+          "2"
+        ]
+      },
+      "options": {
+        "showToolbar": false,
+        "showRefreshButton": true
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 24,
+        "static": true
+      }
+    },
+    {
+      "id": "worker-property-panel",
+      "type": "text",
+      "name": "Worker - Property Panel",
+      "captionBar": false,
+      "actions": {
+        "didUpdate": [
+          {
+            "type": "switch",
+            "checkAll": false,
+            "case": [
+              {
+                "match": {
+                  "access": true
+                },
+                "action": [
+                  {
+                    "type": "action",
+                    "name": "modifyPropertyPanelDefault"
+                  },
+                  {
+                    "type": "action",
+                    "name": "modifyPropertyPanelDetails"
+                  }
+                ]
+              },
+              {
+                "match": {
+                  "access": false
+                },
+                "action": [
+                  {
+                    "type": "notify",
+                    "title": "Access denied",
+                    "text": "Could not retrieve Object properties.",
+                    "duration": 12000,
+                    "transition": "slide",
+                    "styleByTheme": {
+                      "light": {
+                        "backgroundColor": "#f20d0d"
+                      },
+                      "dark": {
+                        "backgroundColor": "#cc0000"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-image",
+      "type": "image",
+      "name": "Object Properties - Image",
+      "captionBar": false,
+      "mimeType": "image/svg+xml",
+      "options": {
+        "size": "32px 32px",
+        "style": {
+          "border": "none"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 24,
+        "w": 4,
+        "h": 2,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-name-key",
+      "type": "text",
+      "name": "Object Property - Name key",
+      "text": "Name",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        },
+        "styleByTheme": {
+          "light": {
+            "color": "black"
+          },
+          "dark": {
+            "color": "white"
+          }
+        }
+      },
+      "layout": {
+        "x": 4,
+        "y": 24,
+        "w": 5,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-name-value",
+      "type": "text",
+      "name": "Object Property - Name value",
+      "text": "N/A",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 9,
+        "y": 24,
+        "w": 15,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-type-key",
+      "type": "text",
+      "name": "Object Property - Type key",
+      "text": "Type",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        },
+        "styleByTheme": {
+          "light": {
+            "color": "black"
+          },
+          "dark": {
+            "color": "white"
+          }
+        }
+      },
+      "layout": {
+        "x": 4,
+        "y": 25,
+        "w": 5,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-type-value",
+      "type": "text",
+      "name": "Object Property - Type value",
+      "text": "N/A",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 9,
+        "y": 25,
+        "w": 15,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-objectid-key",
+      "type": "text",
+      "name": "Object Property - Object ID key",
+      "text": "Object ID",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        },
+        "styleByTheme": {
+          "light": {
+            "color": "black"
+          },
+          "dark": {
+            "color": "white"
+          }
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 26,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-objectid-value",
+      "type": "text",
+      "name": "Object Property - Object ID value",
+      "text": "N/A",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 6,
+        "y": 26,
+        "w": 18,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-path-key",
+      "type": "text",
+      "name": "Object Property - Path key",
+      "text": "Path",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        },
+        "styleByTheme": {
+          "light": {
+            "color": "black"
+          },
+          "dark": {
+            "color": "white"
+          }
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 27,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-path-value",
+      "type": "text",
+      "name": "Object Property - Path value",
+      "text": "N/A",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 6,
+        "y": 27,
+        "w": 18,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-configversion-key",
+      "type": "text",
+      "name": "Object Property - Config Version key",
+      "text": "Config Version",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        },
+        "styleByTheme": {
+          "light": {
+            "color": "black"
+          },
+          "dark": {
+            "color": "white"
+          }
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 28,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-configversion-value",
+      "type": "text",
+      "name": "Object Property - Config Version value",
+      "text": "N/A",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 6,
+        "y": 28,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-classversion-key",
+      "type": "text",
+      "name": "Object Property - Class Version key",
+      "text": "Class Version",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        },
+        "styleByTheme": {
+          "light": {
+            "color": "black"
+          },
+          "dark": {
+            "color": "white"
+          }
+        }
+      },
+      "layout": {
+        "x": 12,
+        "y": 28,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-classversion-value",
+      "type": "text",
+      "name": "Object Property - Class Version value",
+      "text": "N/A",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 18,
+        "y": 28,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-created-key",
+      "type": "text",
+      "name": "Object Property - Created key",
+      "text": "Created",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        },
+        "styleByTheme": {
+          "light": {
+            "color": "black"
+          },
+          "dark": {
+            "color": "white"
+          }
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 29,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-created-value-date",
+      "type": "text",
+      "name": "Object Property - Created value date",
+      "text": "N/A",
+      "captionBar": false,
+      "actions": {
+        "willRefresh": [
+          {
+            "type": "transform",
+            "completeMsgObject": true,
+            "aggregateOne": [
+              {
+                "$project": {
+                  "payload": "$payload.Created.date"
+                }
+              }
+            ]
+          },
+          {
+            "type": "gettime"
+          },
+          {
+            "type": "gettime",
+            "format": "YYYY-MM-DD HH:mm:ss"
+          }
+        ]
+      },
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 6,
+        "y": 29,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-created-value-user",
+      "type": "text",
+      "name": "Object Property - Created value user",
+      "text": "N/A",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 12,
+        "y": 29,
+        "w": 12,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-modified-key",
+      "type": "text",
+      "name": "Object Property - Modified key",
+      "text": "Modified",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        },
+        "styleByTheme": {
+          "light": {
+            "color": "black"
+          },
+          "dark": {
+            "color": "white"
+          }
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 30,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-modified-value-date",
+      "type": "text",
+      "name": "Object Property - Modified value date1",
+      "text": "N/A",
+      "captionBar": false,
+      "actions": {
+        "willRefresh": [
+          {
+            "type": "transform",
+            "completeMsgObject": true,
+            "aggregateOne": [
+              {
+                "$project": {
+                  "payload": "$payload.Modified.date"
+                }
+              }
+            ]
+          },
+          {
+            "type": "gettime"
+          },
+          {
+            "type": "gettime",
+            "format": "YYYY-MM-DD HH:mm:ss"
+          }
+        ]
+      },
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 6,
+        "y": 30,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-modified-value-user",
+      "type": "text",
+      "name": "Object Property - Modified value user",
+      "text": "N/A",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 12,
+        "y": 30,
+        "w": 12,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-state-key",
+      "type": "text",
+      "name": "Object Property - State key",
+      "text": "State",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "border": "none",
+          "textAlign": "left",
+          "fontSize": "12px",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        },
+        "styleByTheme": {
+          "light": {
+            "color": "black"
+          },
+          "dark": {
+            "color": "white"
+          }
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 31,
+        "w": 6,
+        "h": 1,
+        "static": true
+      }
+    },
+    {
+      "id": "objprop-state-value",
+      "type": "text",
+      "name": "Object Property - State value",
+      "text": "N/A",
+      "captionBar": false,
+      "options": {
+        "style": {
+          "color": "grey",
+          "border": "none",
+          "fontSize": "12px",
+          "textAlign": "left",
+          "fontWeight": "bold",
+          "fontFamily": "sans-serif"
+        }
+      },
+      "layout": {
+        "x": 6,
+        "y": 31,
+        "w": 18,
+        "h": 1,
+        "static": true
+      }
+    }
+  ]
+}
