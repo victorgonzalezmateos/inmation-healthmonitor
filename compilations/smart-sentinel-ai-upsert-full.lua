@@ -30,7 +30,7 @@ end
 {
   "version": "1",
   "name": "Smart Sentinel",
-  "description": "Smart Sentinel HM: nav + HM properties + right counters",
+  "description": "Smart Sentinel HM: nav + properties + counters/table/chart (bayer-counters-table/bayer-selected-table/bayer-chart)",
   "options": {
     "background": {
       "style": {
@@ -399,6 +399,368 @@ end
       }
     },
     {
+      "id": "bayer-selected-table",
+      "type": "table",
+      "name": "Selected Counters",
+      "captionBar": false,
+      "schema": [
+        {
+          "name": "ObjectName",
+          "title": "Name"
+        },
+        {
+          "name": "type",
+          "title": "Type"
+        },
+        {
+          "name": "Value",
+          "title": "Value"
+        },
+        {
+          "name": "Unit",
+          "title": "Unit"
+        },
+        {
+          "name": "penName",
+          "title": "penName"
+        },
+        {
+          "name": "path",
+          "title": "path"
+        }
+      ],
+      "data": [],
+      "options": {
+        "multi": false,
+        "editable": false,
+        "style": {
+          "fontSize": "12px",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #ededed",
+          "borderRadius": "8px",
+          "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)",
+          "headerBackground": "#f8fafc",
+          "headerColor": "#10384f",
+          "headerFontWeight": "600"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      }
+    },
+    {
+      "id": "bayer-chart",
+      "type": "chart",
+      "name": "Chart",
+      "captionBar": true,
+      "label": "Chart",
+      "toolbars": {
+        "top": {
+          "tools": {
+            "view-counters": {
+              "type": "button",
+              "title": "",
+              "icon": {
+                "light": {
+                  "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMi4wIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNNTEyIDI1NmMwIDE0MS40LTExNC42IDI1Ni0yNTYgMjU2UzAgMzk3LjQgMCAyNTZTMTE0LjYgMCAyNTYgMFM1MTIgMTE0LjYgNTEyIDI1NnpNMjg4IDk2YzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJzMzItMTQuMyAzMi0zMnpNMjU2IDQxNmMzNS4zIDAgNjQtMjguNyA2NC02NGMwLTE3LjQtNi45LTMzLjEtMTguMS00NC42TDM2NiAxNjEuN2M1LjMtMTIuMS0uMi0yNi4zLTEyLjMtMzEuNnMtMjYuMyAuMi0zMS42IDEyLjNMMjU3LjkgMjg4Yy0uNiAwLTEuMyAwLTEuOSAwYy0zNS4zIDAtNjQgMjguNy02NCA2NHMyOC43IDY0IDY0IDY0ek0xNzYgMTQ0YzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJzMzItMTQuMyAzMi0zMnpNOTYgMjg4YzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJ6bTM1Mi0zMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMnMxNC4zIDMyIDMyIDMyczMyLTE0LjMgMzItMzJ6Ii8+PC9zdmc+",
+                  "mimeType": "image/svg+xml"
+                },
+                "dark": {
+                  "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMi4wIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNNTEyIDI1NmMwIDE0MS40LTExNC42IDI1Ni0yNTYgMjU2UzAgMzk3LjQgMCAyNTZTMTE0LjYgMCAyNTYgMFM1MTIgMTE0LjYgNTEyIDI1NnpNMjg4IDk2YzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJzMzItMTQuMyAzMi0zMnpNMjU2IDQxNmMzNS4zIDAgNjQtMjguNyA2NC02NGMwLTE3LjQtNi45LTMzLjEtMTguMS00NC42TDM2NiAxNjEuN2M1LjMtMTIuMS0uMi0yNi4zLTEyLjMtMzEuNnMtMjYuMyAuMi0zMS42IDEyLjNMMjU3LjkgMjg4Yy0uNiAwLTEuMyAwLTEuOSAwYy0zNS4zIDAtNjQgMjguNy02NCA2NHMyOC43IDY0IDY0IDY0ek0xNzYgMTQ0YzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJzMzItMTQuMyAzMi0zMnpNOTYgMjg4YzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJ6bTM1Mi0zMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMnMxNC4zIDMyIDMyIDMyczMyLTE0LjMgMzItMzJ6Ii8+PC9zdmc+",
+                  "mimeType": "image/svg+xml"
+                }
+              },
+              "style": {
+                "backgroundColor": "#f1f5f9",
+                "border": "1px solid #ededed",
+                "borderRadius": "4px",
+                "padding": "6px 10px",
+                "minWidth": "36px"
+              },
+              "actions": {
+                "onClick": [
+                  {
+                    "type": "modify",
+                    "id": "bayer-selected-table",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-chart",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-counters-table",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 30
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 66
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 54
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "view-chart": {
+              "type": "button",
+              "title": "",
+              "icon": {
+                "light": {
+                  "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMi4wIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNNjQgNjRjMC0xNy43LTE0LjMtMzItMzItMzJTMCA0Ni4zIDAgNjRWNDAwYzAgNDQuMiAzNS44IDgwIDgwIDgwSDQ4MGMxNy43IDAgMzItMTQuMyAzMi0zMnMtMTQuMy0zMi0zMi0zMkg4MGMtOC44IDAtMTYtNy4yLTE2LTE2VjY0em00MDYuNiA4Ni42YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDMyMCAyMTAuN2wtNTcuNC01Ny40Yy0xMi41LTEyLjUtMzIuOC0xMi41LTQ1LjMgMGwtMTEyIDExMmMtMTIuNSAxMi41LTEyLjUgMzIuOCAwIDQ1LjNzMzIuOCAxMi41IDQ1LjMgMEwyNDAgMjIxLjNsNTcuNCA1Ny40YzEyLjUgMTIuNSAzMi44IDEyLjUgNDUuMyAwbDEyOC0xMjh6Ii8+PC9zdmc+",
+                  "mimeType": "image/svg+xml"
+                },
+                "dark": {
+                  "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMi4wIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNNjQgNjRjMC0xNy43LTE0LjMtMzItMzItMzJTMCA0Ni4zIDAgNjRWNDAwYzAgNDQuMiAzNS44IDgwIDgwIDgwSDQ4MGMxNy43IDAgMzItMTQuMyAzMi0zMnMtMTQuMy0zMi0zMi0zMkg4MGMtOC44IDAtMTYtNy4yLTE2LTE2VjY0em00MDYuNiA4Ni42YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDMyMCAyMTAuN2wtNTcuNC01Ny40Yy0xMi41LTEyLjUtMzIuOC0xMi41LTQ1LjMgMGwtMTEyIDExMmMtMTIuNSAxMi41LTEyLjUgMzIuOCAwIDQ1LjNzMzIuOCAxMi41IDQ1LjMgMEwyNDAgMjIxLjNsNTcuNCA1Ny40YzEyLjUgMTIuNSAzMi44IDEyLjUgNDUuMyAwbDEyOC0xMjh6Ii8+PC9zdmc+",
+                  "mimeType": "image/svg+xml"
+                }
+              },
+              "style": {
+                "backgroundColor": "#10384f",
+                "border": "1px solid #10384f",
+                "borderRadius": "4px",
+                "padding": "6px 10px",
+                "minWidth": "36px"
+              },
+              "actions": {
+                "onClick": [
+                  {
+                    "type": "modify",
+                    "id": "bayer-counters-table",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-selected-table",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-chart",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 30
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 66
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 54
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "leftOrTop": {
+            "toolsOrder": [
+              "view-counters",
+              "view-chart"
+            ]
+          }
+        }
+      },
+      "tagSearchTable": {
+        "captionBar": {
+          "showModelEditorButton": false
+        },
+        "schema": [
+          {
+            "name": "ObjectName",
+            "sort": "asc",
+            "title": "Object Name"
+          },
+          {
+            "name": "ObjectDescription",
+            "title": "Description"
+          },
+          {
+            "name": "path",
+            "title": "Path"
+          }
+        ]
+      },
+      "chart": {
+        "EndTime": "*",
+        "StartTime": "*-1d",
+        "class": "Trend",
+        "name": "Trend Chart",
+        "pens": [],
+        "x_axis": [
+          {
+            "end_time": "*",
+            "grid": false,
+            "id": 1,
+            "intervals_no": 100,
+            "locked": false,
+            "name": "X",
+            "position": {
+              "alignment": "bottom",
+              "end": 100,
+              "orientation": "bottom",
+              "start": 0,
+              "value": 1
+            },
+            "start_time": "*-1d",
+            "themes": {
+              "dark": {
+                "color": "white"
+              },
+              "light": {
+                "color": "black"
+              }
+            }
+          }
+        ],
+        "y_axis": [
+          {
+            "grid": true,
+            "id": 1,
+            "locked": false,
+            "name": "Y",
+            "position": {
+              "alignment": "left",
+              "end": 100,
+              "orientation": "left",
+              "start": 0,
+              "value": 1
+            },
+            "range": {
+              "max": {
+                "mode": "auto",
+                "value": 0
+              },
+              "min": {
+                "mode": "auto",
+                "value": 0
+              }
+            },
+            "themes": {
+              "dark": {
+                "color": "white"
+              },
+              "light": {
+                "color": "black"
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "refreshInterval": 0,
+        "bottomPanel": true,
+        "leftPanel": false,
+        "play": "none",
+        "rightPanel": true,
+        "style": {
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #ededed",
+          "borderRadius": "8px",
+          "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      }
+    },
+    {
       "id": "bayer-counters-table",
       "type": "table",
       "name": "Performance Counters",
@@ -465,7 +827,342 @@ end
         "selectedRowStyle": {
           "outline": "2px solid #89d329"
         },
+        "multi": true,
+        "editable": false,
         "emptyMessage": "Select an object in Navigation or Overview."
+      },
+      "toolbars": {
+        "top": {
+          "tools": {
+            "view-counters": {
+              "type": "button",
+              "title": "",
+              "icon": {
+                "light": {
+                  "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMi4wIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNNTEyIDI1NmMwIDE0MS40LTExNC42IDI1Ni0yNTYgMjU2UzAgMzk3LjQgMCAyNTZTMTE0LjYgMCAyNTYgMFM1MTIgMTE0LjYgNTEyIDI1NnpNMjg4IDk2YzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJzMzItMTQuMyAzMi0zMnpNMjU2IDQxNmMzNS4zIDAgNjQtMjguNyA2NC02NGMwLTE3LjQtNi45LTMzLjEtMTguMS00NC42TDM2NiAxNjEuN2M1LjMtMTIuMS0uMi0yNi4zLTEyLjMtMzEuNnMtMjYuMyAuMi0zMS42IDEyLjNMMjU3LjkgMjg4Yy0uNiAwLTEuMyAwLTEuOSAwYy0zNS4zIDAtNjQgMjguNy02NCA2NHMyOC43IDY0IDY0IDY0ek0xNzYgMTQ0YzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJzMzItMTQuMyAzMi0zMnpNOTYgMjg4YzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJ6bTM1Mi0zMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMnMxNC4zIDMyIDMyIDMyczMyLTE0LjMgMzItMzJ6Ii8+PC9zdmc+",
+                  "mimeType": "image/svg+xml"
+                },
+                "dark": {
+                  "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMi4wIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNNTEyIDI1NmMwIDE0MS40LTExNC42IDI1Ni0yNTYgMjU2UzAgMzk3LjQgMCAyNTZTMTE0LjYgMCAyNTYgMFM1MTIgMTE0LjYgNTEyIDI1NnpNMjg4IDk2YzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJzMzItMTQuMyAzMi0zMnpNMjU2IDQxNmMzNS4zIDAgNjQtMjguNyA2NC02NGMwLTE3LjQtNi45LTMzLjEtMTguMS00NC42TDM2NiAxNjEuN2M1LjMtMTIuMS0uMi0yNi4zLTEyLjMtMzEuNnMtMjYuMyAuMi0zMS42IDEyLjNMMjU3LjkgMjg4Yy0uNiAwLTEuMyAwLTEuOSAwYy0zNS4zIDAtNjQgMjguNy02NCA2NHMyOC43IDY0IDY0IDY0ek0xNzYgMTQ0YzAtMTcuNy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJzMzItMTQuMyAzMi0zMnpNOTYgMjg4YzE3LjcgMCAzMi0xNC4zIDMyLTMycy0xNC4zLTMyLTMyLTMycy0zMiAxNC4zLTMyIDMyczE0LjMgMzIgMzIgMzJ6bTM1Mi0zMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMnMxNC4zIDMyIDMyIDMyczMyLTE0LjMgMzItMzJ6Ii8+PC9zdmc+",
+                  "mimeType": "image/svg+xml"
+                }
+              },
+              "style": {
+                "backgroundColor": "#10384f",
+                "border": "1px solid #10384f",
+                "borderRadius": "4px",
+                "padding": "6px 10px",
+                "minWidth": "36px"
+              },
+              "actions": {
+                "onClick": [
+                  {
+                    "type": "modify",
+                    "id": "bayer-selected-table",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-chart",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-counters-table",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 30
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 66
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 54
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "view-chart": {
+              "type": "button",
+              "title": "",
+              "icon": {
+                "light": {
+                  "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMi4wIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNNjQgNjRjMC0xNy43LTE0LjMtMzItMzItMzJTMCA0Ni4zIDAgNjRWNDAwYzAgNDQuMiAzNS44IDgwIDgwIDgwSDQ4MGMxNy43IDAgMzItMTQuMyAzMi0zMnMtMTQuMy0zMi0zMi0zMkg4MGMtOC44IDAtMTYtNy4yLTE2LTE2VjY0em00MDYuNiA4Ni42YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDMyMCAyMTAuN2wtNTcuNC01Ny40Yy0xMi41LTEyLjUtMzIuOC0xMi41LTQ1LjMgMGwtMTEyIDExMmMtMTIuNSAxMi41LTEyLjUgMzIuOCAwIDQ1LjNzMzIuOCAxMi41IDQ1LjMgMEwyNDAgMjIxLjNsNTcuNCA1Ny40YzEyLjUgMTIuNSAzMi44IDEyLjUgNDUuMyAwbDEyOC0xMjh6Ii8+PC9zdmc+",
+                  "mimeType": "image/svg+xml"
+                },
+                "dark": {
+                  "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMi4wIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNNjQgNjRjMC0xNy43LTE0LjMtMzItMzItMzJTMCA0Ni4zIDAgNjRWNDAwYzAgNDQuMiAzNS44IDgwIDgwIDgwSDQ4MGMxNy43IDAgMzItMTQuMyAzMi0zMnMtMTQuMy0zMi0zMi0zMkg4MGMtOC44IDAtMTYtNy4yLTE2LTE2VjY0em00MDYuNiA4Ni42YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDMyMCAyMTAuN2wtNTcuNC01Ny40Yy0xMi41LTEyLjUtMzIuOC0xMi41LTQ1LjMgMGwtMTEyIDExMmMtMTIuNSAxMi41LTEyLjUgMzIuOCAwIDQ1LjNzMzIuOCAxMi41IDQ1LjMgMEwyNDAgMjIxLjNsNTcuNCA1Ny40YzEyLjUgMTIuNSAzMi44IDEyLjUgNDUuMyAwbDEyOC0xMjh6Ii8+PC9zdmc+",
+                  "mimeType": "image/svg+xml"
+                }
+              },
+              "style": {
+                "backgroundColor": "#f1f5f9",
+                "border": "1px solid #ededed",
+                "borderRadius": "4px",
+                "padding": "6px 10px",
+                "minWidth": "36px"
+              },
+              "actions": {
+                "onClick": [
+                  {
+                    "type": "modify",
+                    "id": "bayer-counters-table",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-selected-table",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-chart",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 30
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 66
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 54
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "leftOrTop": {
+            "toolsOrder": [
+              "view-counters",
+              "view-chart"
+            ]
+          }
+        },
+        "bottom": {
+          "tools": {
+            "submit-chart": {
+              "type": "button",
+              "title": "Submit",
+              "style": {
+                "backgroundColor": "#10384f",
+                "color": "#ffffff",
+                "fontSize": "12px",
+                "fontWeight": "600",
+                "border": "1px solid #10384f",
+                "borderRadius": "4px"
+              },
+              "actions": {
+                "onClick": [
+                  {
+                    "type": "collect",
+                    "from": "self",
+                    "message": {
+                      "topic": "selectedRows"
+                    }
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-selected-table",
+                    "set": [
+                      {
+                        "name": "model.data",
+                        "value": "$payload"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "transform",
+                    "completeMsgObject": false,
+                    "aggregate": [
+                      {
+                        "$project": {
+                          "name": "$penName",
+                          "path": "$path",
+                          "trend_type": "HT_AREA"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "transform",
+                    "completeMsgObject": true,
+                    "aggregateOne": [
+                      {
+                        "$project": {
+                          "pens": "$payload"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "send",
+                    "to": "bayer-chart",
+                    "message": {
+                      "topic": "addPens"
+                    }
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-counters-table",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-selected-table",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "modify",
+                    "id": "bayer-chart",
+                    "set": [
+                      {
+                        "name": "model.layout.x",
+                        "value": 30
+                      },
+                      {
+                        "name": "model.layout.y",
+                        "value": 0
+                      },
+                      {
+                        "name": "model.layout.w",
+                        "value": 66
+                      },
+                      {
+                        "name": "model.layout.h",
+                        "value": 54
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "rightOrBottom": {
+            "toolsOrder": [
+              "submit-chart"
+            ]
+          }
+        }
       }
     },
     {
@@ -1468,6 +2165,72 @@ end
                 }
               }
             ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-selected-table",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-chart",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-counters-table",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 30
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 66
+              },
+              {
+                "name": "model.layout.h",
+                "value": 54
+              }
+            ]
           }
         ]
       },
@@ -1774,6 +2537,72 @@ end
                     ]
                   }
                 }
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-selected-table",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-chart",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-counters-table",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 30
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 66
+              },
+              {
+                "name": "model.layout.h",
+                "value": 54
               }
             ]
           }

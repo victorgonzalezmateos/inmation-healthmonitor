@@ -30,11 +30,12 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** with pa
 2. ~~**Smoke test** — clone default HM layout with real widgets, prove data loads~~ ✓ layout + data live (2026-07-10)
 3. **Bayer skin** — apply PMM colors incrementally on working base ✓
 4. **Smart Sentinel layout** — nav/overview toggle, properties panel, right counters ✓ (2026-07-10)
-5. **Parity** — Chart tab + VA-01 checklist ← **next week**
+5. **Chart / Submit** — multi-select, HM addPens, Counters\|Chart icons ✓ (2026-07-17)
+6. **Parity** — VA-01 checklist live run ← **next**
 
 ## Current Phase
 
-**Phase 2 complete — Smart Sentinel HM layout live on host.** Next: Chart tab + VA-01 parity checklist.
+**Phase 3 chart/submit validated on host.** Next: VA-01 parity checklist.
 
 ## Deployment (confirmed working)
 
@@ -52,7 +53,7 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** with pa
 - **Left top:** Navigation \| Overview tab buttons
 - **Left middle:** Tree (Navigation) or overview table (Overview) — layout toggle via `w/h=0`
 - **Left bottom:** Object properties panel (Navigation only) — nested HM worker + objprop pattern
-- **Right:** Performance Counters full height — direct `modify` on click (proven pattern)
+- **Right:** Performance Counters \| Chart (HM icons) + Submit to Chart
 
 ## Files to use now
 
@@ -63,6 +64,7 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** with pa
 | `compilations/build-bayer-deploy.py` | **Run to rebuild** JSON + upsert Lua |
 | `compilations/build-bayer-full-tabs.py` | Layout builder |
 | `compilations/bayer_properties_panel.py` | Properties panel (nested compilation + delegate routes) |
+| `compilations/bayer_chart_panel.py` | Multi-select Submit → chart (HM addPens pattern) |
 | `compilations/smart-sentinel-ai-upsert-full.lua` | **Deploy to host** |
 | `compilations/default-hm-tree-tab-clone.json` | HM properties reference |
 | `docs/discovery/default-hm-compilation.json` | Captured default HM |

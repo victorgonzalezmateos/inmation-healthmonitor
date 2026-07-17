@@ -12,6 +12,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+from bayer_chart_panel import (
+    CHART_ID,
+    SELECTED_ID,
+    augment_counters_for_chart,
+    chart_widget,
+    selected_table_widget,
+    show_counters_hide_chart,
+)
 from bayer_properties_panel import (
     LEFT_W as PROPS_LEFT_W,
     PROPS_CONTENT_ROWS,
@@ -135,6 +143,9 @@ def overview_widget(src: dict, visible: bool) -> dict:
     w["captionBar"] = False
     w["layout"] = dict(OVERVIEW_SHOW if visible else HIDE_LAYOUT)
     w["options"] = panel_options(w)
+    # Selecting a row should return to counters if the chart is open.
+    on_select = w.setdefault("actions", {}).setdefault("onSelect", [])
+    on_select.extend(show_counters_hide_chart())
     return w
 
 
@@ -143,11 +154,13 @@ def tree_widget(src: dict, visible: bool) -> dict:
     w["captionBar"] = False
     w["layout"] = dict(TREE_SHOW if visible else HIDE_LAYOUT)
     w["options"] = panel_options(w)
+    on_click = w.setdefault("actions", {}).setdefault("onClick", [])
+    on_click.extend(show_counters_hide_chart())
     return w
 
 
 def counters_widget(src: dict) -> dict:
-    w = copy.deepcopy(src)
+    w = augment_counters_for_chart(src)
     w["name"] = "Performance Counters"
     w["label"] = "Performance Counters"
     w["layout"] = {"x": RIGHT_X, "y": 0, "w": 96 - RIGHT_X, "h": PANEL_H, "static": True}
@@ -175,6 +188,9 @@ def build() -> dict:
     widgets = [
         nav_button(NAV_BTN, "Navigation", 0, True, activate_navigation()),
         nav_button(OVERVIEW_BTN, "Overview", BTN_W, False, activate_overview()),
+        # Hidden right-panel peers before visible counters (same rule as overview before tree).
+        selected_table_widget(visible=False),
+        chart_widget(visible=False),
         counters_widget(by_id[COUNTERS_ID]),
         *_PROPS_WIDGETS,
         overview_widget(by_id[OVERVIEW_ID], visible=False),
@@ -183,7 +199,10 @@ def build() -> dict:
 
     out = copy.deepcopy(base)
     apply_app_title(out)
-    out["description"] = "Smart Sentinel HM: nav + HM properties + right counters"
+    out["description"] = (
+        f"Smart Sentinel HM: nav + properties + counters/table/chart "
+        f"({COUNTERS_ID}/{SELECTED_ID}/{CHART_ID})"
+    )
     out["options"]["numberOfRows"] = {"type": "count", "value": PANEL_H + 2}
     out["options"]["padding"] = {"x": 0, "y": 0}
     out["options"]["margin"] = {"x": 0, "y": 0}

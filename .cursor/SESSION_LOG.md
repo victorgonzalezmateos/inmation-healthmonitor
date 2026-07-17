@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (last updated: 2026-07-10 end of day)
+## Current State (last updated: 2026-07-17)
 
 | Item | Value |
 |------|-------|
@@ -15,9 +15,9 @@
 | **Git branch** | `master` (tracks `origin/master`) |
 | **Workflow tool** | Kanvas — `canvas-tool.py` + Obsidian Canvas (`Project.canvas`) |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **Phase 2 done — Smart Sentinel layout validated on host** |
+| **Phase** | **Phase 3 — Chart/Submit done; next VA-01 parity** |
 
-### Smart Sentinel — working on host (2026-07-10)
+### Smart Sentinel — working on host (2026-07-17)
 
 | Feature | Status |
 |---------|--------|
@@ -28,6 +28,9 @@
 | Object properties panel (Navigation only) | ✓ |
 | Properties: nested compilation + delegate worker route | ✓ |
 | Overview hides properties panel | ✓ |
+| Multi-select counters + Submit → Chart (`addPens`) | ✓ |
+| Counters \| Chart icon switcher (HM gauge/trend icons) | ✓ |
+| Chart → Counters hide-first layout (no misalignment) | ✓ |
 
 ### Deploy recipe
 ```powershell
@@ -45,14 +48,17 @@ python compilations/build-bayer-deploy.py
 | Tab toggle via `layout w/h=0` + explicit x,y,w,h | Nav/overview swap works |
 | `display:none` for tab panels | **Fails** — use layout size |
 | HM runtime `layout.w=35` on name field | **Overflows** 28-col panel — removed |
+| Chart/Counters toggle: hide peers first, then show active | Prevents bottom/misaligned caption |
+| Right-panel widget order: chart/selected before counters | Same rule as overview before tree |
 
-### Not yet done (next week)
-- [ ] Chart tab from default HM capture
+### Not yet done
+- [x] Chart / Submit from default HM pattern (2026-07-17)
 - [ ] VA-01 parity checklist live run
 - [x] GitHub: core builders + deploy artifacts + `docs/discovery/` pushed (`d28dcfc`, `a3d0280`)
+- [x] Save point tag name: `smart-sentinel-phase2-layout-ok`
 
 ### Board status
-- Canvas tasks in repo docs; live milestone is Smart Sentinel full layout on host
+- Canvas tasks in repo docs; live milestone is Smart Sentinel + Chart/Submit on host
 
 ---
 
