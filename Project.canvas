@@ -42,7 +42,7 @@
 			"x": 1760,
 			"y": 0,
 			"width": 380,
-			"height": 700,
+			"height": 760,
 			"label": "Validation"
 		},
 		{
@@ -230,6 +230,16 @@
 			"text": "## VA-03 VA-03 Run live default-vs-custom parity\nExecute docs/validation/VA-01-parity-checklist.md side-by-side on host byus00876m1: Default HM vs Smart Sentinel Custom Properties. Fill H/S/P/C/CH checks; ProcessState N/A. Sign-off PASS/CONDITIONAL/FAIL.",
 			"x": 1780,
 			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "87ef54c8",
+			"type": "text",
+			"text": "## VA-04 UP-06 Validate app shell and Overview KPI row on host\nDeploy smart-sentinel-ai-upsert-full.lua. Confirm persistent Overview|Trends menu. Validate 6 Designer KPI cards load from fetchNavigationTable and match style mockup. Polish spacing/icons if needed.",
+			"x": 1780,
+			"y": 580,
 			"width": 280,
 			"height": 160,
 			"color": "6"

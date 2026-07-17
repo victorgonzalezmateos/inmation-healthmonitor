@@ -1,7 +1,7 @@
 {
   "version": "1",
   "name": "Smart Sentinel",
-  "description": "Smart Sentinel HM: nav + properties + counters/table/chart (bayer-counters-table/bayer-selected-table/bayer-chart)",
+  "description": "Smart Sentinel: app menu Overview|Trends; Trends = nav + props + counters/chart (bayer-counters-table/bayer-selected-table/bayer-chart)",
   "options": {
     "background": {
       "style": {
@@ -110,12 +110,3824 @@
   },
   "widgets": [
     {
+      "id": "bayer-menu-rail",
+      "type": "text",
+      "captionBar": false,
+      "text": "",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 14,
+        "h": 54,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "#0b2433",
+          "borderRadius": "0",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-menu-overview",
+      "type": "button",
+      "captionBar": false,
+      "label": "Overview",
+      "icon": {
+        "light": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNNTc1LjggMjU1LjVjMCAxOC0xNSAzMi4xLTMyIDMyLjFoLTMybC43IDE2MC4yYzAgMi43LS4yIDUuNC0uNSA4LjFWNDcyYzAgMjIuMS0xNy45IDQwLTQwIDQwSDQ1NmMtMS4xIDAtMi4yIDAtMy4zLS4xYy0xLjQgLjEtMi44IC4xLTQuMiAuMUg0MTYgMzkyYy0yMi4xIDAtNDAtMTcuOS00MC00MFY0NDggMzg0YzAtMTcuNy0xNC4zLTMyLTMyLTMySDI1NmMtMTcuNyAwLTMyIDE0LjMtMzIgMzJ2NjQgMjRjMCAyMi4xLTE3LjkgNDAtNDAgNDBIMTYwIDEyOC4xYy0xLjUgMC0yLjkgMC00LjMtLjFjLTEuMSAuMS0yLjIgLjEtMy4zIC4xSDEwNGMtMjIuMSAwLTQwLTE3LjktNDAtNDBWMzYwYzAtLjkgMC0xLjkgLjEtMi44VjI4Ny42SDMyYy0xOCAwLTMyLTE0LTMyLTMyLjFjMC05IDMtMTcgMTAtMjRMMjY2LjQgOGM3LTcgMTUtOCAyMi04czE1IDIgMjEgN0w1NjQuOCAyMzEuNWM4IDcgMTIgMTUgMTEgMjR6Ii8+PC9zdmc+",
+          "mimeType": "image/svg+xml"
+        },
+        "dark": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNNTc1LjggMjU1LjVjMCAxOC0xNSAzMi4xLTMyIDMyLjFoLTMybC43IDE2MC4yYzAgMi43LS4yIDUuNC0uNSA4LjFWNDcyYzAgMjIuMS0xNy45IDQwLTQwIDQwSDQ1NmMtMS4xIDAtMi4yIDAtMy4zLS4xYy0xLjQgLjEtMi44IC4xLTQuMiAuMUg0MTYgMzkyYy0yMi4xIDAtNDAtMTcuOS00MC00MFY0NDggMzg0YzAtMTcuNy0xNC4zLTMyLTMyLTMySDI1NmMtMTcuNyAwLTMyIDE0LjMtMzIgMzJ2NjQgMjRjMCAyMi4xLTE3LjkgNDAtNDAgNDBIMTYwIDEyOC4xYy0xLjUgMC0yLjkgMC00LjMtLjFjLTEuMSAuMS0yLjIgLjEtMy4zIC4xSDEwNGMtMjIuMSAwLTQwLTE3LjktNDAtNDBWMzYwYzAtLjkgMC0xLjkgLjEtMi44VjI4Ny42SDMyYy0xOCAwLTMyLTE0LTMyLTMyLjFjMC05IDMtMTcgMTAtMjRMMjY2LjQgOGM3LTcgMTUtOCAyMi04czE1IDIgMjEgN0w1NjQuOCAyMzEuNWM4IDcgMTIgMTUgMTEgMjR6Ii8+PC9zdmc+",
+          "mimeType": "image/svg+xml"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 1,
+        "w": 14,
+        "h": 4,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#ffffff",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "border": "none",
+          "borderRadius": "6px",
+          "height": "100%",
+          "textAlign": "left",
+          "padding": "0 8px",
+          "justifyContent": "flex-start"
+        }
+      },
+      "actions": {
+        "onClick": [
+          {
+            "type": "modify",
+            "id": "bayer-btn-navigation",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-btn-overview",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-tree",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-overview-table",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-props-panel",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-counters-table",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-selected-table",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-chart",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-page-overview-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 15
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 80
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-page-overview-sub",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 15
+              },
+              {
+                "name": "model.layout.y",
+                "value": 3
+              },
+              {
+                "name": "model.layout.w",
+                "value": 80
+              },
+              {
+                "name": "model.layout.h",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-source",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 14
+              },
+              {
+                "name": "model.layout.y",
+                "value": 53
+              },
+              {
+                "name": "model.layout.w",
+                "value": 1
+              },
+              {
+                "name": "model.layout.h",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-health-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 15
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 18
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-health-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 15
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-health",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 15
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-health-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 15
+              },
+              {
+                "name": "model.layout.y",
+                "value": 20
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 28
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 18
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 28
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 28
+              },
+              {
+                "name": "model.layout.y",
+                "value": 20
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-value",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 28
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 8
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-icon",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 36
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 4
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 41
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 18
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 41
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 41
+              },
+              {
+                "name": "model.layout.y",
+                "value": 20
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-icon",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 41
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 4
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-value",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 45
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 8
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 54
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 18
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 54
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 54
+              },
+              {
+                "name": "model.layout.y",
+                "value": 20
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-icon",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 54
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 4
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-value",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 58
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 8
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 67
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 18
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 67
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 67
+              },
+              {
+                "name": "model.layout.y",
+                "value": 20
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-icon",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 67
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 4
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-value",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 71
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 8
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 80
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 18
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 80
+              },
+              {
+                "name": "model.layout.y",
+                "value": 5
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 80
+              },
+              {
+                "name": "model.layout.y",
+                "value": 20
+              },
+              {
+                "name": "model.layout.w",
+                "value": 12
+              },
+              {
+                "name": "model.layout.h",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-icon",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 80
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 4
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-value",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 84
+              },
+              {
+                "name": "model.layout.y",
+                "value": 8
+              },
+              {
+                "name": "model.layout.w",
+                "value": 8
+              },
+              {
+                "name": "model.layout.h",
+                "value": 12
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-menu-overview",
+            "set": [
+              {
+                "name": "model.options.style",
+                "value": {
+                  "backgroundColor": "rgba(137, 211, 41, 0.18)",
+                  "color": "#ffffff",
+                  "fontSize": "12px",
+                  "fontWeight": "600",
+                  "border": "none",
+                  "borderRadius": "6px",
+                  "height": "100%",
+                  "textAlign": "left",
+                  "padding": "0 8px",
+                  "justifyContent": "flex-start"
+                }
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-menu-trends",
+            "set": [
+              {
+                "name": "model.options.style",
+                "value": {
+                  "backgroundColor": "transparent",
+                  "color": "#ffffff",
+                  "fontSize": "12px",
+                  "fontWeight": "600",
+                  "border": "none",
+                  "borderRadius": "6px",
+                  "height": "100%",
+                  "textAlign": "left",
+                  "padding": "0 8px",
+                  "justifyContent": "flex-start"
+                }
+              }
+            ]
+          },
+          {
+            "type": "refresh",
+            "id": "bayer-kpi-source"
+          },
+          {
+            "type": "refresh",
+            "id": "bayer-kpi-health"
+          }
+        ]
+      }
+    },
+    {
+      "id": "bayer-menu-trends",
+      "type": "button",
+      "captionBar": false,
+      "label": "Trends",
+      "icon": {
+        "light": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNNjQgNjRjMC0xNy43LTE0LjMtMzItMzItMzJTMCA0Ni4zIDAgNjRWNDAwYzAgNDQuMiAzNS44IDgwIDgwIDgwSDQ4MGMxNy43IDAgMzItMTQuMyAzMi0zMnMtMTQuMy0zMi0zMi0zMkg4MGMtOC44IDAtMTYtNy4yLTE2LTE2VjY0em00MDYuNiA4Ni42YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDMyMCAyMTAuN2wtNTcuNC01Ny40Yy0xMi41LTEyLjUtMzIuOC0xMi41LTQ1LjMgMGwtMTEyIDExMmMtMTIuNSAxMi41LTEyLjUgMzIuOCAwIDQ1LjNzMzIuOCAxMi41IDQ1LjMgMEwyNDAgMjIxLjNsNTcuNCA1Ny40YzEyLjUgMTIuNSAzMi44IDEyLjUgNDUuMyAwbDEyOC0xMjh6Ii8+PC9zdmc+",
+          "mimeType": "image/svg+xml"
+        },
+        "dark": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNNjQgNjRjMC0xNy43LTE0LjMtMzItMzItMzJTMCA0Ni4zIDAgNjRWNDAwYzAgNDQuMiAzNS44IDgwIDgwIDgwSDQ4MGMxNy43IDAgMzItMTQuMyAzMi0zMnMtMTQuMy0zMi0zMi0zMkg4MGMtOC44IDAtMTYtNy4yLTE2LTE2VjY0em00MDYuNiA4Ni42YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDMyMCAyMTAuN2wtNTcuNC01Ny40Yy0xMi41LTEyLjUtMzIuOC0xMi41LTQ1LjMgMGwtMTEyIDExMmMtMTIuNSAxMi41LTEyLjUgMzIuOCAwIDQ1LjNzMzIuOCAxMi41IDQ1LjMgMEwyNDAgMjIxLjNsNTcuNCA1Ny40YzEyLjUgMTIuNSAzMi44IDEyLjUgNDUuMyAwbDEyOC0xMjh6Ii8+PC9zdmc+",
+          "mimeType": "image/svg+xml"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 5,
+        "w": 14,
+        "h": 4,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "rgba(137, 211, 41, 0.18)",
+          "color": "#ffffff",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "border": "none",
+          "borderRadius": "6px",
+          "height": "100%",
+          "textAlign": "left",
+          "padding": "0 8px",
+          "justifyContent": "flex-start"
+        }
+      },
+      "actions": {
+        "onClick": [
+          {
+            "type": "modify",
+            "id": "bayer-page-overview-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-page-overview-sub",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-health-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-health-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-health",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-health-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-source",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-icon",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-value",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-icon",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-value",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-icon",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-value",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-icon",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-value",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-bg",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-title",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-icon",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-value",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-footer",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-btn-navigation",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 14
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 14
+              },
+              {
+                "name": "model.layout.h",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-btn-overview",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 28
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 14
+              },
+              {
+                "name": "model.layout.h",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-overview-table",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-tree",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 14
+              },
+              {
+                "name": "model.layout.y",
+                "value": 4
+              },
+              {
+                "name": "model.layout.w",
+                "value": 28
+              },
+              {
+                "name": "model.layout.h",
+                "value": 34
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-props-panel",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 14
+              },
+              {
+                "name": "model.layout.y",
+                "value": 38
+              },
+              {
+                "name": "model.layout.w",
+                "value": 28
+              },
+              {
+                "name": "model.layout.h",
+                "value": 16
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-btn-navigation",
+            "set": [
+              {
+                "name": "model.options.style",
+                "value": {
+                  "backgroundColor": "#10384f",
+                  "color": "#ffffff",
+                  "fontSize": "12px",
+                  "fontWeight": "600",
+                  "border": "1px solid #10384f",
+                  "borderRadius": "8px 0 0 0",
+                  "height": "100%"
+                }
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-btn-overview",
+            "set": [
+              {
+                "name": "model.options.style",
+                "value": {
+                  "backgroundColor": "#f1f5f9",
+                  "color": "#64748b",
+                  "fontSize": "12px",
+                  "fontWeight": "600",
+                  "border": "1px solid #ededed",
+                  "borderRadius": "0 8px 0 0",
+                  "height": "100%"
+                }
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-selected-table",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-chart",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 0
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 0
+              },
+              {
+                "name": "model.layout.h",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-counters-table",
+            "set": [
+              {
+                "name": "model.layout.x",
+                "value": 44
+              },
+              {
+                "name": "model.layout.y",
+                "value": 0
+              },
+              {
+                "name": "model.layout.w",
+                "value": 52
+              },
+              {
+                "name": "model.layout.h",
+                "value": 54
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-menu-overview",
+            "set": [
+              {
+                "name": "model.options.style",
+                "value": {
+                  "backgroundColor": "transparent",
+                  "color": "#ffffff",
+                  "fontSize": "12px",
+                  "fontWeight": "600",
+                  "border": "none",
+                  "borderRadius": "6px",
+                  "height": "100%",
+                  "textAlign": "left",
+                  "padding": "0 8px",
+                  "justifyContent": "flex-start"
+                }
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-menu-trends",
+            "set": [
+              {
+                "name": "model.options.style",
+                "value": {
+                  "backgroundColor": "rgba(137, 211, 41, 0.18)",
+                  "color": "#ffffff",
+                  "fontSize": "12px",
+                  "fontWeight": "600",
+                  "border": "none",
+                  "borderRadius": "6px",
+                  "height": "100%",
+                  "textAlign": "left",
+                  "padding": "0 8px",
+                  "justifyContent": "flex-start"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bayer-page-overview-title",
+      "type": "text",
+      "captionBar": false,
+      "text": "Overview",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#10384f",
+          "fontSize": "22px",
+          "fontWeight": "700",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "8px 8px 0"
+        }
+      }
+    },
+    {
+      "id": "bayer-page-overview-sub",
+      "type": "text",
+      "captionBar": false,
+      "text": "Global view of inmation Health",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#64748b",
+          "fontSize": "13px",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "0 8px"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-health-bg",
+      "type": "text",
+      "captionBar": false,
+      "text": "",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #e5e7eb",
+          "borderRadius": "12px",
+          "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)",
+          "height": "100%",
+          "pointerEvents": "none"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-health-title",
+      "type": "text",
+      "captionBar": false,
+      "text": "Health Score",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#334155",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "10px 12px 0",
+          "textAlign": "center"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-health",
+      "type": "plotly",
+      "name": "Health Score",
+      "captionBar": false,
+      "data": [],
+      "plotlyOptions": {
+        "layout": {
+          "margin": {
+            "l": 4,
+            "r": 4,
+            "t": 4,
+            "b": 0
+          },
+          "paper_bgcolor": "rgba(0,0,0,0)",
+          "plot_bgcolor": "rgba(0,0,0,0)"
+        },
+        "config": {
+          "displayModeBar": false,
+          "responsive": true
+        }
+      },
+      "dataSource": {
+        "type": "function",
+        "lib": "syslib.app-webstudio-healthmonitor",
+        "func": "fetchNavigationTable",
+        "catch": {
+          "type": "break",
+          "action": [
+            {
+              "type": "notify",
+              "title": "Error",
+              "text": "See browser console for more details!",
+              "duration": 12000,
+              "transition": "slide",
+              "styleByTheme": {
+                "light": {
+                  "backgroundColor": "#f20d0d"
+                },
+                "dark": {
+                  "backgroundColor": "#cc0000"
+                }
+              }
+            }
+          ]
+        },
+        "transform": [
+          {
+            "$group": {
+              "_id": null,
+              "total": {
+                "$sum": 1
+              },
+              "good": {
+                "$sum": {
+                  "$cond": [
+                    {
+                      "$eq": [
+                        "$WorstState",
+                        "Good"
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              },
+              "bad": {
+                "$sum": {
+                  "$cond": [
+                    {
+                      "$eq": [
+                        "$WorstState",
+                        "Bad"
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              },
+              "warning": {
+                "$sum": {
+                  "$cond": [
+                    {
+                      "$eq": [
+                        "$WorstState",
+                        "Warning"
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              },
+              "empty": {
+                "$sum": {
+                  "$cond": [
+                    {
+                      "$eq": [
+                        "$WorstState",
+                        "Empty"
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              },
+              "disabled": {
+                "$sum": {
+                  "$cond": [
+                    {
+                      "$eq": [
+                        "$WorstState",
+                        "Disabled"
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              },
+              "neutral": {
+                "$sum": {
+                  "$cond": [
+                    {
+                      "$eq": [
+                        "$WorstState",
+                        "Neutral"
+                      ]
+                    },
+                    1,
+                    0
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "$project": {
+              "_id": 0,
+              "total": 1,
+              "good": 1,
+              "bad": 1,
+              "warning": 1,
+              "empty": 1,
+              "disabled": 1,
+              "neutral": 1,
+              "info": {
+                "$add": [
+                  "$empty",
+                  "$disabled",
+                  "$neutral"
+                ]
+              },
+              "score": {
+                "$cond": [
+                  {
+                    "$gt": [
+                      "$total",
+                      0
+                    ]
+                  },
+                  {
+                    "$round": [
+                      {
+                        "$multiply": [
+                          {
+                            "$divide": [
+                              "$good",
+                              "$total"
+                            ]
+                          },
+                          100
+                        ]
+                      },
+                      0
+                    ]
+                  },
+                  0
+                ]
+              },
+              "problemsPct": {
+                "$cond": [
+                  {
+                    "$gt": [
+                      "$total",
+                      0
+                    ]
+                  },
+                  {
+                    "$round": [
+                      {
+                        "$multiply": [
+                          {
+                            "$divide": [
+                              "$bad",
+                              "$total"
+                            ]
+                          },
+                          100
+                        ]
+                      },
+                      2
+                    ]
+                  },
+                  0
+                ]
+              },
+              "warningsPct": {
+                "$cond": [
+                  {
+                    "$gt": [
+                      "$total",
+                      0
+                    ]
+                  },
+                  {
+                    "$round": [
+                      {
+                        "$multiply": [
+                          {
+                            "$divide": [
+                              "$warning",
+                              "$total"
+                            ]
+                          },
+                          100
+                        ]
+                      },
+                      2
+                    ]
+                  },
+                  0
+                ]
+              },
+              "infoPct": {
+                "$cond": [
+                  {
+                    "$gt": [
+                      "$total",
+                      0
+                    ]
+                  },
+                  {
+                    "$round": [
+                      {
+                        "$multiply": [
+                          {
+                            "$divide": [
+                              {
+                                "$add": [
+                                  "$empty",
+                                  "$disabled",
+                                  "$neutral"
+                                ]
+                              },
+                              "$total"
+                            ]
+                          },
+                          100
+                        ]
+                      },
+                      2
+                    ]
+                  },
+                  0
+                ]
+              },
+              "statusLabel": {
+                "$cond": [
+                  {
+                    "$gte": [
+                      {
+                        "$cond": [
+                          {
+                            "$gt": [
+                              "$total",
+                              0
+                            ]
+                          },
+                          {
+                            "$multiply": [
+                              {
+                                "$divide": [
+                                  "$good",
+                                  "$total"
+                                ]
+                              },
+                              100
+                            ]
+                          },
+                          0
+                        ]
+                      },
+                      70
+                    ]
+                  },
+                  "Good",
+                  {
+                    "$cond": [
+                      {
+                        "$gte": [
+                          {
+                            "$cond": [
+                              {
+                                "$gt": [
+                                  "$total",
+                                  0
+                                ]
+                              },
+                              {
+                                "$multiply": [
+                                  {
+                                    "$divide": [
+                                      "$good",
+                                      "$total"
+                                    ]
+                                  },
+                                  100
+                                ]
+                              },
+                              0
+                            ]
+                          },
+                          40
+                        ]
+                      },
+                      "Fair",
+                      "Poor"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "$project": {
+              "data": [
+                {
+                  "type": "pie",
+                  "hole": 0.72,
+                  "rotation": 180,
+                  "direction": "clockwise",
+                  "sort": false,
+                  "textinfo": "none",
+                  "hoverinfo": "label+percent+value",
+                  "showlegend": false,
+                  "labels": [
+                    "Good",
+                    "Warning",
+                    "Bad",
+                    "_half"
+                  ],
+                  "values": [
+                    "$good",
+                    "$warning",
+                    "$bad",
+                    {
+                      "$add": [
+                        "$good",
+                        "$warning",
+                        "$bad"
+                      ]
+                    }
+                  ],
+                  "marker": {
+                    "colors": [
+                      "#89d329",
+                      "#eab308",
+                      "#ef4444",
+                      "rgba(0,0,0,0)"
+                    ],
+                    "line": {
+                      "width": 0
+                    }
+                  }
+                }
+              ],
+              "plotlyOptions": {
+                "layout": {
+                  "margin": {
+                    "l": 4,
+                    "r": 4,
+                    "t": 4,
+                    "b": 0
+                  },
+                  "showlegend": false,
+                  "annotations": [
+                    {
+                      "text": {
+                        "$toString": "$score"
+                      },
+                      "x": 0.5,
+                      "y": 0.42,
+                      "xref": "paper",
+                      "yref": "paper",
+                      "showarrow": false,
+                      "font": {
+                        "size": 28,
+                        "color": "#0f172a",
+                        "family": "Inter, 'Segoe UI', sans-serif"
+                      }
+                    },
+                    {
+                      "text": "/100",
+                      "x": 0.5,
+                      "y": 0.22,
+                      "xref": "paper",
+                      "yref": "paper",
+                      "showarrow": false,
+                      "font": {
+                        "size": 12,
+                        "color": "#94a3b8",
+                        "family": "Inter, 'Segoe UI', sans-serif"
+                      }
+                    }
+                  ],
+                  "paper_bgcolor": "rgba(0,0,0,0)",
+                  "plot_bgcolor": "rgba(0,0,0,0)"
+                },
+                "config": {
+                  "displayModeBar": false,
+                  "responsive": true
+                }
+              }
+            }
+          }
+        ]
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "border": "none",
+          "height": "100%"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      }
+    },
+    {
+      "id": "bayer-kpi-health-footer",
+      "type": "text",
+      "captionBar": false,
+      "text": "\u2014",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#16a34a",
+          "fontSize": "11px",
+          "fontWeight": "500",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "0 12px 10px",
+          "textAlign": "center"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-total-bg",
+      "type": "text",
+      "captionBar": false,
+      "text": "",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #e5e7eb",
+          "borderRadius": "12px",
+          "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)",
+          "height": "100%",
+          "pointerEvents": "none"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-total-title",
+      "type": "text",
+      "captionBar": false,
+      "text": "Total Components",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#334155",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "10px 12px 0",
+          "textAlign": "left"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-total-icon",
+      "type": "image",
+      "captionBar": false,
+      "image": {
+        "light": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3QgeD0iOCIgeT0iOCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjE0IiByeD0iNCIgZmlsbD0iIzI1NjNlYiIvPjxyZWN0IHg9IjgiIHk9IjI1IiB3aWR0aD0iNDgiIGhlaWdodD0iMTQiIHJ4PSI0IiBmaWxsPSIjMjU2M2ViIi8+PHJlY3QgeD0iOCIgeT0iNDIiIHdpZHRoPSI0OCIgaGVpZ2h0PSIxNCIgcng9IjQiIGZpbGw9IiMyNTYzZWIiLz48Y2lyY2xlIGN4PSI0NiIgY3k9IjE1IiByPSIzIiBmaWxsPSIjZmZmZmZmIi8+PGNpcmNsZSBjeD0iNDYiIGN5PSIzMiIgcj0iMyIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjQ2IiBjeT0iNDkiIHI9IjMiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=",
+          "mimeType": "image/svg+xml"
+        },
+        "dark": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3QgeD0iOCIgeT0iOCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjE0IiByeD0iNCIgZmlsbD0iIzI1NjNlYiIvPjxyZWN0IHg9IjgiIHk9IjI1IiB3aWR0aD0iNDgiIGhlaWdodD0iMTQiIHJ4PSI0IiBmaWxsPSIjMjU2M2ViIi8+PHJlY3QgeD0iOCIgeT0iNDIiIHdpZHRoPSI0OCIgaGVpZ2h0PSIxNCIgcng9IjQiIGZpbGw9IiMyNTYzZWIiLz48Y2lyY2xlIGN4PSI0NiIgY3k9IjE1IiByPSIzIiBmaWxsPSIjZmZmZmZmIi8+PGNpcmNsZSBjeD0iNDYiIGN5PSIzMiIgcj0iMyIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjQ2IiBjeT0iNDkiIHI9IjMiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=",
+          "mimeType": "image/svg+xml"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "fit": "contain",
+        "style": {
+          "backgroundColor": "transparent",
+          "padding": "8px",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-total-value",
+      "type": "text",
+      "captionBar": false,
+      "text": "\u2014",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#0f172a",
+          "fontSize": "32px",
+          "fontWeight": "700",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "4px 8px",
+          "textAlign": "left",
+          "display": "flex",
+          "alignItems": "center",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-total-footer",
+      "type": "text",
+      "captionBar": false,
+      "text": "All Sites",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#64748b",
+          "fontSize": "11px",
+          "fontWeight": "500",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "0 12px 10px",
+          "textAlign": "center"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-problems-bg",
+      "type": "text",
+      "captionBar": false,
+      "text": "",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #e5e7eb",
+          "borderRadius": "12px",
+          "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)",
+          "height": "100%",
+          "pointerEvents": "none"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-problems-title",
+      "type": "text",
+      "captionBar": false,
+      "text": "Problems",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#334155",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "10px 12px 0",
+          "textAlign": "left"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-problems-icon",
+      "type": "image",
+      "captionBar": false,
+      "image": {
+        "light": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHBhdGggZmlsbD0iI2VmNDQ0NCIgZD0iTTMyIDZMNjAgNTRINEwzMiA2eiIvPjxyZWN0IHg9IjI5IiB5PSIyNCIgd2lkdGg9IjYiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmZmZmZmIi8+PGNpcmNsZSBjeD0iMzIiIGN5PSI0NiIgcj0iMy41IiBmaWxsPSIjZmZmZmZmIi8+PC9zdmc+",
+          "mimeType": "image/svg+xml"
+        },
+        "dark": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHBhdGggZmlsbD0iI2VmNDQ0NCIgZD0iTTMyIDZMNjAgNTRINEwzMiA2eiIvPjxyZWN0IHg9IjI5IiB5PSIyNCIgd2lkdGg9IjYiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmZmZmZmIi8+PGNpcmNsZSBjeD0iMzIiIGN5PSI0NiIgcj0iMy41IiBmaWxsPSIjZmZmZmZmIi8+PC9zdmc+",
+          "mimeType": "image/svg+xml"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "fit": "contain",
+        "style": {
+          "backgroundColor": "transparent",
+          "padding": "8px",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-problems-value",
+      "type": "text",
+      "captionBar": false,
+      "text": "\u2014",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#ef4444",
+          "fontSize": "32px",
+          "fontWeight": "700",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "4px 8px",
+          "textAlign": "left",
+          "display": "flex",
+          "alignItems": "center",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-problems-footer",
+      "type": "text",
+      "captionBar": false,
+      "text": "\u2014% of components",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#ef4444",
+          "fontSize": "11px",
+          "fontWeight": "500",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "0 12px 10px",
+          "textAlign": "center"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-warnings-bg",
+      "type": "text",
+      "captionBar": false,
+      "text": "",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #e5e7eb",
+          "borderRadius": "12px",
+          "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)",
+          "height": "100%",
+          "pointerEvents": "none"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-warnings-title",
+      "type": "text",
+      "captionBar": false,
+      "text": "Warnings",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#334155",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "10px 12px 0",
+          "textAlign": "left"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-warnings-icon",
+      "type": "image",
+      "captionBar": false,
+      "image": {
+        "light": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHBhdGggZmlsbD0iI2VhYjMwOCIgZD0iTTMyIDZMNjAgNTRINEwzMiA2eiIvPjxyZWN0IHg9IjI5IiB5PSIyNCIgd2lkdGg9IjYiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmZmZmZmIi8+PGNpcmNsZSBjeD0iMzIiIGN5PSI0NiIgcj0iMy41IiBmaWxsPSIjZmZmZmZmIi8+PC9zdmc+",
+          "mimeType": "image/svg+xml"
+        },
+        "dark": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHBhdGggZmlsbD0iI2VhYjMwOCIgZD0iTTMyIDZMNjAgNTRINEwzMiA2eiIvPjxyZWN0IHg9IjI5IiB5PSIyNCIgd2lkdGg9IjYiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSIjZmZmZmZmIi8+PGNpcmNsZSBjeD0iMzIiIGN5PSI0NiIgcj0iMy41IiBmaWxsPSIjZmZmZmZmIi8+PC9zdmc+",
+          "mimeType": "image/svg+xml"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "fit": "contain",
+        "style": {
+          "backgroundColor": "transparent",
+          "padding": "8px",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-warnings-value",
+      "type": "text",
+      "captionBar": false,
+      "text": "\u2014",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#ca8a04",
+          "fontSize": "32px",
+          "fontWeight": "700",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "4px 8px",
+          "textAlign": "left",
+          "display": "flex",
+          "alignItems": "center",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-warnings-footer",
+      "type": "text",
+      "captionBar": false,
+      "text": "\u2014% of components",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#ca8a04",
+          "fontSize": "11px",
+          "fontWeight": "500",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "0 12px 10px",
+          "textAlign": "center"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-info-bg",
+      "type": "text",
+      "captionBar": false,
+      "text": "",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #e5e7eb",
+          "borderRadius": "12px",
+          "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)",
+          "height": "100%",
+          "pointerEvents": "none"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-info-title",
+      "type": "text",
+      "captionBar": false,
+      "text": "Info",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#334155",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "10px 12px 0",
+          "textAlign": "left"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-info-icon",
+      "type": "image",
+      "captionBar": false,
+      "image": {
+        "light": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMjgiIGZpbGw9IiMzYjgyZjYiLz48Y2lyY2xlIGN4PSIzMiIgY3k9IjE4IiByPSI0IiBmaWxsPSIjZmZmZmZmIi8+PHJlY3QgeD0iMjgiIHk9IjI4IiB3aWR0aD0iOCIgaGVpZ2h0PSIyMiIgcng9IjMiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=",
+          "mimeType": "image/svg+xml"
+        },
+        "dark": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMjgiIGZpbGw9IiMzYjgyZjYiLz48Y2lyY2xlIGN4PSIzMiIgY3k9IjE4IiByPSI0IiBmaWxsPSIjZmZmZmZmIi8+PHJlY3QgeD0iMjgiIHk9IjI4IiB3aWR0aD0iOCIgaGVpZ2h0PSIyMiIgcng9IjMiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=",
+          "mimeType": "image/svg+xml"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "fit": "contain",
+        "style": {
+          "backgroundColor": "transparent",
+          "padding": "8px",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-info-value",
+      "type": "text",
+      "captionBar": false,
+      "text": "\u2014",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#3b82f6",
+          "fontSize": "32px",
+          "fontWeight": "700",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "4px 8px",
+          "textAlign": "left",
+          "display": "flex",
+          "alignItems": "center",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-info-footer",
+      "type": "text",
+      "captionBar": false,
+      "text": "\u2014% of components",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#3b82f6",
+          "fontSize": "11px",
+          "fontWeight": "500",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "0 12px 10px",
+          "textAlign": "center"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-sites-bg",
+      "type": "text",
+      "captionBar": false,
+      "text": "",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "#ffffff",
+          "border": "1px solid #e5e7eb",
+          "borderRadius": "12px",
+          "boxShadow": "0 1px 3px rgba(16, 56, 79, 0.08)",
+          "height": "100%",
+          "pointerEvents": "none"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-sites-title",
+      "type": "text",
+      "captionBar": false,
+      "text": "Sites Impacted",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#334155",
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "10px 12px 0",
+          "textAlign": "left"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-sites-icon",
+      "type": "image",
+      "captionBar": false,
+      "image": {
+        "light": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMjYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzdjM2FlZCIgc3Ryb2tlLXdpZHRoPSI0Ii8+PGVsbGlwc2UgY3g9IjMyIiBjeT0iMzIiIHJ4PSIxMiIgcnk9IjI2IiBmaWxsPSJub25lIiBzdHJva2U9IiM3YzNhZWQiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik02IDMyaDUyTTEwIDIwaDQ0TTEwIDQ0aDQ0IiBmaWxsPSJub25lIiBzdHJva2U9IiM3YzNhZWQiIHN0cm9rZS13aWR0aD0iMyIvPjwvc3ZnPg==",
+          "mimeType": "image/svg+xml"
+        },
+        "dark": {
+          "base64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMjYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzdjM2FlZCIgc3Ryb2tlLXdpZHRoPSI0Ii8+PGVsbGlwc2UgY3g9IjMyIiBjeT0iMzIiIHJ4PSIxMiIgcnk9IjI2IiBmaWxsPSJub25lIiBzdHJva2U9IiM3YzNhZWQiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik02IDMyaDUyTTEwIDIwaDQ0TTEwIDQ0aDQ0IiBmaWxsPSJub25lIiBzdHJva2U9IiM3YzNhZWQiIHN0cm9rZS13aWR0aD0iMyIvPjwvc3ZnPg==",
+          "mimeType": "image/svg+xml"
+        }
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "fit": "contain",
+        "style": {
+          "backgroundColor": "transparent",
+          "padding": "8px",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-sites-value",
+      "type": "text",
+      "captionBar": false,
+      "text": "\u2014",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#7c3aed",
+          "fontSize": "32px",
+          "fontWeight": "700",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "4px 8px",
+          "textAlign": "left",
+          "display": "flex",
+          "alignItems": "center",
+          "height": "100%"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-sites-footer",
+      "type": "text",
+      "captionBar": false,
+      "text": "of \u2014 sites",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "options": {
+        "style": {
+          "backgroundColor": "transparent",
+          "color": "#64748b",
+          "fontSize": "11px",
+          "fontWeight": "500",
+          "fontFamily": "Inter, 'Segoe UI', sans-serif",
+          "padding": "0 12px 10px",
+          "textAlign": "center"
+        }
+      }
+    },
+    {
+      "id": "bayer-kpi-source",
+      "type": "table",
+      "name": "KPI Source",
+      "captionBar": false,
+      "dataSource": {
+        "type": "function",
+        "lib": "syslib.app-webstudio-healthmonitor",
+        "func": "fetchNavigationTable",
+        "catch": {
+          "type": "break",
+          "action": [
+            {
+              "type": "notify",
+              "title": "Error",
+              "text": "See browser console for more details!",
+              "duration": 12000,
+              "transition": "slide",
+              "styleByTheme": {
+                "light": {
+                  "backgroundColor": "#f20d0d"
+                },
+                "dark": {
+                  "backgroundColor": "#cc0000"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "schema": [
+        {
+          "name": "ObjectName",
+          "title": "Name"
+        },
+        {
+          "name": "Path",
+          "title": "Path"
+        },
+        {
+          "name": "Type",
+          "title": "Type"
+        },
+        {
+          "name": "WorstState",
+          "title": "WorstState"
+        }
+      ],
+      "options": {
+        "multi": false,
+        "editable": false,
+        "showSearch": false,
+        "showFilter": false
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "static": true
+      },
+      "actions": {
+        "didUpdate": [
+          {
+            "type": "collect",
+            "from": "self"
+          },
+          {
+            "type": "transform",
+            "completeMsgObject": false,
+            "aggregate": [
+              {
+                "$group": {
+                  "_id": null,
+                  "total": {
+                    "$sum": 1
+                  },
+                  "good": {
+                    "$sum": {
+                      "$cond": [
+                        {
+                          "$eq": [
+                            "$WorstState",
+                            "Good"
+                          ]
+                        },
+                        1,
+                        0
+                      ]
+                    }
+                  },
+                  "bad": {
+                    "$sum": {
+                      "$cond": [
+                        {
+                          "$eq": [
+                            "$WorstState",
+                            "Bad"
+                          ]
+                        },
+                        1,
+                        0
+                      ]
+                    }
+                  },
+                  "warning": {
+                    "$sum": {
+                      "$cond": [
+                        {
+                          "$eq": [
+                            "$WorstState",
+                            "Warning"
+                          ]
+                        },
+                        1,
+                        0
+                      ]
+                    }
+                  },
+                  "empty": {
+                    "$sum": {
+                      "$cond": [
+                        {
+                          "$eq": [
+                            "$WorstState",
+                            "Empty"
+                          ]
+                        },
+                        1,
+                        0
+                      ]
+                    }
+                  },
+                  "disabled": {
+                    "$sum": {
+                      "$cond": [
+                        {
+                          "$eq": [
+                            "$WorstState",
+                            "Disabled"
+                          ]
+                        },
+                        1,
+                        0
+                      ]
+                    }
+                  },
+                  "neutral": {
+                    "$sum": {
+                      "$cond": [
+                        {
+                          "$eq": [
+                            "$WorstState",
+                            "Neutral"
+                          ]
+                        },
+                        1,
+                        0
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "$project": {
+                  "_id": 0,
+                  "total": 1,
+                  "good": 1,
+                  "bad": 1,
+                  "warning": 1,
+                  "empty": 1,
+                  "disabled": 1,
+                  "neutral": 1,
+                  "info": {
+                    "$add": [
+                      "$empty",
+                      "$disabled",
+                      "$neutral"
+                    ]
+                  },
+                  "score": {
+                    "$cond": [
+                      {
+                        "$gt": [
+                          "$total",
+                          0
+                        ]
+                      },
+                      {
+                        "$round": [
+                          {
+                            "$multiply": [
+                              {
+                                "$divide": [
+                                  "$good",
+                                  "$total"
+                                ]
+                              },
+                              100
+                            ]
+                          },
+                          0
+                        ]
+                      },
+                      0
+                    ]
+                  },
+                  "problemsPct": {
+                    "$cond": [
+                      {
+                        "$gt": [
+                          "$total",
+                          0
+                        ]
+                      },
+                      {
+                        "$round": [
+                          {
+                            "$multiply": [
+                              {
+                                "$divide": [
+                                  "$bad",
+                                  "$total"
+                                ]
+                              },
+                              100
+                            ]
+                          },
+                          2
+                        ]
+                      },
+                      0
+                    ]
+                  },
+                  "warningsPct": {
+                    "$cond": [
+                      {
+                        "$gt": [
+                          "$total",
+                          0
+                        ]
+                      },
+                      {
+                        "$round": [
+                          {
+                            "$multiply": [
+                              {
+                                "$divide": [
+                                  "$warning",
+                                  "$total"
+                                ]
+                              },
+                              100
+                            ]
+                          },
+                          2
+                        ]
+                      },
+                      0
+                    ]
+                  },
+                  "infoPct": {
+                    "$cond": [
+                      {
+                        "$gt": [
+                          "$total",
+                          0
+                        ]
+                      },
+                      {
+                        "$round": [
+                          {
+                            "$multiply": [
+                              {
+                                "$divide": [
+                                  {
+                                    "$add": [
+                                      "$empty",
+                                      "$disabled",
+                                      "$neutral"
+                                    ]
+                                  },
+                                  "$total"
+                                ]
+                              },
+                              100
+                            ]
+                          },
+                          2
+                        ]
+                      },
+                      0
+                    ]
+                  },
+                  "statusLabel": {
+                    "$cond": [
+                      {
+                        "$gte": [
+                          {
+                            "$cond": [
+                              {
+                                "$gt": [
+                                  "$total",
+                                  0
+                                ]
+                              },
+                              {
+                                "$multiply": [
+                                  {
+                                    "$divide": [
+                                      "$good",
+                                      "$total"
+                                    ]
+                                  },
+                                  100
+                                ]
+                              },
+                              0
+                            ]
+                          },
+                          70
+                        ]
+                      },
+                      "Good",
+                      {
+                        "$cond": [
+                          {
+                            "$gte": [
+                              {
+                                "$cond": [
+                                  {
+                                    "$gt": [
+                                      "$total",
+                                      0
+                                    ]
+                                  },
+                                  {
+                                    "$multiply": [
+                                      {
+                                        "$divide": [
+                                          "$good",
+                                          "$total"
+                                        ]
+                                      },
+                                      100
+                                    ]
+                                  },
+                                  0
+                                ]
+                              },
+                              40
+                            ]
+                          },
+                          "Fair",
+                          "Poor"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "transform",
+            "completeMsgObject": false,
+            "aggregateOne": [
+              {
+                "$project": {
+                  "totalValue": {
+                    "$toString": "$total"
+                  },
+                  "problemsValue": {
+                    "$toString": "$bad"
+                  },
+                  "warningsValue": {
+                    "$toString": "$warning"
+                  },
+                  "infoValue": {
+                    "$toString": "$info"
+                  },
+                  "problemsFooter": {
+                    "$concat": [
+                      {
+                        "$toString": "$problemsPct"
+                      },
+                      "% of components"
+                    ]
+                  },
+                  "warningsFooter": {
+                    "$concat": [
+                      {
+                        "$toString": "$warningsPct"
+                      },
+                      "% of components"
+                    ]
+                  },
+                  "infoFooter": {
+                    "$concat": [
+                      {
+                        "$toString": "$infoPct"
+                      },
+                      "% of components"
+                    ]
+                  },
+                  "healthFooter": "$statusLabel",
+                  "score": "$score",
+                  "good": "$good",
+                  "warning": "$warning",
+                  "bad": "$bad"
+                }
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-total-value",
+            "set": [
+              {
+                "name": "model.text",
+                "value": "$payload.totalValue"
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-value",
+            "set": [
+              {
+                "name": "model.text",
+                "value": "$payload.problemsValue"
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-value",
+            "set": [
+              {
+                "name": "model.text",
+                "value": "$payload.warningsValue"
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-value",
+            "set": [
+              {
+                "name": "model.text",
+                "value": "$payload.infoValue"
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-problems-footer",
+            "set": [
+              {
+                "name": "model.text",
+                "value": "$payload.problemsFooter"
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-warnings-footer",
+            "set": [
+              {
+                "name": "model.text",
+                "value": "$payload.warningsFooter"
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-info-footer",
+            "set": [
+              {
+                "name": "model.text",
+                "value": "$payload.infoFooter"
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-health-footer",
+            "set": [
+              {
+                "name": "model.text",
+                "value": "$payload.healthFooter"
+              }
+            ]
+          },
+          {
+            "type": "collect",
+            "from": "bayer-kpi-source"
+          },
+          {
+            "type": "transform",
+            "completeMsgObject": false,
+            "aggregate": [
+              {
+                "$project": {
+                  "site": {
+                    "$arrayElemAt": [
+                      {
+                        "$split": [
+                          "$Path",
+                          "/"
+                        ]
+                      },
+                      1
+                    ]
+                  },
+                  "WorstState": 1
+                }
+              },
+              {
+                "$match": {
+                  "site": {
+                    "$nin": [
+                      null,
+                      ""
+                    ]
+                  }
+                }
+              },
+              {
+                "$group": {
+                  "_id": "$site",
+                  "worstBad": {
+                    "$max": {
+                      "$cond": [
+                        {
+                          "$in": [
+                            "$WorstState",
+                            [
+                              "Bad",
+                              "Warning",
+                              "Empty"
+                            ]
+                          ]
+                        },
+                        1,
+                        0
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "$group": {
+                  "_id": null,
+                  "sitesTotal": {
+                    "$sum": 1
+                  },
+                  "sitesImpacted": {
+                    "$sum": "$worstBad"
+                  }
+                }
+              },
+              {
+                "$project": {
+                  "_id": 0,
+                  "sitesTotal": 1,
+                  "sitesImpacted": 1
+                }
+              }
+            ]
+          },
+          {
+            "type": "transform",
+            "completeMsgObject": false,
+            "aggregateOne": [
+              {
+                "$project": {
+                  "sitesValue": {
+                    "$toString": "$sitesImpacted"
+                  },
+                  "sitesFooter": {
+                    "$concat": [
+                      "of ",
+                      {
+                        "$toString": "$sitesTotal"
+                      },
+                      " sites"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-value",
+            "set": [
+              {
+                "name": "model.text",
+                "value": "$payload.sitesValue"
+              }
+            ]
+          },
+          {
+            "type": "modify",
+            "id": "bayer-kpi-sites-footer",
+            "set": [
+              {
+                "name": "model.text",
+                "value": "$payload.sitesFooter"
+              }
+            ]
+          },
+          {
+            "type": "refresh",
+            "id": "bayer-kpi-health"
+          }
+        ]
+      }
+    },
+    {
       "id": "bayer-btn-navigation",
       "type": "button",
       "captionBar": false,
       "label": "Navigation",
       "layout": {
-        "x": 0,
+        "x": 14,
         "y": 0,
         "w": 14,
         "h": 4,
@@ -162,7 +3974,7 @@
             "set": [
               {
                 "name": "model.layout.x",
-                "value": 0
+                "value": 14
               },
               {
                 "name": "model.layout.y",
@@ -184,7 +3996,7 @@
             "set": [
               {
                 "name": "model.layout.x",
-                "value": 0
+                "value": 14
               },
               {
                 "name": "model.layout.y",
@@ -245,7 +4057,7 @@
       "captionBar": false,
       "label": "Overview",
       "layout": {
-        "x": 14,
+        "x": 28,
         "y": 0,
         "w": 14,
         "h": 4,
@@ -292,7 +4104,7 @@
             "set": [
               {
                 "name": "model.layout.x",
-                "value": 0
+                "value": 14
               },
               {
                 "name": "model.layout.y",
@@ -505,7 +4317,7 @@
                     "set": [
                       {
                         "name": "model.layout.x",
-                        "value": 30
+                        "value": 44
                       },
                       {
                         "name": "model.layout.y",
@@ -513,7 +4325,7 @@
                       },
                       {
                         "name": "model.layout.w",
-                        "value": 66
+                        "value": 52
                       },
                       {
                         "name": "model.layout.h",
@@ -596,7 +4408,7 @@
                     "set": [
                       {
                         "name": "model.layout.x",
-                        "value": 30
+                        "value": 44
                       },
                       {
                         "name": "model.layout.y",
@@ -604,7 +4416,7 @@
                       },
                       {
                         "name": "model.layout.w",
-                        "value": 66
+                        "value": 52
                       },
                       {
                         "name": "model.layout.h",
@@ -738,9 +4550,9 @@
       "captionBar": true,
       "label": "Performance Counters",
       "layout": {
-        "x": 30,
+        "x": 44,
         "y": 0,
-        "w": 66,
+        "w": 52,
         "h": 54,
         "static": true
       },
@@ -877,7 +4689,7 @@
                     "set": [
                       {
                         "name": "model.layout.x",
-                        "value": 30
+                        "value": 44
                       },
                       {
                         "name": "model.layout.y",
@@ -885,7 +4697,7 @@
                       },
                       {
                         "name": "model.layout.w",
-                        "value": 66
+                        "value": 52
                       },
                       {
                         "name": "model.layout.h",
@@ -968,7 +4780,7 @@
                     "set": [
                       {
                         "name": "model.layout.x",
-                        "value": 30
+                        "value": 44
                       },
                       {
                         "name": "model.layout.y",
@@ -976,7 +4788,7 @@
                       },
                       {
                         "name": "model.layout.w",
-                        "value": 66
+                        "value": 52
                       },
                       {
                         "name": "model.layout.h",
@@ -1108,7 +4920,7 @@
                     "set": [
                       {
                         "name": "model.layout.x",
-                        "value": 30
+                        "value": 44
                       },
                       {
                         "name": "model.layout.y",
@@ -1116,7 +4928,7 @@
                       },
                       {
                         "name": "model.layout.w",
-                        "value": 66
+                        "value": 52
                       },
                       {
                         "name": "model.layout.h",
@@ -2057,7 +5869,7 @@
         }
       },
       "layout": {
-        "x": 0,
+        "x": 14,
         "y": 38,
         "w": 28,
         "h": 16,
@@ -2187,7 +5999,7 @@
             "set": [
               {
                 "name": "model.layout.x",
-                "value": 30
+                "value": 44
               },
               {
                 "name": "model.layout.y",
@@ -2195,7 +6007,7 @@
               },
               {
                 "name": "model.layout.w",
-                "value": 66
+                "value": 52
               },
               {
                 "name": "model.layout.h",
@@ -2561,7 +6373,7 @@
             "set": [
               {
                 "name": "model.layout.x",
-                "value": 30
+                "value": 44
               },
               {
                 "name": "model.layout.y",
@@ -2569,7 +6381,7 @@
               },
               {
                 "name": "model.layout.w",
-                "value": 66
+                "value": 52
               },
               {
                 "name": "model.layout.h",
@@ -2600,7 +6412,7 @@
         }
       },
       "layout": {
-        "x": 0,
+        "x": 14,
         "y": 4,
         "w": 28,
         "h": 34,

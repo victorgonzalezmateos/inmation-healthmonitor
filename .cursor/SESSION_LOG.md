@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (last updated: 2026-07-17)
+## Current State (last updated: 2026-07-17 EOD)
 
 | Item | Value |
 |------|-------|
@@ -15,28 +15,47 @@
 | **Git branch** | `master` (tracks `origin/master`) |
 | **Workflow tool** | Kanvas — `canvas-tool.py` + Obsidian Canvas (`Project.canvas`) |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **VA-01 live parity run (checklist refreshed)** |
+| **Phase** | **App shell + Designer Overview KPI row — deploy & polish next** |
 
 ### Smart Sentinel — working on host (2026-07-17)
 
 | Feature | Status |
 |---------|--------|
 | Header "Smart Sentinel" + Bayer appBar | ✓ |
-| Navigation \| Overview tabs | ✓ |
+| **Persistent left app menu** Overview (house) \| Trends (chart) | ✓ built — confirm on host next session |
+| **Trends page** = former full HM UI (nav/overview/props/counters/chart) | ✓ |
+| Navigation \| Overview tabs (inside Trends) | ✓ |
 | Tree + overview table (layout toggle) | ✓ |
-| Performance Counters on right (click loads data) | ✓ |
+| Performance Counters + Submit → Chart | ✓ |
 | Object properties panel (Navigation only) | ✓ |
-| Properties: nested compilation + delegate worker route | ✓ |
-| Overview hides properties panel | ✓ |
-| Multi-select counters + Submit → Chart (`addPens`) | ✓ |
-| Counters \| Chart icon switcher (HM gauge/trend icons) | ✓ |
-| Chart → Counters hide-first layout (no misalignment) | ✓ |
+| Counters \| Chart icon switcher | ✓ |
+| **Overview page KPI row** (Designer style, 6 cards) | ✓ built — confirm on host next session |
+
+### Overview KPI cards (Designer style)
+
+| Card | Content |
+|------|---------|
+| Health Score | Semi-circle Plotly pie (Good/Warning/Bad), score/100, Good/Fair/Poor label |
+| Total Components | Count + blue server icon + "All Sites" |
+| Problems | Bad count + % (red warning icon) |
+| Warnings | Warning count + % (yellow icon) |
+| Info | Empty+Disabled+Neutral count + % (blue info icon) |
+| Sites Impacted | Unique path-segment sites with non-Good + "of N sites" |
+
+**Data:** `fetchNavigationTable` only — counts by source `WorstState` / Path (no new health engine).
 
 ### Deploy recipe
 ```powershell
 python compilations/build-bayer-deploy.py
 # Then run compilations/smart-sentinel-ai-upsert-full.lua in DataStudio console
+# Hard-refresh Smart Sentinel URL
 ```
+
+### Launch URLs
+| App | URL |
+|-----|-----|
+| Smart Sentinel | `…/apps/webstudio/?…&obj=%2FSystem%2FCore%2F_Global%20Core%20Logic%2FDevelopment%2FSmart%20Sentinel%20AI&name=Bayer%20Health%20Monitor` |
+| Default HM | `…&lib=syslib.app-webstudio-healthmonitor&func=dashboard_compilation` |
 
 ### Key technical lessons (do not regress)
 | Pattern | Result |
@@ -47,23 +66,45 @@ python compilations/build-bayer-deploy.py
 | Tree → `delegate` route `bayer-props-panel` / `tab-object-props` / `worker-property-panel` | Cross-scope worker update |
 | Tab toggle via `layout w/h=0` + explicit x,y,w,h | Nav/overview swap works |
 | `display:none` for tab panels | **Fails** — use layout size |
-| HM runtime `layout.w=35` on name field | **Overflows** 28-col panel — removed |
-| Chart/Counters toggle: hide peers first, then show active | Prevents bottom/misaligned caption |
-| Right-panel widget order: chart/selected before counters | Same rule as overview before tree |
+| Chart/Counters + app pages: hide peers first, then show active | Prevents misalignment |
+| App menu rail stays visible; only page content toggles | Designer shell |
+| KPI cards = flat root widgets (bg/title/icon/value/footer) | Avoids nested modify routing |
+| MENU_W=14, LEFT_X=14, RIGHT_X=44 | Content shifted for menu |
 
-### Not yet done
-- [x] Chart / Submit from default HM pattern (2026-07-17)
-- [ ] VA-01 parity checklist live run (checklist URLs updated 2026-07-17)
-- [x] GitHub: core builders + deploy artifacts + `docs/discovery/` pushed (`d28dcfc`, `a3d0280`)
-- [x] Save point tag name: `smart-sentinel-phase2-layout-ok`
-- [x] Save point tag: `smart-sentinel-chart-submit-ok` (commit `a5a8326`)
+### Not yet done / next session
+- [ ] Deploy app shell + Overview KPIs to host; user validate style vs Designer mockup
+- [ ] Polish KPI spacing/icons if needed after live look
+- [ ] Continue Designer Overview (donuts, site table, alerts) — step by step
+- [ ] VA-03 live parity (purple on board — approve when ready)
+- [x] Chart / Submit (`smart-sentinel-chart-submit-ok`)
+- [x] App shell + Designer KPI row (this EOD save)
+
+### Key files (builders)
+| File | Role |
+|------|------|
+| `compilations/bayer_app_shell.py` | Persistent left menu + page switch |
+| `compilations/bayer_overview_kpis.py` | Designer KPI row (6 cards + transforms) |
+| `compilations/build-bayer-full-tabs.py` | Assembles Trends + shell |
+| `compilations/bayer_chart_panel.py` | Counters/Chart Submit |
+| `compilations/bayer_properties_panel.py` | Nested properties |
+| `compilations/build-bayer-deploy.py` | Rebuild JSON + Lua |
 
 ### Board status
-- Canvas tasks in repo docs; live milestone is Smart Sentinel + Chart/Submit on host
+- VA-03 proposed (purple) — live parity run
+- No red ready tasks until VA-03 approved
+- Designer Overview continuation = next build work (propose task next session if needed)
+
+### Save points
+| Tag | Meaning |
+|-----|---------|
+| `smart-sentinel-phase2-layout-ok` | Phase 2 layout (if present) |
+| `smart-sentinel-chart-submit-ok` | Chart/Submit done (`a5a8326`) |
+| `smart-sentinel-overview-kpis-wip` | App shell + Designer KPI row (this commit) |
 
 ---
 
 ## Key Commands (Windows / PowerShell)
+
 
 Run from the project folder unless noted.
 
@@ -255,5 +296,31 @@ npm run dev
 **Also:** refreshed `docs/validation/VA-01-parity-checklist.md` with Smart Sentinel Custom Properties URLs; ProcessState marked N/A.
 
 **Next:** Live side-by-side VA-01 parity run (board VA-01 was checklist authoring only — already green). Propose VA-03 if needed for live run.
+
+---
+
+### 2026-07-17 — EOD: App shell + Designer Overview KPIs
+
+**Goal:** Move toward Designer.png — persistent left menu; Overview page KPI row.
+
+**Built (not yet confirmed live by user at EOD):**
+- Persistent dark left menu: **Overview** (house) \| **Trends** (chart icon) — menu never hides
+- Trends page = existing HM UI (Navigation/Overview tabs, tree, props, counters/chart)
+- Overview page: 6 Designer-style KPI cards (Health Score semi-circle, Total Components, Problems, Warnings, Info, Sites Impacted)
+- Data from `fetchNavigationTable` WorstState/Path aggregates only
+
+**Key new files:**
+- `compilations/bayer_app_shell.py`
+- `compilations/bayer_overview_kpis.py`
+
+**Reference images:** `Downloads/Designer.png`; style mockup saved in Cursor assets
+
+**Resume next session:**
+1. Read `.cursor/SESSION_LOG.md` Current State + this entry
+2. `python compilations/build-bayer-deploy.py` → deploy Lua → hard-refresh
+3. Validate Overview menu + KPI style vs Designer; polish if needed
+4. Then continue Designer (more Overview widgets) or VA-03 parity
+
+**User sign-off:** Stopping for the day — save everything for next session.
 
 <!-- Append new sessions below this line -->

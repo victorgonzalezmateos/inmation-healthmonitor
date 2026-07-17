@@ -8,10 +8,20 @@ COUNTERS_ID = "bayer-counters-table"
 SELECTED_ID = "bayer-selected-table"
 HIDE_LAYOUT = {"x": 0, "y": 0, "w": 0, "h": 0, "static": True}
 
+# Defaults; build-bayer-full-tabs overrides via set_right_slot() for app menu offset.
 RIGHT_X = 30
 PANEL_H = 54
 RIGHT_W = 96 - RIGHT_X
 SHOW_LAYOUT = {"x": RIGHT_X, "y": 0, "w": RIGHT_W, "h": PANEL_H, "static": True}
+
+
+def set_right_slot(x: int, w: int, h: int) -> None:
+    """Shift counters/chart slot when a persistent left menu is present."""
+    global RIGHT_X, RIGHT_W, PANEL_H, SHOW_LAYOUT
+    RIGHT_X = x
+    RIGHT_W = w
+    PANEL_H = h
+    SHOW_LAYOUT = {"x": RIGHT_X, "y": 0, "w": RIGHT_W, "h": PANEL_H, "static": True}
 
 # Same SVG icons as default Health Monitor tab indicators.
 ICON_COUNTERS = {

@@ -211,9 +211,11 @@ def inner_properties_compilation(props_h: int) -> dict:
     }
 
 
-def properties_panel_widget(props_y: int, props_h: int, visible: bool) -> dict:
+def properties_panel_widget(
+    props_y: int, props_h: int, visible: bool, props_x: int = 0
+) -> dict:
     layout = (
-        {"x": 0, "y": props_y, "w": LEFT_W, "h": props_h, "static": True}
+        {"x": props_x, "y": props_y, "w": LEFT_W, "h": props_h, "static": True}
         if visible
         else dict(HIDE_LAYOUT)
     )
@@ -309,12 +311,20 @@ def augment_tree_actions(widget: dict) -> dict:
 
 
 def property_panel_build(
-    props_y: int, props_h: int, visible: bool
+    props_y: int, props_h: int, visible: bool, props_x: int = 0
 ) -> tuple[list[dict], list[str], dict[str, dict]]:
-    show_layout = {"x": 0, "y": props_y, "w": LEFT_W, "h": props_h, "static": True}
-    return [properties_panel_widget(props_y, props_h, visible)], [PROPS_PANEL_ID], {
-        PROPS_PANEL_ID: show_layout
+    show_layout = {
+        "x": props_x,
+        "y": props_y,
+        "w": LEFT_W,
+        "h": props_h,
+        "static": True,
     }
+    return (
+        [properties_panel_widget(props_y, props_h, visible, props_x=props_x)],
+        [PROPS_PANEL_ID],
+        {PROPS_PANEL_ID: show_layout},
+    )
 
 
 def layout_modify(panel_id: str, layout: dict) -> dict:

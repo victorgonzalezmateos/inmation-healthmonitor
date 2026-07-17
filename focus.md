@@ -2,7 +2,7 @@
 
 ## Project Goal
 
-Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** with parity to the default Health Monitor UI and PMM Bayer styling. No client-side health calculation, no custom login (`secp=iwa`, `ssl=true`).
+Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** with parity to the default Health Monitor UI and PMM Bayer styling. No client-side health calculation, no custom login (`secp=iwa`, `ssl=true`). Direction: Designer.png (Global Health Monitor) shell + Overview dashboard.
 
 ## Reset (2026-07-10)
 
@@ -26,16 +26,18 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** with pa
 
 ### New approach — evidence first, then minimal build
 
-1. ~~**Capture** default HM compilation from browser DevTools → `docs/discovery/`~~ ✓ (2026-07-10)
-2. ~~**Smoke test** — clone default HM layout with real widgets, prove data loads~~ ✓ layout + data live (2026-07-10)
-3. **Bayer skin** — apply PMM colors incrementally on working base ✓
-4. **Smart Sentinel layout** — nav/overview toggle, properties panel, right counters ✓ (2026-07-10)
-5. **Chart / Submit** — multi-select, HM addPens, Counters\|Chart icons ✓ (2026-07-17)
-6. **Parity** — VA-01 checklist live run ← **next**
+1. ~~**Capture** default HM compilation~~ ✓
+2. ~~**Smoke test**~~ ✓
+3. ~~**Bayer skin**~~ ✓
+4. ~~**Smart Sentinel Trends layout**~~ ✓ (nav/overview/props/counters/chart)
+5. ~~**Chart / Submit**~~ ✓ (2026-07-17)
+6. ~~**App shell**~~ ✓ built (persistent Overview \| Trends menu)
+7. ~~**Overview KPI row (Designer style)**~~ ✓ built (deploy + polish next)
+8. **Next:** Host validate KPIs → more Designer Overview widgets → VA-03 parity
 
 ## Current Phase
 
-**VA-01 live parity run next** (checklist refreshed 2026-07-17). Chart/Submit validated on host.
+**End of 2026-07-17.** App shell + Designer Overview KPI row are in repo/deploy artifacts. **Next session:** deploy, validate live look vs Designer mockup, then continue Overview dashboard or VA-03.
 
 ## Deployment (confirmed working)
 
@@ -48,35 +50,36 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** with pa
 | Deploy | `compilations/smart-sentinel-ai-upsert-full.lua` in DataStudio console |
 | Module name | `bayer.healthmonitor` (unchanged; Custom Properties path does not use it) |
 
-## Layout (validated 2026-07-10)
+## Layout
 
-- **Left top:** Navigation \| Overview tab buttons
-- **Left middle:** Tree (Navigation) or overview table (Overview) — layout toggle via `w/h=0`
-- **Left bottom:** Object properties panel (Navigation only) — nested HM worker + objprop pattern
-- **Right:** Performance Counters \| Chart (HM icons) + Submit to Chart
+- **App menu (persistent):** Overview (house) \| Trends (chart)
+- **Overview page:** Designer KPI row — Health Score, Total Components, Problems, Warnings, Info, Sites Impacted
+- **Trends page:** Navigation \| Overview tabs, tree/properties, counters/chart + Submit
+
+**Naming:** App-menu **Overview** ≠ Trends in-page **Overview** tab (hierarchy table).
 
 ## Files to use now
 
 | File | Purpose |
 |------|---------|
-| `compilations/bayer-skinned-smoke.json` | Flat layout baseline |
-| `compilations/bayer-skinned-full.json` | **Generated** — full Smart Sentinel layout |
+| `compilations/bayer_app_shell.py` | Persistent left menu + page switch |
+| `compilations/bayer_overview_kpis.py` | Designer KPI cards + data transforms |
+| `compilations/build-bayer-full-tabs.py` | Assembles shell + Trends HM UI |
+| `compilations/bayer_chart_panel.py` | Counters/Chart Submit |
+| `compilations/bayer_properties_panel.py` | Nested properties panel |
 | `compilations/build-bayer-deploy.py` | **Run to rebuild** JSON + upsert Lua |
-| `compilations/build-bayer-full-tabs.py` | Layout builder |
-| `compilations/bayer_properties_panel.py` | Properties panel (nested compilation + delegate routes) |
-| `compilations/bayer_chart_panel.py` | Multi-select Submit → chart (HM addPens pattern) |
+| `compilations/bayer-skinned-full.json` | Generated compilation |
 | `compilations/smart-sentinel-ai-upsert-full.lua` | **Deploy to host** |
-| `compilations/default-hm-tree-tab-clone.json` | HM properties reference |
 | `docs/discovery/default-hm-compilation.json` | Captured default HM |
+| `docs/validation/VA-01-parity-checklist.md` | Live parity checklist |
 
 ## Host paths
 
 - Script library path: `/System/Core/_Global Core Logic/Development/Smart Sentinel AI`
 - Setup notes: [`docs/discovery/SMART-SENTINEL-AI-SETUP.md`](docs/discovery/SMART-SENTINEL-AI-SETUP.md)
-- Compilation (target): `compilations/` (will be rebuilt from captured reference)
+- Designer reference: `C:\Users\GOAKJ\Downloads\Designer.png`
 
 ## Notes
 
 - Session history: [`.cursor/SESSION_LOG.md`](.cursor/SESSION_LOG.md)
-- Old full JSON (reference only): [`compilations/bayer-health-monitor-full.json`](compilations/bayer-health-monitor-full.json)
-- Lua generator (after capture): [`compilations/build-dashboard-lua.py`](compilations/build-dashboard-lua.py)
+- Save tag target: `smart-sentinel-overview-kpis-wip`
