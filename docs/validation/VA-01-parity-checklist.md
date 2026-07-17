@@ -1,24 +1,24 @@
 # VA-01 — Default vs Custom Parity Checklist
 
-> **Status:** Frozen (2026-07-03)  
+> **Status:** Ready for live run (2026-07-17)  
 > **Task:** VA-01 on `Project.canvas`  
-> **Compare:** Default Health Monitor URL vs Bayer custom URL ([WR-01](../deployment/WR-01-deployment-identifiers.md))
+> **Compare:** Default Health Monitor vs **Smart Sentinel** (Custom Properties on Smart Sentinel AI)
 
-Side-by-side validation that the custom Bayer Health Monitor shows the **same data** as the default Health Monitor. Visual styling may differ (Bayer PMM); **semantics must not**.
+Side-by-side validation that Smart Sentinel shows the **same data** as the default Health Monitor. Visual styling may differ (Bayer PMM); **semantics must not**.
 
 ---
 
 ## 1. Test setup
 
-| Item | Default HM | Custom Bayer HM |
-|------|------------|-----------------|
-| URL | _(site default HM URL)_ | `…/apps/webstudio?secp=iwa&ssl=true&ctx=bayerhm&lib=HealthMonitor&func=BayerHealthMonitorMain` |
+| Item | Default HM | Smart Sentinel |
+|------|------------|----------------|
+| URL | https://byus00876m1.bayer.cnb:8002/apps/webstudio/?hostname=byus00876m1.bayer.cnb&port=8002&secp=iwa&ssl=true&lib=syslib.app-webstudio-healthmonitor&func=dashboard_compilation | https://byus00876m1.bayer.cnb:8002/apps/webstudio/?hostname=byus00876m1.bayer.cnb&port=8002&secp=iwa&ssl=true&obj=%2FSystem%2FCore%2F_Global%20Core%20Logic%2FDevelopment%2FSmart%20Sentinel%20AI&name=Bayer%20Health%20Monitor |
 | Auth | IWA (domain Windows) | IWA — same user session |
-| Browser | Same machine, same user | Same |
+| Browser | Same machine, same user | Same (second tab) |
 | Date / time | Record test timestamp | Same session |
 
 **Tester:** _______________  
-**Host:** _______________  
+**Host:** `byus00876m1.bayer.cnb:8002`  
 **Date:** _______________
 
 ---
@@ -36,7 +36,7 @@ Open both UIs without selecting an object. Compare Overview / navigation.
 | H-05 | Unhealthy objects list matches (same paths) | | | ☐ |
 | H-06 | Healthy branch collapse shows same objects when expanded | | | ☐ |
 
-**Notes:** Custom UI may collapse `WorstState === "Good"` branches by default (DC-02) — expand before comparing H-04.
+**Notes:** Custom UI may collapse `WorstState === "Good"` branches by default (DC-02) — expand before comparing H-04. On Smart Sentinel use the **Overview** tab for the hierarchy table.
 
 ---
 
@@ -62,7 +62,7 @@ For each **unhealthy** and **sample healthy** object, compare state columns.
 
 ## 4. Object properties (`fetchObjProps`)
 
-Select the **same object** in both UIs. Record path: _______________
+Select the **same object** in both UIs (Smart Sentinel: **Navigation** tab). Record path: _______________
 
 | # | Field | Default | Custom | Pass |
 |---|-------|---------|--------|------|
@@ -96,8 +96,8 @@ Same selected object as §4.
 | C-05 | Each row `Unit` matches | ☐ |
 | C-06 | Each row `penName` matches | ☐ |
 | C-07 | Each row `path` matches | ☐ |
-| C-08 | `cList.exists` matches per row | ☐ |
-| C-09 | Expanded `cList` children match | ☐ |
+| C-08 | `cList.exists` matches per row (if column present) | ☐ |
+| C-09 | Expanded `cList` children match (if applicable) | ☐ |
 
 ### 5.2 Bad datasource (health rows only)
 
@@ -113,17 +113,19 @@ Test path: _______________
 
 ## 6. Chart — Submit to Chart
 
-Select the **same counter row** in both UIs. Record `penName`: _______________
+Select the **same counter rows** in both UIs. Record `penName`(s): _______________
 
 | # | Check | Default | Custom | Pass |
 |---|-------|---------|--------|------|
 | CH-01 | Same pen name in chart legend | | | ☐ |
 | CH-02 | Same pen path | | | ☐ |
-| CH-03 | Time range = 1 day | | | ☐ |
+| CH-03 | Time range = 1 day (`*-1d`) | | | ☐ |
 | CH-04 | Same point count (or same empty) | | | ☐ |
 | CH-05 | V values match at sample timestamps | | | ☐ |
 | CH-06 | Q values match at sample timestamps | | | ☐ |
 | CH-07 | No extra pens in custom chart | | | ☐ |
+
+**Smart Sentinel:** multi-select rows → **Submit** → Chart view. Gauge icon returns to counters.
 
 ---
 
@@ -132,6 +134,8 @@ Select the **same counter row** in both UIs. Record `penName`: _______________
 | # | Check | Default | Custom | Pass |
 |---|-------|---------|--------|------|
 | PS-01 | `ProcessState` raw text matches | | | ☐ |
+
+**Note (2026-07-17):** Smart Sentinel currently has no ProcessState strip in the UI (removed earlier). Mark PS-01 as N/A unless re-added.
 
 ---
 
@@ -162,5 +166,5 @@ Select the **same counter row** in both UIs. Record `penName`: _______________
 
 - [DC-01](../source-contracts/DC-01-source-contracts.md) — source contracts
 - [DC-02](../source-contracts/DC-02-source-state-display-policy.md) — display rules
-- [WR-01](../deployment/WR-01-deployment-identifiers.md) — custom URL
-- UP-02 through UP-05 implementation docs
+- [SMART-SENTINEL-AI-SETUP.md](../discovery/SMART-SENTINEL-AI-SETUP.md) — launch URLs
+- Save points: `smart-sentinel-phase2-layout-ok`, `smart-sentinel-chart-submit-ok`

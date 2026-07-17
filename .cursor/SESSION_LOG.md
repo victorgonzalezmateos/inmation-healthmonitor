@@ -15,7 +15,7 @@
 | **Git branch** | `master` (tracks `origin/master`) |
 | **Workflow tool** | Kanvas — `canvas-tool.py` + Obsidian Canvas (`Project.canvas`) |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **Phase 3 — Chart/Submit done; next VA-01 parity** |
+| **Phase** | **VA-01 live parity run (checklist refreshed)** |
 
 ### Smart Sentinel — working on host (2026-07-17)
 
@@ -53,9 +53,10 @@ python compilations/build-bayer-deploy.py
 
 ### Not yet done
 - [x] Chart / Submit from default HM pattern (2026-07-17)
-- [ ] VA-01 parity checklist live run
+- [ ] VA-01 parity checklist live run (checklist URLs updated 2026-07-17)
 - [x] GitHub: core builders + deploy artifacts + `docs/discovery/` pushed (`d28dcfc`, `a3d0280`)
 - [x] Save point tag name: `smart-sentinel-phase2-layout-ok`
+- [x] Save point tag: `smart-sentinel-chart-submit-ok` (commit `a5a8326`)
 
 ### Board status
 - Canvas tasks in repo docs; live milestone is Smart Sentinel + Chart/Submit on host
@@ -245,5 +246,14 @@ npm run dev
 **User sign-off:** Layout and properties "look amazing" — work paused for the week.
 
 ---
+
+
+### 2026-07-17 — Chart/Submit validated; start VA-01 live parity
+
+**Saved:** commit `a5a8326` + tag `smart-sentinel-chart-submit-ok` (Submit → Chart, icon switcher, hide-first layout). User sign-off: looks amazing.
+
+**Also:** refreshed `docs/validation/VA-01-parity-checklist.md` with Smart Sentinel Custom Properties URLs; ProcessState marked N/A.
+
+**Next:** Live side-by-side VA-01 parity run (board VA-01 was checklist authoring only — already green). Propose VA-03 if needed for live run.
 
 <!-- Append new sessions below this line -->

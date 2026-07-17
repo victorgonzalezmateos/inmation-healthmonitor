@@ -1,4 +1,4 @@
-# Project Focus — inmation-healthmonitor
+﻿# Project Focus — inmation-healthmonitor
 
 ## Project Goal
 
@@ -35,7 +35,7 @@ Build a **custom Bayer Health Monitor** as an inmation **Webstudio app** with pa
 
 ## Current Phase
 
-**Phase 3 chart/submit validated on host.** Next: VA-01 parity checklist.
+**VA-01 live parity run next** (checklist refreshed 2026-07-17). Chart/Submit validated on host.
 
 ## Deployment (confirmed working)
 
