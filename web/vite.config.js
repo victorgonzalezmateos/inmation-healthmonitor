@@ -5,7 +5,7 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
-    // Ready for IWA spike later — proxy /api to inmation Web API
+    // Proxy Bearer API calls to inmation Web API (IWA authorize uses host directly)
     proxy: {
       "/api": {
         target: "https://byus00876m1.bayer.cnb:8002",

@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (last updated: 2026-07-20 EOD)
+## Current State (last updated: 2026-07-20 EOD #2 — IWA live)
 
 | Item | Value |
 |------|-------|
@@ -13,7 +13,7 @@
 | **GitHub repo** | https://github.com/victorgonzalezmateos/inmation-healthmonitor |
 | **Git branch** | `master` |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **HTML static draft ✓ liked by user → next: IWA + HM data spike** |
+| **Phase** | **IWA ✓ + live HM tree ✓ → next: fix/finish counters + wire Overview** |
 
 
 ### WebStudio freeze (do not lose)
@@ -28,39 +28,42 @@
 | Item | Value |
 |------|-------|
 | App | `web/` Vite + plain HTML/CSS/JS |
-| Run | `cd web && npm install && npm run dev` → http://localhost:5173 |
+| Run | `cd web && npm install && npm run dev` → http://localhost:5173 (or 5174 if busy) |
 | Title | Smart Sentinel |
-| User feedback | Liked the draft; pause here for next session |
+| Auth | **IWA works** — user `AD-BAYER-CNB\GOAKJ` |
+| Live data | **`fetchNavigationTree` OK** on Health Monitor → Connect |
 
-**Pages:** Overview · Health Monitor · Issues & Alerts (split) · Trends (1d/7d/1m/2m) · Drill-down · Configuration (EAM emails) · Reports (placeholder)
+**Pages:** Overview · Health Monitor (live tree) · Issues & Alerts · Trends · Drill-down · Configuration · Reports (placeholder)
 
 **Next session (do not re-ask setup):**
 1. Read this Current State + latest Session History
-2. Resume from **IWA spike** (`/api/security/windows/authorize` + one `execfunction`)
-3. Then wire `fetchNavigationTable` into Overview KPIs
+2. Finish **performance counters / props** live load (ObjectID numeric coerce in progress; Core still 400 once)
+3. Wire Overview KPIs from `fetchNavigationTable`
+4. Then Trends / Drill-down live as needed
 
 ### HTML phase — locked (2026-07-20)
 - Plan: `docs/architecture/AR-03-html-webapi-plan.md`
-- Stack: Vite + plain HTML/CSS/JS (team-maintainable)
+- Stack: Vite + plain HTML/CSS/JS
 - Auth later (Q/P): secondary CWID
 - Hosting later: shared server for Consumer Health
 
-### Deploy recipe (WebStudio — frozen path)
-```powershell
-python compilations/build-bayer-deploy.py
-# compilations/smart-sentinel-ai-upsert-full.lua
-```
+### Key live API files
+| File | Role |
+|------|------|
+| `web/src/api/inmation.js` | IWA authorize + execfunction + token session |
+| `web/src/api/hm-live.js` | Map HM tree/props/counters |
+| `web/src/health-monitor.js` | Connect bar + live/mock mode |
+| `web/vite.config.js` | Proxy `/api` → `:8002` (Bearer); IWA hits host direct |
 
 ### Board status
 - Proposed (purple): VA-03, VA-04, AR-03
-- HTML draft progressed outside board; propose HTML tasks next session if useful
 
 ### Save points
 | Tag / area | Meaning |
 |------------|---------|
 | `smart-sentinel-chart-submit-ok` | WebStudio Chart/Submit (`a5a8326`) |
 | `smart-sentinel-overview-kpis-wip` | WebStudio app shell + KPI row (`ccf7ce5`) |
-| `web/` HTML draft | Designer-style multi-page static app (this EOD) |
+| `web/` HTML + IWA | Multi-page draft + live tree (this EOD) |
 
 ---
 
@@ -356,5 +359,29 @@ npm run dev
 4. Then wire live data into Overview (then other pages)
 
 **User sign-off:** Stopping — draft looks great; save for next session.
+
+---
+
+### 2026-07-20 — EOD #2: IWA spike success + live HM tree
+
+**Proven live against host `byus00876m1.bayer.cnb:8002`:**
+- IWA: `GET /api/security/windows/authorize` → token OK
+- User: `AD-BAYER-CNB\GOAKJ`
+- `fetchNavigationTree` via `execfunction` → **live Navigation tree** in Health Monitor (Connect)
+
+**Built:**
+- `web/src/api/inmation.js` — authorize (direct host), Bearer exec via Vite `/api` proxy, session token
+- `web/src/api/hm-live.js` — tree/props/counters mapping; `ObjectID` coerced to number
+- Health Monitor Connect bar: LIVE / MOCK, Connect, Paste token, Use mock
+- Props vs counters load independently (counters failure no longer blocks props)
+
+**Open issue (resume next):**
+- `fetchPerformanceCountersTable` returned 400 for Core: `Cannot find inmation object with ID: 281474977300480`
+- Numeric ObjectID coerce + Path retry added; **re-test after refresh** next session
+- Then wire Overview from `fetchNavigationTable`
+
+**Run:** `cd web && npm run dev` → localhost:5173 or 5174
+
+**User sign-off:** Save + push for today.
 
 <!-- Append new sessions below this line -->
