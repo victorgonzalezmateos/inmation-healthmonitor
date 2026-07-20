@@ -130,45 +130,71 @@ function wireNav() {
   });
 }
 
+function safeChart(name, fn) {
+  try {
+    fn();
+  } catch (err) {
+    console.error(`[chart:${name}]`, err);
+  }
+}
+
 function initCharts() {
-  renderHealthGauge(
-    document.getElementById("chart-health"),
-    mock.kpis.healthScore
+  safeChart("health", () =>
+    renderHealthGauge(
+      document.getElementById("chart-health"),
+      mock.kpis.healthScore
+    )
   );
 
-  renderPie(document.getElementById("chart-components"), mock.componentsByType);
-  fillLegend(
-    document.getElementById("legend-components"),
-    mock.componentsByType.labels,
-    mock.componentsByType.values,
-    mock.componentsByType.colors
+  safeChart("components", () => {
+    renderPie(document.getElementById("chart-components"), mock.componentsByType);
+    fillLegend(
+      document.getElementById("legend-components"),
+      mock.componentsByType.labels,
+      mock.componentsByType.values,
+      mock.componentsByType.colors
+    );
+  });
+
+  safeChart("severity", () => {
+    renderPie(document.getElementById("chart-severity"), mock.issuesBySeverity);
+    fillLegend(
+      document.getElementById("legend-severity"),
+      mock.issuesBySeverity.labels,
+      mock.issuesBySeverity.values,
+      mock.issuesBySeverity.colors
+    );
+  });
+
+  safeChart("timeline", () =>
+    renderTimeline(document.getElementById("chart-timeline"), mock.issuesOverTime)
   );
 
-  renderPie(document.getElementById("chart-severity"), mock.issuesBySeverity);
-  fillLegend(
-    document.getElementById("legend-severity"),
-    mock.issuesBySeverity.labels,
-    mock.issuesBySeverity.values,
-    mock.issuesBySeverity.colors
+  safeChart("top-types", () =>
+    renderTopTypes(document.getElementById("chart-top-types"), mock.topIssueTypes)
   );
 
-  renderTimeline(document.getElementById("chart-timeline"), mock.issuesOverTime);
-  renderTopTypes(document.getElementById("chart-top-types"), mock.topIssueTypes);
-
-  renderPie(document.getElementById("chart-alerts"), mock.alertsBySeverity);
-  fillLegend(
-    document.getElementById("legend-alerts"),
-    mock.alertsBySeverity.labels,
-    mock.alertsBySeverity.values,
-    mock.alertsBySeverity.colors
-  );
+  safeChart("alerts", () => {
+    renderPie(document.getElementById("chart-alerts"), mock.alertsBySeverity);
+    fillLegend(
+      document.getElementById("legend-alerts"),
+      mock.alertsBySeverity.labels,
+      mock.alertsBySeverity.values,
+      mock.alertsBySeverity.colors
+    );
+  });
 }
 
 fillKpis();
 fillCriticalTable();
-fillSitesTable();
 fillAlertsTable();
-initCharts();
 wireNav();
 tickClock();
 setInterval(tickClock, 1000);
+
+// Defer charts until layout has real sizes (fixes blank Chart.js canvases)
+requestAnimationFrame(() => {
+  fillSitesTable();
+  requestAnimationFrame(() => initCharts());
+});
+

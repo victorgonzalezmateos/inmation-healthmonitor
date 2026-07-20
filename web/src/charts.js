@@ -23,86 +23,73 @@ Chart.register(
   Filler
 );
 
-const baseOpts = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { display: false } },
-};
-
-/** Rainbow semicircle + needle for Health Score (0–100). */
-export function renderHealthGauge(canvas, score) {
-  const steps = 48;
-  const values = Array(steps).fill(1);
-  const colors = [];
-  for (let i = 0; i < steps; i++) {
-    // Red (0) → yellow (60) → green (120)
-    const hue = (i / (steps - 1)) * 120;
-    colors.push(`hsl(${hue} 90% 48%)`);
+function sized(canvas) {
+  // Ensure parent has layout before Chart.js measures it
+  const parent = canvas.parentElement;
+  if (parent) {
+    const w = parent.clientWidth || 300;
+    const h = parent.clientHeight || 180;
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.width = w;
+    canvas.height = h;
   }
-  // Transparent lower half so only the top arc shows
-  values.push(steps);
-  colors.push("rgba(0,0,0,0)");
-
-  const clamped = Math.max(0, Math.min(100, score));
-
-  const needlePlugin = {
-    id: "healthNeedle",
-    afterDatasetsDraw(chart) {
-      const meta = chart.getDatasetMeta(0);
-      if (!meta?.data?.length) return;
-      const first = meta.data[0];
-      const cx = first.x;
-      const cy = first.y;
-      // Semicircle: Chart.js doughnut rotation 270°, circumference 180°
-      // Score 0 = left (π), score 100 = right (0) in standard math; with rotation 270:
-      const angle = Math.PI + (clamped / 100) * Math.PI; // π → 2π
-      const inner = first.innerRadius ?? 0;
-      const outer = first.outerRadius ?? 0;
-      const r = (inner + outer) / 2;
-      const ctx = chart.ctx;
-      ctx.save();
-      ctx.strokeStyle = "#0f172a";
-      ctx.fillStyle = "#0f172a";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(cx, cy, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    },
-  };
-
-  return new Chart(canvas, {
-    type: "doughnut",
-    data: {
-      labels: [...Array(steps).fill(""), ""],
-      datasets: [
-        {
-          data: values,
-          backgroundColor: colors,
-          borderWidth: 0,
-          circumference: 180,
-          rotation: 270,
-        },
-      ],
-    },
-    options: {
-      ...baseOpts,
-      cutout: "68%",
-      plugins: {
-        legend: { display: false },
-        tooltip: { enabled: false },
-      },
-    },
-    plugins: [needlePlugin],
-  });
+  return canvas;
 }
 
-/** Full pie chart (Components, Severity, Alerts). */
+/** Rainbow semicircle + needle drawn on canvas (no Chart.js — more reliable). */
+export function renderHealthGauge(canvas, score) {
+  const parent = canvas.parentElement;
+  const w = Math.max(160, parent?.clientWidth || 160);
+  const h = 100;
+  canvas.width = w;
+  canvas.height = h;
+  canvas.style.width = "100%";
+  canvas.style.height = `${h}px`;
+
+  const ctx = canvas.getContext("2d");
+  const cx = w / 2;
+  const cy = h - 8;
+  const radius = Math.min(w / 2 - 8, h - 16);
+  const start = Math.PI; // left
+  const end = 0; // right
+  const steps = 64;
+  const clamped = Math.max(0, Math.min(100, score));
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Rainbow arc
+  for (let i = 0; i < steps; i++) {
+    const a0 = start + (i / steps) * (end - start);
+    const a1 = start + ((i + 1) / steps) * (end - start);
+    const hue = (i / (steps - 1)) * 120; // red → green
+    ctx.beginPath();
+    ctx.strokeStyle = `hsl(${hue}, 90%, 48%)`;
+    ctx.lineWidth = 14;
+    ctx.lineCap = "butt";
+    ctx.arc(cx, cy, radius, a0, a1, false);
+    ctx.stroke();
+  }
+
+  // Needle
+  const angle = start + (clamped / 100) * (end - start);
+  ctx.strokeStyle = "#0f172a";
+  ctx.fillStyle = "#0f172a";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + Math.cos(angle) * (radius - 4), cy + Math.sin(angle) * (radius - 4));
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  return { destroy() {} };
+}
+
+/** Full pie chart. */
 export function renderPie(canvas, { labels, values, colors }) {
+  sized(canvas);
   return new Chart(canvas, {
     type: "pie",
     data: {
@@ -117,7 +104,9 @@ export function renderPie(canvas, { labels, values, colors }) {
       ],
     },
     options: {
-      ...baseOpts,
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -126,7 +115,7 @@ export function renderPie(canvas, { labels, values, colors }) {
               const total = ctx.dataset.data.reduce((a, b) => a + b, 0) || 1;
               const v = ctx.parsed;
               const pct = ((v / total) * 100).toFixed(1);
-              return ` ${ctx.label}: ${v.toLocaleString()} (${pct}%)`;
+              return ` ${ctx.label}: ${Number(v).toLocaleString()} (${pct}%)`;
             },
           },
         },
@@ -135,8 +124,9 @@ export function renderPie(canvas, { labels, values, colors }) {
   });
 }
 
-/** Multi-line trend chart (Issues over time). */
+/** Multi-line trend chart. */
 export function renderTimeline(canvas, data) {
+  sized(canvas);
   return new Chart(canvas, {
     type: "line",
     data: {
@@ -150,7 +140,6 @@ export function renderTimeline(canvas, data) {
           tension: 0.35,
           fill: true,
           pointRadius: 3,
-          pointHoverRadius: 5,
           borderWidth: 2,
         },
         {
@@ -161,7 +150,6 @@ export function renderTimeline(canvas, data) {
           tension: 0.35,
           fill: true,
           pointRadius: 3,
-          pointHoverRadius: 5,
           borderWidth: 2,
         },
         {
@@ -172,13 +160,14 @@ export function renderTimeline(canvas, data) {
           tension: 0.35,
           fill: true,
           pointRadius: 3,
-          pointHoverRadius: 5,
           borderWidth: 2,
         },
       ],
     },
     options: {
-      ...baseOpts,
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: {
@@ -202,9 +191,9 @@ export function renderTimeline(canvas, data) {
   });
 }
 
-/** Horizontal bar chart (Top issue types). */
+/** Horizontal bar chart. */
 export function renderTopTypes(canvas, data) {
-  const max = Math.max(...data.values, 1);
+  sized(canvas);
   return new Chart(canvas, {
     type: "bar",
     data: {
@@ -226,25 +215,13 @@ export function renderTopTypes(canvas, data) {
       ],
     },
     options: {
-      ...baseOpts,
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
       indexAxis: "y",
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label(ctx) {
-              const pct = ((ctx.parsed.x / max) * 100).toFixed(0);
-              return ` ${ctx.parsed.x} (${pct}% of top)`;
-            },
-          },
-        },
-      },
+      plugins: { legend: { display: false } },
       scales: {
-        x: {
-          beginAtZero: true,
-          grid: { color: "#f1f5f9" },
-          ticks: { precision: 0 },
-        },
+        x: { beginAtZero: true, grid: { color: "#f1f5f9" }, ticks: { precision: 0 } },
         y: { grid: { display: false } },
       },
     },
@@ -269,6 +246,7 @@ export function renderSparkline(canvas, values) {
     },
     options: {
       responsive: false,
+      animation: false,
       plugins: { legend: { display: false }, tooltip: { enabled: false } },
       scales: { x: { display: false }, y: { display: false } },
     },
@@ -276,6 +254,7 @@ export function renderSparkline(canvas, values) {
 }
 
 export function fillLegend(el, labels, values, colors) {
+  if (!el) return;
   const total = values.reduce((a, b) => a + b, 0) || 1;
   el.innerHTML = labels
     .map((label, i) => {
