@@ -106,10 +106,22 @@ function fillAlertsTable() {
     .join("");
 }
 
+import { initHealthMonitorPage } from "./health-monitor.js";
+
 function wireNav() {
   const overview = document.getElementById("page-overview");
+  const health = document.getElementById("page-health-monitor");
   const other = document.getElementById("page-other");
   const title = document.getElementById("other-title");
+
+  function show(page) {
+    overview.classList.toggle("visible", page === "overview");
+    health.classList.toggle("visible", page === "health-monitor");
+    other.classList.toggle(
+      "visible",
+      page !== "overview" && page !== "health-monitor"
+    );
+  }
 
   document.querySelectorAll(".nav-list button").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -119,11 +131,12 @@ function wireNav() {
       btn.classList.add("active");
       const page = btn.dataset.page;
       if (page === "overview") {
-        overview.classList.add("visible");
-        other.classList.remove("visible");
+        show("overview");
+      } else if (page === "health-monitor") {
+        show("health-monitor");
+        initHealthMonitorPage();
       } else {
-        overview.classList.remove("visible");
-        other.classList.add("visible");
+        show("other");
         title.textContent = btn.textContent.trim();
       }
     });

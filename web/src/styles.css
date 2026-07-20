@@ -524,6 +524,174 @@ table.data tr.critical td {
   display: none;
 }
 
+/* —— Health Monitor page —— */
+.hm-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 32%) 1fr;
+  gap: 12px;
+  min-height: calc(100vh - 160px);
+  align-items: stretch;
+}
+
+.hm-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.hm-tree-card {
+  flex: 1.4;
+  display: flex;
+  flex-direction: column;
+  min-height: 240px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.hm-props-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+  max-height: 280px;
+  padding: 0;
+  overflow: hidden;
+  background: #10384f;
+  border-color: #0b2433;
+}
+
+.hm-props-card .hm-panel-head {
+  color: #e2e8f0;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.hm-right {
+  min-height: 0;
+}
+
+.hm-counters-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.hm-panel-head {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #10384f;
+  border-bottom: 1px solid var(--border);
+  background: #f8fafc;
+}
+
+.hm-tree {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  overflow: auto;
+  flex: 1;
+  font-size: 13px;
+}
+
+.hm-tree-children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hm-tree-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px 5px calc(8px + var(--depth, 0) * 14px);
+  border: none;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.hm-tree-row:hover {
+  background: #f1f5f9;
+}
+
+.hm-tree-row.selected {
+  background: #e2e8f0;
+  font-weight: 600;
+}
+
+.hm-tree-twist {
+  width: 14px;
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.hm-tree-twist.empty {
+  visibility: hidden;
+}
+
+.hm-props {
+  overflow: auto;
+  flex: 1;
+  padding: 8px 12px 12px;
+}
+
+.hm-prop-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+}
+
+.hm-prop-key {
+  color: #94a3b8;
+}
+
+.hm-prop-val {
+  color: #f8fafc;
+  word-break: break-all;
+}
+
+.hm-props-empty {
+  margin: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.hm-props-card .hm-props-empty {
+  color: #94a3b8;
+}
+
+.hm-table-wrap {
+  overflow: auto;
+  flex: 1;
+  padding: 0 8px 12px;
+}
+
+.hm-path-cell {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 1000px) {
+  .hm-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* —— Footer —— */
 .footer {
   grid-area: foot;

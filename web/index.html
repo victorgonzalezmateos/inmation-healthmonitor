@@ -33,9 +33,9 @@
               </button>
             </li>
             <li>
-              <button type="button" data-page="infrastructure">
+              <button type="button" data-page="health-monitor">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v4H4zm0 6h16v4H4zm0 6h16v4H4z"/></svg>
-                Infrastructure
+                Health Monitor
               </button>
             </li>
             <li>
@@ -283,6 +283,50 @@
               </div>
               <div class="legend" id="legend-alerts"></div>
             </article>
+          </div>
+        </section>
+
+        <section id="page-health-monitor" class="page-panel">
+          <div class="page-head">
+            <div>
+              <h1>Health Monitor</h1>
+              <p>Object tree, properties, and performance counters (mock data)</p>
+            </div>
+          </div>
+          <div class="hm-layout">
+            <div class="hm-left">
+              <div class="card hm-tree-card">
+                <div class="hm-panel-head">Navigation</div>
+                <ul id="hm-tree" class="hm-tree"></ul>
+              </div>
+              <div class="card hm-props-card">
+                <div class="hm-panel-head">Object Properties</div>
+                <div id="hm-props" class="hm-props"></div>
+              </div>
+            </div>
+            <div class="hm-right">
+              <div class="card hm-counters-card">
+                <div class="hm-panel-head" id="hm-counters-title">Performance Counters</div>
+                <p id="hm-counters-empty" class="hm-props-empty" hidden>
+                  Select an object in the tree.
+                </p>
+                <div class="hm-table-wrap">
+                  <table class="data" id="hm-counters-table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Unit</th>
+                        <th>penName</th>
+                        <th>path</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
