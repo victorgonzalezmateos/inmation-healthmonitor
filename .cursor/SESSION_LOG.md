@@ -4,80 +4,36 @@
 
 ---
 
-## Current State (last updated: 2026-07-17 EOD)
+## Current State (last updated: 2026-07-20)
 
 | Item | Value |
 |------|-------|
 | **Project folder** | `C:\Users\GOAKJ\Documents\Cursor Project\inmation-healthmonitor` |
 | **Kanvas install** | `C:\Users\GOAKJ\Documents\Cursor Project\Kanvas` |
 | **GitHub repo** | https://github.com/victorgonzalezmateos/inmation-healthmonitor |
-| **GitHub account** | `victorgonzalezmateos` (authenticated via `gh` CLI) |
-| **Git branch** | `master` (tracks `origin/master`) |
-| **Workflow tool** | Kanvas — `canvas-tool.py` + Obsidian Canvas (`Project.canvas`) |
+| **Git branch** | `master` |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **App shell + Designer Overview KPI row — deploy & polish next** |
+| **Phase** | **NEW: HTML + inmation Web API (planning). WebStudio frozen.** |
 
-### Smart Sentinel — working on host (2026-07-17)
+### WebStudio freeze (do not lose)
+| Item | Value |
+|------|-------|
+| Commit | `ccf7ce5` |
+| Tag | `smart-sentinel-overview-kpis-wip` |
+| Chart tag | `smart-sentinel-chart-submit-ok` |
+| Status | Saved; optional later for Trends parity |
 
-| Feature | Status |
-|---------|--------|
-| Header "Smart Sentinel" + Bayer appBar | ✓ |
-| **Persistent left app menu** Overview (house) \| Trends (chart) | ✓ built — confirm on host next session |
-| **Trends page** = former full HM UI (nav/overview/props/counters/chart) | ✓ |
-| Navigation \| Overview tabs (inside Trends) | ✓ |
-| Tree + overview table (layout toggle) | ✓ |
-| Performance Counters + Submit → Chart | ✓ |
-| Object properties panel (Navigation only) | ✓ |
-| Counters \| Chart icon switcher | ✓ |
-| **Overview page KPI row** (Designer style, 6 cards) | ✓ built — confirm on host next session |
+### HTML phase — feasibility
+- **Auth:** IWA via `/api/security/windows/authorize` + `credentials: "include"` → Bearer token (same Windows user as WebStudio)
+- **Data:** `/api/v2/execfunction` → `syslib.app-webstudio-healthmonitor` (`fetchNavigationTable`, etc.)
+- **UI:** HTML/CSS/JS (or React) to match Designer.png
+- **Open:** hosting/CORS, first spike scope — see Session History 2026-07-20
 
-### Overview KPI cards (Designer style)
-
-| Card | Content |
-|------|---------|
-| Health Score | Semi-circle Plotly pie (Good/Warning/Bad), score/100, Good/Fair/Poor label |
-| Total Components | Count + blue server icon + "All Sites" |
-| Problems | Bad count + % (red warning icon) |
-| Warnings | Warning count + % (yellow icon) |
-| Info | Empty+Disabled+Neutral count + % (blue info icon) |
-| Sites Impacted | Unique path-segment sites with non-Good + "of N sites" |
-
-**Data:** `fetchNavigationTable` only — counts by source `WorstState` / Path (no new health engine).
-
-### Deploy recipe
+### Deploy recipe (WebStudio — frozen path)
 ```powershell
 python compilations/build-bayer-deploy.py
-# Then run compilations/smart-sentinel-ai-upsert-full.lua in DataStudio console
-# Hard-refresh Smart Sentinel URL
+# compilations/smart-sentinel-ai-upsert-full.lua
 ```
-
-### Launch URLs
-| App | URL |
-|-----|-----|
-| Smart Sentinel | `…/apps/webstudio/?…&obj=%2FSystem%2FCore%2F_Global%20Core%20Logic%2FDevelopment%2FSmart%20Sentinel%20AI&name=Bayer%20Health%20Monitor` |
-| Default HM | `…&lib=syslib.app-webstudio-healthmonitor&func=dashboard_compilation` |
-
-### Key technical lessons (do not regress)
-| Pattern | Result |
-|---------|--------|
-| Root-level many `objprop-*` widgets | Breaks grid — counters pushed down |
-| Nested `bayer-props-panel` tabs widget (single root slot) | Layout stable |
-| Worker + `modifyPropertyPanel*` actions inside nested compilation | Properties populate |
-| Tree → `delegate` route `bayer-props-panel` / `tab-object-props` / `worker-property-panel` | Cross-scope worker update |
-| Tab toggle via `layout w/h=0` + explicit x,y,w,h | Nav/overview swap works |
-| `display:none` for tab panels | **Fails** — use layout size |
-| Chart/Counters + app pages: hide peers first, then show active | Prevents misalignment |
-| App menu rail stays visible; only page content toggles | Designer shell |
-| KPI cards = flat root widgets (bg/title/icon/value/footer) | Avoids nested modify routing |
-| MENU_W=14, LEFT_X=14, RIGHT_X=44 | Content shifted for menu |
-
-### Not yet done / next session
-- [ ] Deploy app shell + Overview KPIs to host; user validate style vs Designer mockup
-- [ ] Polish KPI spacing/icons if needed after live look
-- [ ] Continue Designer Overview (donuts, site table, alerts) — step by step
-- [ ] VA-03 live parity (purple on board — approve when ready)
-- [x] Chart / Submit (`smart-sentinel-chart-submit-ok`)
-- [x] App shell + Designer KPI row (this EOD save)
 
 ### Key files (builders)
 | File | Role |
@@ -322,5 +278,18 @@ npm run dev
 4. Then continue Designer (more Overview widgets) or VA-03 parity
 
 **User sign-off:** Stopping for the day — save everything for next session.
+
+---
+
+### 2026-07-20 — Pivot: freeze WebStudio; plan HTML + Web API
+
+**Decision:** Designer.png-level UI is not practical in WebStudio alone. Keep WebStudio work frozen (`ccf7ce5`, tag `smart-sentinel-overview-kpis-wip`). New phase = **HTML page + inmation Web API**, same Health Monitor data, IWA auth.
+
+**Feasibility (docs):**
+- Auth: `GET /api/security/windows/authorize` + `credentials: "include"` → Bearer token
+- Data: `POST /api/v2/execfunction` → `syslib.app-webstudio-healthmonitor` (`fetchNavigationTable`, etc.)
+- Profile mapping: Windows user → inmation Profile (same as WebStudio)
+
+**Next:** Answer hosting/stack/scope questions → spike IWA + one fetch from HTML → build Overview like Designer.png
 
 <!-- Append new sessions below this line -->

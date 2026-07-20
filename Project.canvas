@@ -243,6 +243,16 @@
 			"width": 280,
 			"height": 160,
 			"color": "6"
+		},
+		{
+			"id": "ed55d17b",
+			"type": "text",
+			"text": "## AR-03 AR-03 Plan HTML Health Monitor via Web API\nFreeze WebStudio deliverable. Design HTML/SPA that uses IWA (/api/security/windows/authorize) and execfunction to syslib.app-webstudio-healthmonitor. Cover hosting/CORS, auth spike, Overview page matching Designer.png.",
+			"x": 460,
+			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "6"
 		}
 	],
 	"edges": [
