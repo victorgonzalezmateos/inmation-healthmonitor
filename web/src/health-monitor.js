@@ -137,5 +137,15 @@ export function initHealthMonitorPage() {
   }
   tree.dataset.ready = "1";
   tree.addEventListener("click", onTreeClick);
+  const submit = document.getElementById("hm-submit");
+  if (submit && !submit.dataset.bound) {
+    submit.dataset.bound = "1";
+    submit.addEventListener("click", () => {
+      // Placeholder until Chart / Trends wiring
+      console.info("[Health Monitor] Submit clicked (mock — chart wiring next)");
+      submit.classList.add("btn-submit-flash");
+      setTimeout(() => submit.classList.remove("btn-submit-flash"), 400);
+    });
+  }
   refresh();
 }

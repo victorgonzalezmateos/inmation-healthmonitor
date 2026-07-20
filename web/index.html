@@ -9,17 +9,21 @@
     <div id="app">
       <header class="topbar">
         <div class="topbar-left">
-          <div class="brand-mark">
-            <span class="brand-cross" aria-hidden="true"></span>
-            <span>Global Health Monitor</span>
-          </div>
+          <img class="bayer-logo" src="/bayer-logo.svg" width="33" height="33" alt="Bayer" />
+          <span class="app-title">Smart Sentinel</span>
           <button type="button" class="btn-guide">User Guide</button>
         </div>
         <div class="topbar-right">
-          <span>Dev</span>
-          <span>RESTRICTED</span>
-          <span><span class="status-dot"></span>CONNECTED</span>
-          <button type="button" class="icon-btn" title="Sign out" aria-label="Sign out">⇥</button>
+          <span class="topbar-env">Dev</span>
+          <span class="topbar-restricted">RESTRICTED</span>
+          <span class="topbar-connected">CONNECTED<span class="status-dot" aria-hidden="true"></span></span>
+          <button type="button" class="topbar-logout" title="Sign out" aria-label="Sign out">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4" />
+              <path d="M16 12H8" />
+              <path d="M14 8l4 4-4 4" />
+            </svg>
+          </button>
         </div>
       </header>
 
@@ -324,6 +328,9 @@
                     </thead>
                     <tbody></tbody>
                   </table>
+                </div>
+                <div class="hm-counters-footer">
+                  <button type="button" class="btn-submit" id="hm-submit">Submit</button>
                 </div>
               </div>
             </div>

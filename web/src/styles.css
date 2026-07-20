@@ -38,7 +38,7 @@ body {
 #app {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
-  grid-template-rows: 52px 1fr 36px;
+  grid-template-rows: 48px 1fr 36px;
   grid-template-areas:
     "top top"
     "side main"
@@ -46,16 +46,31 @@ body {
   min-height: 100vh;
 }
 
-/* —— Top bar —— */
+/* —— Top bar (PMM Bayer style) —— */
 .topbar {
   grid-area: top;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px 0 12px;
-  background: #fff;
-  border-bottom: 1px solid var(--border);
+  padding: 0 14px 0 12px;
+  height: 48px;
+  border-bottom: 1px solid #ededed;
   z-index: 10;
+  /* Exact PMM diagonal wash from captured appBar */
+  background: -webkit-linear-gradient(
+    -18deg,
+    #ffffff 50%,
+    #7c84c2 50%,
+    #34b4e4 83%,
+    #60c5eb 100%
+  );
+  background: linear-gradient(
+    -18deg,
+    #ffffff 50%,
+    #7c84c2 50%,
+    #34b4e4 83%,
+    #60c5eb 100%
+  );
 }
 
 .topbar-left {
@@ -64,74 +79,84 @@ body {
   gap: 12px;
 }
 
-.brand-mark {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  color: #16364e;
-  font-size: 15px;
+.bayer-logo {
+  width: 33px;
+  height: 33px;
+  display: block;
+  flex-shrink: 0;
 }
 
-.brand-cross {
-  width: 22px;
-  height: 22px;
-  background: #00a3e0;
-  clip-path: polygon(
-    40% 0,
-    60% 0,
-    60% 40%,
-    100% 40%,
-    100% 60%,
-    60% 60%,
-    60% 100%,
-    40% 100%,
-    40% 60%,
-    0 60%,
-    0 40%,
-    40% 40%
-  );
+.app-title {
+  color: #16364e;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 48px;
+  white-space: nowrap;
 }
 
 .btn-guide {
-  background: var(--bayer-green);
+  background: #89d329;
   color: #10384f;
   border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
+  border-radius: 999px;
+  padding: 6px 14px;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  margin-left: 4px;
+}
+
+.btn-guide:hover {
+  background: #76ba24;
 }
 
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 6px 14px;
-  border-radius: 8px;
-  background: var(--header-grad);
-  color: #fff;
+  gap: 16px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.topbar-env {
+  color: #16364e;
+  font-weight: 700;
+}
+
+.topbar-restricted,
+.topbar-connected {
+  color: #e8f7fc;
+  letter-spacing: 0.02em;
+}
+
+.topbar-connected {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .status-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--bayer-green);
+  background: #89d329;
   display: inline-block;
-  margin-right: 4px;
+  box-shadow: 0 0 0 2px rgba(137, 211, 41, 0.35);
 }
 
-.icon-btn {
+.topbar-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: none;
-  color: #fff;
+  color: #16364e;
   cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
+  padding: 4px;
+}
+
+.topbar-logout:hover {
+  opacity: 0.75;
 }
 
 /* —— Sidebar —— */
@@ -684,6 +709,35 @@ table.data tr.critical td {
   white-space: nowrap;
   color: var(--muted);
   font-size: 11px;
+}
+
+.hm-counters-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: #f8fafc;
+}
+
+.btn-submit {
+  background: #ffffff;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  border-radius: 4px;
+  padding: 6px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn-submit:hover {
+  background: #fef2f2;
+}
+
+.btn-submit:active {
+  background: #fee2e2;
 }
 
 @media (max-width: 1000px) {
