@@ -29,19 +29,60 @@ const baseOpts = {
   plugins: { legend: { display: false } },
 };
 
+/** Rainbow semicircle + needle for Health Score (0–100). */
 export function renderHealthGauge(canvas, score) {
-  // Semi-donut: green/yellow/red arc + transparent half
-  const good = Math.max(0, score);
-  const mid = Math.max(0, Math.min(20, 100 - good));
-  const bad = Math.max(0, 100 - good - mid);
+  const steps = 48;
+  const values = Array(steps).fill(1);
+  const colors = [];
+  for (let i = 0; i < steps; i++) {
+    // Red (0) → yellow (60) → green (120)
+    const hue = (i / (steps - 1)) * 120;
+    colors.push(`hsl(${hue} 90% 48%)`);
+  }
+  // Transparent lower half so only the top arc shows
+  values.push(steps);
+  colors.push("rgba(0,0,0,0)");
+
+  const clamped = Math.max(0, Math.min(100, score));
+
+  const needlePlugin = {
+    id: "healthNeedle",
+    afterDatasetsDraw(chart) {
+      const meta = chart.getDatasetMeta(0);
+      if (!meta?.data?.length) return;
+      const first = meta.data[0];
+      const cx = first.x;
+      const cy = first.y;
+      // Semicircle: Chart.js doughnut rotation 270°, circumference 180°
+      // Score 0 = left (π), score 100 = right (0) in standard math; with rotation 270:
+      const angle = Math.PI + (clamped / 100) * Math.PI; // π → 2π
+      const inner = first.innerRadius ?? 0;
+      const outer = first.outerRadius ?? 0;
+      const r = (inner + outer) / 2;
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.strokeStyle = "#0f172a";
+      ctx.fillStyle = "#0f172a";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    },
+  };
+
   return new Chart(canvas, {
     type: "doughnut",
     data: {
-      labels: ["Good", "Warn", "Bad", "_"],
+      labels: [...Array(steps).fill(""), ""],
       datasets: [
         {
-          data: [good, mid, bad, good + mid + bad],
-          backgroundColor: ["#89d329", "#eab308", "#ef4444", "rgba(0,0,0,0)"],
+          data: values,
+          backgroundColor: colors,
           borderWidth: 0,
           circumference: 180,
           rotation: 270,
@@ -50,15 +91,20 @@ export function renderHealthGauge(canvas, score) {
     },
     options: {
       ...baseOpts,
-      cutout: "72%",
-      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      cutout: "68%",
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+      },
     },
+    plugins: [needlePlugin],
   });
 }
 
-export function renderDonut(canvas, { labels, values, colors }) {
+/** Full pie chart (Components, Severity, Alerts). */
+export function renderPie(canvas, { labels, values, colors }) {
   return new Chart(canvas, {
-    type: "doughnut",
+    type: "pie",
     data: {
       labels,
       datasets: [
@@ -66,17 +112,30 @@ export function renderDonut(canvas, { labels, values, colors }) {
           data: values,
           backgroundColor: colors,
           borderWidth: 2,
-          borderColor: "#fff",
+          borderColor: "#ffffff",
         },
       ],
     },
     options: {
       ...baseOpts,
-      cutout: "62%",
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label(ctx) {
+              const total = ctx.dataset.data.reduce((a, b) => a + b, 0) || 1;
+              const v = ctx.parsed;
+              const pct = ((v / total) * 100).toFixed(1);
+              return ` ${ctx.label}: ${v.toLocaleString()} (${pct}%)`;
+            },
+          },
+        },
+      },
     },
   });
 }
 
+/** Multi-line trend chart (Issues over time). */
 export function renderTimeline(canvas, data) {
   return new Chart(canvas, {
     type: "line",
@@ -87,45 +146,65 @@ export function renderTimeline(canvas, data) {
           label: "Problems",
           data: data.problems,
           borderColor: "#ef4444",
-          backgroundColor: "rgba(239,68,68,0.1)",
-          tension: 0.3,
-          fill: false,
-          pointRadius: 2,
+          backgroundColor: "rgba(239,68,68,0.12)",
+          tension: 0.35,
+          fill: true,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          borderWidth: 2,
         },
         {
           label: "Warnings",
           data: data.warnings,
           borderColor: "#eab308",
-          backgroundColor: "rgba(234,179,8,0.1)",
-          tension: 0.3,
-          fill: false,
-          pointRadius: 2,
+          backgroundColor: "rgba(234,179,8,0.12)",
+          tension: 0.35,
+          fill: true,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          borderWidth: 2,
         },
         {
           label: "Info",
           data: data.info,
           borderColor: "#3b82f6",
-          backgroundColor: "rgba(59,130,246,0.1)",
-          tension: 0.3,
-          fill: false,
-          pointRadius: 2,
+          backgroundColor: "rgba(59,130,246,0.12)",
+          tension: 0.35,
+          fill: true,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          borderWidth: 2,
         },
       ],
     },
     options: {
       ...baseOpts,
+      interaction: { mode: "index", intersect: false },
       plugins: {
-        legend: { display: true, position: "bottom", labels: { boxWidth: 10, font: { size: 11 } } },
+        legend: {
+          display: true,
+          position: "bottom",
+          labels: { boxWidth: 10, font: { size: 11 } },
+        },
       },
       scales: {
-        x: { grid: { display: false } },
-        y: { beginAtZero: true, grid: { color: "#f1f5f9" } },
+        x: {
+          title: { display: true, text: "Time (24h)", font: { size: 11 } },
+          grid: { display: false },
+        },
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: "Count", font: { size: 11 } },
+          grid: { color: "#f1f5f9" },
+        },
       },
     },
   });
 }
 
+/** Horizontal bar chart (Top issue types). */
 export function renderTopTypes(canvas, data) {
+  const max = Math.max(...data.values, 1);
   return new Chart(canvas, {
     type: "bar",
     data: {
@@ -142,14 +221,30 @@ export function renderTopTypes(canvas, data) {
             "#94a3b8",
           ],
           borderRadius: 4,
+          barThickness: 18,
         },
       ],
     },
     options: {
       ...baseOpts,
       indexAxis: "y",
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label(ctx) {
+              const pct = ((ctx.parsed.x / max) * 100).toFixed(0);
+              return ` ${ctx.parsed.x} (${pct}% of top)`;
+            },
+          },
+        },
+      },
       scales: {
-        x: { beginAtZero: true, grid: { color: "#f1f5f9" } },
+        x: {
+          beginAtZero: true,
+          grid: { color: "#f1f5f9" },
+          ticks: { precision: 0 },
+        },
         y: { grid: { display: false } },
       },
     },

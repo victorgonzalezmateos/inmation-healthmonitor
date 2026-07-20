@@ -2,8 +2,8 @@ import "./styles.css";
 import * as mock from "./mock-data.js";
 import {
   fillLegend,
-  renderDonut,
   renderHealthGauge,
+  renderPie,
   renderSparkline,
   renderTimeline,
   renderTopTypes,
@@ -51,10 +51,6 @@ function fillKpis() {
   document.getElementById("kpi-sites").textContent = String(k.sitesImpacted);
   document.getElementById("kpi-sites-of").textContent =
     `of ${k.sitesTotal} sites`;
-  document.getElementById("comp-total").textContent = fmt(k.totalComponents);
-  document.getElementById("alerts-total").textContent = String(
-    mock.alertsBySeverity.total
-  );
 }
 
 function fillCriticalTable() {
@@ -140,7 +136,7 @@ function initCharts() {
     mock.kpis.healthScore
   );
 
-  renderDonut(document.getElementById("chart-components"), mock.componentsByType);
+  renderPie(document.getElementById("chart-components"), mock.componentsByType);
   fillLegend(
     document.getElementById("legend-components"),
     mock.componentsByType.labels,
@@ -148,7 +144,7 @@ function initCharts() {
     mock.componentsByType.colors
   );
 
-  renderDonut(document.getElementById("chart-severity"), mock.issuesBySeverity);
+  renderPie(document.getElementById("chart-severity"), mock.issuesBySeverity);
   fillLegend(
     document.getElementById("legend-severity"),
     mock.issuesBySeverity.labels,
@@ -159,7 +155,7 @@ function initCharts() {
   renderTimeline(document.getElementById("chart-timeline"), mock.issuesOverTime);
   renderTopTypes(document.getElementById("chart-top-types"), mock.topIssueTypes);
 
-  renderDonut(document.getElementById("chart-alerts"), mock.alertsBySeverity);
+  renderPie(document.getElementById("chart-alerts"), mock.alertsBySeverity);
   fillLegend(
     document.getElementById("legend-alerts"),
     mock.alertsBySeverity.labels,
