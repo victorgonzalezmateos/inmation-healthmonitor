@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (last updated: 2026-07-20)
+## Current State (last updated: 2026-07-20 EOD)
 
 | Item | Value |
 |------|-------|
@@ -13,7 +13,7 @@
 | **GitHub repo** | https://github.com/victorgonzalezmateos/inmation-healthmonitor |
 | **Git branch** | `master` |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **HTML static Designer draft next; then IWA/data spike** |
+| **Phase** | **HTML static draft ✓ liked by user → next: IWA + HM data spike** |
 
 
 ### WebStudio freeze (do not lose)
@@ -24,14 +24,26 @@
 | Chart tag | `smart-sentinel-chart-submit-ok` |
 | Status | Saved; optional later for Trends parity |
 
+### HTML app — save point (2026-07-20)
+| Item | Value |
+|------|-------|
+| App | `web/` Vite + plain HTML/CSS/JS |
+| Run | `cd web && npm install && npm run dev` → http://localhost:5173 |
+| Title | Smart Sentinel |
+| User feedback | Liked the draft; pause here for next session |
+
+**Pages:** Overview · Health Monitor · Issues & Alerts (split) · Trends (1d/7d/1m/2m) · Drill-down · Configuration (EAM emails) · Reports (placeholder)
+
+**Next session (do not re-ask setup):**
+1. Read this Current State + latest Session History
+2. Resume from **IWA spike** (`/api/security/windows/authorize` + one `execfunction`)
+3. Then wire `fetchNavigationTable` into Overview KPIs
+
 ### HTML phase — locked (2026-07-20)
 - Plan: `docs/architecture/AR-03-html-webapi-plan.md`
 - Stack: Vite + plain HTML/CSS/JS (team-maintainable)
-- First: static Designer.png mock (no data)
-- Then: guided IWA spike + HM execfunction
 - Auth later (Q/P): secondary CWID
 - Hosting later: shared server for Consumer Health
-
 
 ### Deploy recipe (WebStudio — frozen path)
 ```powershell
@@ -39,27 +51,16 @@ python compilations/build-bayer-deploy.py
 # compilations/smart-sentinel-ai-upsert-full.lua
 ```
 
-### Key files (builders)
-| File | Role |
-|------|------|
-| `compilations/bayer_app_shell.py` | Persistent left menu + page switch |
-| `compilations/bayer_overview_kpis.py` | Designer KPI row (6 cards + transforms) |
-| `compilations/build-bayer-full-tabs.py` | Assembles Trends + shell |
-| `compilations/bayer_chart_panel.py` | Counters/Chart Submit |
-| `compilations/bayer_properties_panel.py` | Nested properties |
-| `compilations/build-bayer-deploy.py` | Rebuild JSON + Lua |
-
 ### Board status
-- VA-03 proposed (purple) — live parity run
-- No red ready tasks until VA-03 approved
-- Designer Overview continuation = next build work (propose task next session if needed)
+- Proposed (purple): VA-03, VA-04, AR-03
+- HTML draft progressed outside board; propose HTML tasks next session if useful
 
 ### Save points
-| Tag | Meaning |
-|-----|---------|
-| `smart-sentinel-phase2-layout-ok` | Phase 2 layout (if present) |
-| `smart-sentinel-chart-submit-ok` | Chart/Submit done (`a5a8326`) |
-| `smart-sentinel-overview-kpis-wip` | App shell + Designer KPI row (this commit) |
+| Tag / area | Meaning |
+|------------|---------|
+| `smart-sentinel-chart-submit-ok` | WebStudio Chart/Submit (`a5a8326`) |
+| `smart-sentinel-overview-kpis-wip` | WebStudio app shell + KPI row (`ccf7ce5`) |
+| `web/` HTML draft | Designer-style multi-page static app (this EOD) |
 
 ---
 
@@ -320,5 +321,40 @@ npm run dev
 **Includes:** sidebar menu, header, 6 KPIs, donuts, critical issues, site summary + sparklines, issues over time, top types, recent alerts.
 
 **Next:** User visual review → guided IWA spike.
+
+---
+
+### 2026-07-20 — EOD: HTML multi-page draft liked; save for next session
+
+**User:** Liked the work; pause and save everything for next session.
+
+**Built in `web/` (static mock):**
+- PMM-style header (Bayer logo, Smart Sentinel, User Guide, Dev/RESTRICTED/CONNECTED) — white left / blue right gradient
+- Browser tab title: **Smart Sentinel**
+- **Overview** — Designer KPIs + charts/tables
+- **Health Monitor** — tree, object properties, performance counters, Submit
+- **Issues & Alerts** — horizontal split: Issues (top) / Warnings (bottom)
+- **Trends** — tree select + multi-pen trend; ranges **1d / 7d / 1m / 2m**
+- **Drill-down** — Site/Type/Severity filters → hierarchy table → detail + Open in Trends
+- **Configuration** — EAM Critical Objects table; add/delete alert emails (in-memory)
+- Reports still placeholder
+
+**Key new/updated files:**
+- `web/src/trends.js`, `drill-down.js`, `configuration.js`
+- `web/src/drill-mock-data.js`, `config-mock-data.js`
+- `web/src/health-monitor.js`, `hm-mock-data.js`, `charts.js`, `styles.css`, `index.html`
+- `focus.md` updated for resume
+
+**Run:** `cd web && npm run dev` → http://localhost:5173
+
+**Board:** Proposed still VA-03, VA-04, AR-03 (purple). HTML work progressed; propose follow-up tasks next session if needed.
+
+**Resume next session:**
+1. Read `.cursor/SESSION_LOG.md` Current State + this entry + `focus.md`
+2. Do **not** re-ask paths / GitHub / Kanvas
+3. Start **guided IWA spike** + one HM `execfunction` (`fetchNavigationTable`)
+4. Then wire live data into Overview (then other pages)
+
+**User sign-off:** Stopping — draft looks great; save for next session.
 
 <!-- Append new sessions below this line -->

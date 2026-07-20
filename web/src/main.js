@@ -106,20 +106,62 @@ function fillAlertsTable() {
     .join("");
 }
 
+function fillIssueRows(tableId, countId, rows) {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  const countEl = document.getElementById(countId);
+  if (countEl) countEl.textContent = String(rows.length);
+  tbody.innerHTML = rows
+    .map((r) => {
+      const sev = r.severity.toLowerCase();
+      return `<tr>
+        <td>${r.time}</td>
+        <td><span class="badge ${sev}">${r.severity}</span></td>
+        <td>${r.site}</td>
+        <td>${r.component}</td>
+        <td>${r.type}</td>
+        <td>${r.message}</td>
+        <td>${r.status}</td>
+        <td>${r.duration}</td>
+      </tr>`;
+    })
+    .join("");
+}
+
+function fillIssuesPage() {
+  fillIssueRows("table-system-issues", "issues-count", mock.systemIssues);
+  fillIssueRows("table-system-warnings", "warnings-count", mock.systemWarnings);
+}
+
 import { initHealthMonitorPage } from "./health-monitor.js";
+import { initTrendsPage } from "./trends.js";
+import { initDrillDownPage } from "./drill-down.js";
+import { initConfigurationPage } from "./configuration.js";
 
 function wireNav() {
   const overview = document.getElementById("page-overview");
   const health = document.getElementById("page-health-monitor");
+  const issues = document.getElementById("page-issues");
+  const trends = document.getElementById("page-trends");
+  const drilldown = document.getElementById("page-drilldown");
+  const config = document.getElementById("page-config");
   const other = document.getElementById("page-other");
   const title = document.getElementById("other-title");
 
   function show(page) {
     overview.classList.toggle("visible", page === "overview");
     health.classList.toggle("visible", page === "health-monitor");
+    issues.classList.toggle("visible", page === "issues");
+    trends.classList.toggle("visible", page === "trends");
+    drilldown.classList.toggle("visible", page === "drilldown");
+    config.classList.toggle("visible", page === "config");
     other.classList.toggle(
       "visible",
-      page !== "overview" && page !== "health-monitor"
+      page !== "overview" &&
+        page !== "health-monitor" &&
+        page !== "issues" &&
+        page !== "trends" &&
+        page !== "drilldown" &&
+        page !== "config"
     );
   }
 
@@ -135,6 +177,17 @@ function wireNav() {
       } else if (page === "health-monitor") {
         show("health-monitor");
         initHealthMonitorPage();
+      } else if (page === "issues") {
+        show("issues");
+      } else if (page === "trends") {
+        show("trends");
+        initTrendsPage();
+      } else if (page === "drilldown") {
+        show("drilldown");
+        initDrillDownPage();
+      } else if (page === "config") {
+        show("config");
+        initConfigurationPage();
       } else {
         show("other");
         title.textContent = btn.textContent.trim();
@@ -201,6 +254,7 @@ function initCharts() {
 fillKpis();
 fillCriticalTable();
 fillAlertsTable();
+fillIssuesPage();
 wireNav();
 tickClock();
 setInterval(tickClock, 1000);

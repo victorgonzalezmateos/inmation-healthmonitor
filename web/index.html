@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Global Health Monitor — Smart Sentinel</title>
+    <title>Smart Sentinel</title>
   </head>
   <body>
     <div id="app">
@@ -77,7 +77,7 @@
         <div class="sidebar-foot">
           <div>Last refresh</div>
           <div><strong id="last-refresh">—</strong></div>
-          <div style="margin-top: 10px">inmation Health Monitor</div>
+          <div style="margin-top: 10px">Smart Sentinel</div>
           <div>Version 1.0.0 · static draft</div>
         </div>
       </aside>
@@ -334,6 +334,247 @@
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section id="page-issues" class="page-panel">
+          <div class="page-head">
+            <div>
+              <h1>Issues &amp; Alerts</h1>
+              <p>System issues and warnings</p>
+            </div>
+          </div>
+          <div class="issues-split">
+            <article class="card issues-panel">
+              <div class="hm-panel-head issues-panel-head issues">
+                <span>Issues</span>
+                <span class="issues-count" id="issues-count">0</span>
+              </div>
+              <div class="hm-table-wrap">
+                <table class="data" id="table-system-issues">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Severity</th>
+                      <th>Site</th>
+                      <th>Component</th>
+                      <th>Type</th>
+                      <th>Message</th>
+                      <th>Status</th>
+                      <th>Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="card issues-panel">
+              <div class="hm-panel-head issues-panel-head warnings">
+                <span>Warnings</span>
+                <span class="issues-count" id="warnings-count">0</span>
+              </div>
+              <div class="hm-table-wrap">
+                <table class="data" id="table-system-warnings">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Severity</th>
+                      <th>Site</th>
+                      <th>Component</th>
+                      <th>Type</th>
+                      <th>Message</th>
+                      <th>Status</th>
+                      <th>Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="page-trends" class="page-panel">
+          <div class="page-head">
+            <div>
+              <h1>Trends</h1>
+              <p>Select an object to view its saved historical trend data</p>
+            </div>
+            <div class="filters">
+              <label class="filter"
+                >Time range
+                <select id="trends-range">
+                  <option value="1d" selected>1d</option>
+                  <option value="7d">7d</option>
+                  <option value="1m">1m</option>
+                  <option value="2m">2m</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="trends-layout">
+            <div class="card hm-tree-card trends-tree-card">
+              <div class="hm-panel-head">Navigation</div>
+              <ul id="trends-tree" class="hm-tree"></ul>
+            </div>
+            <div class="card trends-chart-card">
+              <div class="hm-panel-head" id="trends-chart-title">Trend</div>
+              <p id="trends-empty" class="hm-props-empty">
+                Select an object in the tree to load its trend.
+              </p>
+              <div id="trends-chart-wrap" class="trends-chart-wrap" hidden>
+                <canvas id="chart-trends"></canvas>
+              </div>
+              <div id="trends-pens" class="trends-pens" hidden></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-drilldown" class="page-panel">
+          <div class="page-head">
+            <div>
+              <h1>Drill-down</h1>
+              <p>Investigate from site / type / severity down to a specific object</p>
+            </div>
+            <div class="filters">
+              <label class="filter"
+                >Site
+                <select id="dd-filter-site"></select>
+              </label>
+              <label class="filter"
+                >Type
+                <select id="dd-filter-type"></select>
+              </label>
+              <label class="filter"
+                >Severity
+                <select id="dd-filter-severity"></select>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="dd-filter-nongood" checked /> Show non-Good only
+              </label>
+            </div>
+          </div>
+          <div class="dd-layout">
+            <article class="card dd-table-card">
+              <div class="hm-panel-head dd-table-head">
+                <span>Hierarchy health</span>
+                <span class="issues-count" id="dd-result-count">0</span>
+              </div>
+              <div class="hm-table-wrap">
+                <table class="data" id="dd-table">
+                  <thead>
+                    <tr>
+                      <th>Site</th>
+                      <th>Component</th>
+                      <th>Type</th>
+                      <th>Worst State</th>
+                      <th>Score</th>
+                      <th>Problems</th>
+                      <th>Warnings</th>
+                      <th>Message</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </article>
+            <aside class="card dd-detail-card">
+              <div class="hm-panel-head" id="dd-detail-title">Object detail</div>
+              <p id="dd-detail-empty" class="hm-props-empty">
+                Select a row to inspect properties and related issues.
+              </p>
+              <div id="dd-detail-body" hidden>
+                <div id="dd-props" class="hm-props dd-props"></div>
+                <div class="dd-related-block">
+                  <div class="dd-related-head">Related issues &amp; alerts</div>
+                  <p id="dd-related-empty" class="hm-props-empty" hidden>No related items.</p>
+                  <div class="hm-table-wrap dd-related-wrap">
+                    <table class="data" id="dd-related">
+                      <thead>
+                        <tr>
+                          <th>Time</th>
+                          <th>Severity</th>
+                          <th>Type</th>
+                          <th>Message</th>
+                          <th>Status</th>
+                          <th>Duration</th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="dd-detail-actions">
+                  <button type="button" class="btn-submit" id="dd-open-trends">
+                    Open in Trends
+                  </button>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="page-config" class="page-panel">
+          <div class="page-head">
+            <div>
+              <h1>Configuration</h1>
+              <p>Manage alert emails for EAM Critical Objects</p>
+            </div>
+            <div class="filters">
+              <label class="filter"
+                >Type
+                <select id="cfg-filter-type"></select>
+              </label>
+            </div>
+          </div>
+          <p class="cfg-source" id="cfg-source"></p>
+          <div class="cfg-layout">
+            <article class="card cfg-table-card">
+              <div class="hm-panel-head dd-table-head">
+                <span>EAM Critical Objects</span>
+                <span class="issues-count" id="cfg-count">0</span>
+              </div>
+              <div class="hm-table-wrap">
+                <table class="data" id="cfg-eam-table">
+                  <thead>
+                    <tr>
+                      <th>Path</th>
+                      <th>Type</th>
+                      <th>Alert emails</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </article>
+            <aside class="card cfg-editor-card">
+              <div class="hm-panel-head" id="cfg-editor-title">Alert recipients</div>
+              <p id="cfg-editor-empty" class="hm-props-empty">
+                Select an object to manage its alert emails.
+              </p>
+              <div id="cfg-editor-body" class="cfg-editor-body" hidden>
+                <div class="cfg-editor-meta">
+                  <div class="cfg-meta-label">Path</div>
+                  <div class="cfg-meta-path" id="cfg-editor-path"></div>
+                  <div class="cfg-meta-label">Type</div>
+                  <div class="cfg-meta-type" id="cfg-editor-type"></div>
+                </div>
+                <div class="cfg-related-head">Emails</div>
+                <ul id="cfg-email-list" class="cfg-email-list"></ul>
+                <form id="cfg-email-form" class="cfg-email-form">
+                  <input
+                    type="email"
+                    id="cfg-email-input"
+                    class="cfg-email-input"
+                    placeholder="name@bayer.com"
+                    autocomplete="off"
+                    required
+                  />
+                  <button type="submit" class="btn-submit">Add email</button>
+                </form>
+                <p class="cfg-email-error" id="cfg-email-error" role="status"></p>
+              </div>
+            </aside>
           </div>
         </section>
 

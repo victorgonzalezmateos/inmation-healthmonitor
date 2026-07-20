@@ -253,6 +253,67 @@ export function renderSparkline(canvas, values) {
   });
 }
 
+/** Multi-pen object trend (Trends page). */
+export function renderObjectTrend(canvas, { labels, pens }) {
+  sized(canvas);
+  return new Chart(canvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: pens.map((p) => ({
+        label: p.unit ? `${p.name} (${p.unit})` : p.name,
+        data: p.values,
+        borderColor: p.color,
+        backgroundColor: "transparent",
+        tension: 0.25,
+        fill: false,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 2,
+      })),
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          position: "bottom",
+          labels: { boxWidth: 10, font: { size: 11 }, usePointStyle: true },
+        },
+        tooltip: {
+          callbacks: {
+            label(ctx) {
+              const pen = pens[ctx.datasetIndex];
+              const name = pen?.name || ctx.dataset.label;
+              const unit = pen?.unit ? ` ${pen.unit}` : "";
+              return `${name}: ${ctx.parsed.y}${unit}`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 10,
+            font: { size: 10 },
+          },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: "#f1f5f9" },
+          ticks: { font: { size: 11 } },
+        },
+      },
+    },
+  });
+}
+
 export function fillLegend(el, labels, values, colors) {
   if (!el) return;
   const total = values.reduce((a, b) => a + b, 0) || 1;
