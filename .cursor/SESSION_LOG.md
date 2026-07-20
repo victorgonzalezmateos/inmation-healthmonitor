@@ -13,7 +13,8 @@
 | **GitHub repo** | https://github.com/victorgonzalezmateos/inmation-healthmonitor |
 | **Git branch** | `master` |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **NEW: HTML + inmation Web API (planning). WebStudio frozen.** |
+| **Phase** | **HTML static Designer draft next; then IWA/data spike** |
+
 
 ### WebStudio freeze (do not lose)
 | Item | Value |
@@ -23,11 +24,14 @@
 | Chart tag | `smart-sentinel-chart-submit-ok` |
 | Status | Saved; optional later for Trends parity |
 
-### HTML phase — feasibility
-- **Auth:** IWA via `/api/security/windows/authorize` + `credentials: "include"` → Bearer token (same Windows user as WebStudio)
-- **Data:** `/api/v2/execfunction` → `syslib.app-webstudio-healthmonitor` (`fetchNavigationTable`, etc.)
-- **UI:** HTML/CSS/JS (or React) to match Designer.png
-- **Open:** hosting/CORS, first spike scope — see Session History 2026-07-20
+### HTML phase — locked (2026-07-20)
+- Plan: `docs/architecture/AR-03-html-webapi-plan.md`
+- Stack: Vite + plain HTML/CSS/JS (team-maintainable)
+- First: static Designer.png mock (no data)
+- Then: guided IWA spike + HM execfunction
+- Auth later (Q/P): secondary CWID
+- Hosting later: shared server for Consumer Health
+
 
 ### Deploy recipe (WebStudio — frozen path)
 ```powershell
@@ -291,5 +295,18 @@ npm run dev
 - Profile mapping: Windows user → inmation Profile (same as WebStudio)
 
 **Next:** Answer hosting/stack/scope questions → spike IWA + one fetch from HTML → build Overview like Designer.png
+
+---
+
+### 2026-07-20 — AR-03 decisions locked
+
+**Answers captured** → plan in `docs/architecture/AR-03-html-webapi-plan.md`.
+
+**Recommendations accepted into plan:**
+- Stack: Vite + plain HTML/CSS/JS (team maintainability)
+- Health Score later: Good% from WorstState (not a new engine)
+- First deliverable: static Designer.png HTML (fake data); then guided IWA + HM spike
+
+**Next:** Build static Designer draft when user says go.
 
 <!-- Append new sessions below this line -->

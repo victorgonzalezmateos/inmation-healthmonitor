@@ -2,46 +2,46 @@
 
 ## Project Goal
 
-Build a **Global Health Monitor–style** UI (see `Downloads/Designer.png`) that shows **inmation Health Monitor source data**, with **Windows IWA** (no custom login), matching users against inmation profiles like WebStudio.
+Build a **Designer.png-style** Global Health Monitor webpage for Consumer Health. UI in HTML; data from **inmation Health Monitor** via Web API. Auth: **Windows IWA** now; **CWID** later for Q/P.
 
 ## Phase freeze — WebStudio (2026-07-20)
 
-WebStudio Smart Sentinel work is **saved and frozen** (not discarded):
-
 | Item | Value |
 |------|-------|
-| Last commit | `ccf7ce5` |
+| Commit | `ccf7ce5` |
 | Tag | `smart-sentinel-overview-kpis-wip` |
-| Earlier tag | `smart-sentinel-chart-submit-ok` |
+| Chart tag | `smart-sentinel-chart-submit-ok` |
 
-WebStudio remains a useful Trends/parity prototype. **New primary delivery = HTML/SPA + inmation Web API.**
+WebStudio is frozen (not discarded). Trends data still comes from Health Monitor APIs when we wire HTML.
 
-## Current Phase — HTML + Web API (planning)
+## Current Phase — Static Designer HTML draft
 
-**Why:** Designer-level layout (KPI cards, charts, tables, shell) is hard to finish in WebStudio alone. HTML/CSS/JS (or React/Vue) can match Designer.png; data still comes from inmation.
+**Plan:** [`docs/architecture/AR-03-html-webapi-plan.md`](docs/architecture/AR-03-html-webapi-plan.md)
 
-### Feasibility (confirmed from inmation docs)
+| Choice | Value |
+|--------|--------|
+| Hosting now | Local PC; migrate later for all Consumer Health |
+| Clients | Domain Windows + Edge/Chrome |
+| Auth now | IWA only |
+| Auth later | Secondary CWID (Q/P) |
+| First build | **Static HTML = Designer.png** (placeholder data) |
+| Stack | **Vite + plain HTML/CSS/JS** (simple for your team) |
+| Health Score (later) | Good% from `WorstState` counts |
+| Trends | Health Monitor APIs |
+| After draft | Guided IWA spike + one `execfunction` |
 
-| Need | Mechanism |
-|------|-----------|
-| Login like WebStudio | `GET /api/security/windows/authorize` with `credentials: "include"` (browser IWA) → Bearer token |
-| Health data | `POST /api/v2/execfunction` → `lib=syslib.app-webstudio-healthmonitor`, `func=fetchNavigationTable` / Tree / ObjProps / Counters / chart APIs |
-| Same user rights | Web API maps Windows user → inmation Profile (same as WebStudio) |
-| Host | Same Web API host: `byus00876m1.bayer.cnb:8002` |
+## Sequence
 
-**Constraint:** Page must be served from a context that allows IWA to that host (same site / trusted intranet / CORS + credentials). Cross-origin static hosting may need a reverse proxy or hosting under the Web API / IIS path.
-
-## Deployment (WebStudio — freeze)
-
-| Item | Value |
-|------|-------|
-| Folder | `/System/Core/_Global Core Logic/Development/Smart Sentinel AI` |
-| CustomPropertyName | `Bayer Health Monitor` |
-| Build | `python compilations/build-bayer-deploy.py` |
-| Deploy | `compilations/smart-sentinel-ai-upsert-full.lua` |
+1. Static Designer draft (no data) ← **next**
+2. IWA spike (step-by-step with you)
+3. One HM `fetchNavigationTable` call
+4. Wire Overview KPIs
+5. More Designer sections
+6. Trends from HM
+7. Shared host + CWID later
 
 ## Notes
 
-- Session history: [`.cursor/SESSION_LOG.md`](.cursor/SESSION_LOG.md)
-- Designer reference: `C:\Users\GOAKJ\Downloads\Designer.png`
-- Next: answer planning questions → spike IWA + one `execfunction` from HTML → build Overview page
+- Session: [`.cursor/SESSION_LOG.md`](.cursor/SESSION_LOG.md)
+- Designer: `C:\Users\GOAKJ\Downloads\Designer.png`
+- Host: `byus00876m1.bayer.cnb:8002`
