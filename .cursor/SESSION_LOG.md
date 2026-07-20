@@ -309,4 +309,16 @@ npm run dev
 
 **Next:** Build static Designer draft when user says go.
 
+---
+
+### 2026-07-20 — Static Designer HTML draft
+
+**Built:** `web/` — Vite + plain HTML/CSS/JS matching Designer.png Overview (mock data only).
+
+**Run:** `cd web && npm install && npm run dev` → http://localhost:5173
+
+**Includes:** sidebar menu, header, 6 KPIs, donuts, critical issues, site summary + sparklines, issues over time, top types, recent alerts.
+
+**Next:** User visual review → guided IWA spike.
+
 <!-- Append new sessions below this line -->

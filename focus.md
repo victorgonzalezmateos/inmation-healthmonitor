@@ -32,13 +32,24 @@ WebStudio is frozen (not discarded). Trends data still comes from Health Monitor
 
 ## Sequence
 
-1. Static Designer draft (no data) ← **next**
+1. ~~Static Designer draft (no data)~~ ✓ built in `web/` (2026-07-20)
 2. IWA spike (step-by-step with you)
 3. One HM `fetchNavigationTable` call
 4. Wire Overview KPIs
 5. More Designer sections
 6. Trends from HM
 7. Shared host + CWID later
+
+## HTML app (local)
+
+```powershell
+cd web
+npm install
+npm run dev
+```
+
+Opens http://localhost:5173 — static Designer Overview (mock data).
+
 
 ## Notes
 

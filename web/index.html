@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Global Health Monitor — Smart Sentinel</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="brand-mark">
+            <span class="brand-cross" aria-hidden="true"></span>
+            <span>Global Health Monitor</span>
+          </div>
+          <button type="button" class="btn-guide">User Guide</button>
+        </div>
+        <div class="topbar-right">
+          <span>Dev</span>
+          <span>RESTRICTED</span>
+          <span><span class="status-dot"></span>CONNECTED</span>
+          <button type="button" class="icon-btn" title="Sign out" aria-label="Sign out">⇥</button>
+        </div>
+      </header>
+
+      <aside class="sidebar">
+        <nav>
+          <ul class="nav-list">
+            <li>
+              <button type="button" class="active" data-page="overview">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 4 9v12h5v-7h6v7h5V9z"/></svg>
+                Overview
+              </button>
+            </li>
+            <li>
+              <button type="button" data-page="infrastructure">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v4H4zm0 6h16v4H4zm0 6h16v4H4z"/></svg>
+                Infrastructure
+              </button>
+            </li>
+            <li>
+              <button type="button" data-page="issues">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 1 21h22L12 2zm1 14h-2v2h2v-2zm0-6h-2v4h2V10z"/></svg>
+                Issues &amp; Alerts
+              </button>
+            </li>
+            <li>
+              <button type="button" data-page="trends">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17h2l4-8 4 6 3-4 5 6v2H3z"/></svg>
+                Trends
+              </button>
+            </li>
+            <li>
+              <button type="button" data-page="drilldown">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 1 0 14 15.5l.27.28v.79L20 21.5 21.5 20l-6-6zM10 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+                Drill-down
+              </button>
+            </li>
+            <li>
+              <button type="button" data-page="reports">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h9l5 5v15H6V2zm8 1.5V8h4.5L14 3.5zM8 12h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>
+                Reports
+              </button>
+            </li>
+            <li>
+              <button type="button" data-page="config">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94a7.5 7.5 0 0 0 .06-1 7.5 7.5 0 0 0-.06-1l2.03-1.58-1.92-3.32-2.39.96a7.2 7.2 0 0 0-1.73-1L14.5 2h-5l-.63 2.82a7.2 7.2 0 0 0-1.73 1l-2.39-.96L2.83 8.36 4.86 9.94a7.5 7.5 0 0 0 0 2l-2.03 1.58 1.92 3.32 2.39-.96c.53.41 1.11.74 1.73 1L9.5 22h5l.63-2.82c.62-.26 1.2-.59 1.73-1l2.39.96 1.92-3.32-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>
+                Configuration
+              </button>
+            </li>
+          </ul>
+        </nav>
+        <div class="sidebar-foot">
+          <div>Last refresh</div>
+          <div><strong id="last-refresh">—</strong></div>
+          <div style="margin-top: 10px">inmation Health Monitor</div>
+          <div>Version 1.0.0 · static draft</div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section id="page-overview" class="page-panel visible">
+          <div class="page-head">
+            <div>
+              <h1>Overview</h1>
+              <p>Global view of inmation Health</p>
+            </div>
+            <div class="filters">
+              <label class="filter"
+                >Time range
+                <select>
+                  <option>Last 24 hours</option>
+                  <option>Last 7 days</option>
+                </select>
+              </label>
+              <label class="filter"
+                >Site
+                <select>
+                  <option>All</option>
+                  <option>Alcala</option>
+                  <option>Bitterfeld</option>
+                </select>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" checked /> Auto refresh · 5 min
+              </label>
+            </div>
+          </div>
+
+          <!-- KPI row -->
+          <div class="kpi-row">
+            <article class="card kpi">
+              <div class="kpi-title" style="text-align: center">Health Score</div>
+              <div class="health-gauge-wrap">
+                <canvas id="chart-health" width="160" height="90"></canvas>
+                <div class="health-score-num">
+                  <div class="big" id="kpi-score">78</div>
+                  <div class="small">/100</div>
+                </div>
+              </div>
+              <div class="kpi-footer good" id="kpi-score-label">Good</div>
+            </article>
+
+            <article class="card kpi">
+              <div class="kpi-title">Total Components</div>
+              <div class="kpi-body">
+                <div class="kpi-value" id="kpi-total">1,248</div>
+                <svg class="kpi-icon right" viewBox="0 0 64 64" aria-hidden="true">
+                  <rect x="8" y="8" width="48" height="14" rx="4" fill="#2563eb" />
+                  <rect x="8" y="25" width="48" height="14" rx="4" fill="#2563eb" />
+                  <rect x="8" y="42" width="48" height="14" rx="4" fill="#2563eb" />
+                  <circle cx="46" cy="15" r="3" fill="#fff" />
+                  <circle cx="46" cy="32" r="3" fill="#fff" />
+                  <circle cx="46" cy="49" r="3" fill="#fff" />
+                </svg>
+              </div>
+              <div class="kpi-footer">All Sites</div>
+            </article>
+
+            <article class="card kpi">
+              <div class="kpi-title">Problems</div>
+              <div class="kpi-body">
+                <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
+                  <path fill="#ef4444" d="M32 6L60 54H4L32 6z" />
+                  <rect x="29" y="24" width="6" height="16" rx="2" fill="#fff" />
+                  <circle cx="32" cy="46" r="3.5" fill="#fff" />
+                </svg>
+                <div class="kpi-value" style="color: #ef4444" id="kpi-problems">23</div>
+              </div>
+              <div class="kpi-footer danger" id="kpi-problems-pct">1.84% of components</div>
+            </article>
+
+            <article class="card kpi">
+              <div class="kpi-title">Warnings</div>
+              <div class="kpi-body">
+                <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
+                  <path fill="#eab308" d="M32 6L60 54H4L32 6z" />
+                  <rect x="29" y="24" width="6" height="16" rx="2" fill="#fff" />
+                  <circle cx="32" cy="46" r="3.5" fill="#fff" />
+                </svg>
+                <div class="kpi-value" style="color: #ca8a04" id="kpi-warnings">47</div>
+              </div>
+              <div class="kpi-footer warn" id="kpi-warnings-pct">3.76% of components</div>
+            </article>
+
+            <article class="card kpi">
+              <div class="kpi-title">Info</div>
+              <div class="kpi-body">
+                <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
+                  <circle cx="32" cy="32" r="28" fill="#3b82f6" />
+                  <circle cx="32" cy="18" r="4" fill="#fff" />
+                  <rect x="28" y="28" width="8" height="22" rx="3" fill="#fff" />
+                </svg>
+                <div class="kpi-value" style="color: #3b82f6" id="kpi-info">128</div>
+              </div>
+              <div class="kpi-footer info" id="kpi-info-pct">10.26% of components</div>
+            </article>
+
+            <article class="card kpi">
+              <div class="kpi-title">Sites Impacted</div>
+              <div class="kpi-body">
+                <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
+                  <circle cx="32" cy="32" r="26" fill="none" stroke="#7c3aed" stroke-width="4" />
+                  <ellipse cx="32" cy="32" rx="12" ry="26" fill="none" stroke="#7c3aed" stroke-width="3" />
+                  <path d="M6 32h52M10 20h44M10 44h44" fill="none" stroke="#7c3aed" stroke-width="3" />
+                </svg>
+                <div class="kpi-value" style="color: #7c3aed" id="kpi-sites">8</div>
+              </div>
+              <div class="kpi-footer" id="kpi-sites-of">of 23 sites</div>
+            </article>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="grid-2-1">
+            <article class="card">
+              <h2>Components by Type</h2>
+              <div class="chart-box sm">
+                <canvas id="chart-components"></canvas>
+                <div class="donut-center">
+                  <strong id="comp-total">1,248</strong>
+                  Total
+                </div>
+              </div>
+              <div class="legend" id="legend-components"></div>
+            </article>
+            <article class="card">
+              <h2>Issues by Severity</h2>
+              <div class="chart-box sm">
+                <canvas id="chart-severity"></canvas>
+              </div>
+              <div class="legend" id="legend-severity"></div>
+            </article>
+            <article class="card">
+              <h2>Active Critical Issues</h2>
+              <table class="data" id="table-critical">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Site</th>
+                    <th>Component</th>
+                    <th>Type</th>
+                    <th>Message</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </article>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="grid-3">
+            <article class="card">
+              <h2>Site Summary</h2>
+              <table class="data" id="table-sites">
+                <thead>
+                  <tr>
+                    <th>Site</th>
+                    <th>Health</th>
+                    <th>Total</th>
+                    <th>P</th>
+                    <th>W</th>
+                    <th>I</th>
+                    <th>Trend 7d</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </article>
+            <article class="card">
+              <h2>Issues Over Time</h2>
+              <div class="chart-box">
+                <canvas id="chart-timeline"></canvas>
+              </div>
+            </article>
+            <article class="card">
+              <h2>Top Issue Types (Last 24h)</h2>
+              <div class="chart-box">
+                <canvas id="chart-top-types"></canvas>
+              </div>
+            </article>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="grid-2">
+            <article class="card">
+              <h2>Recent Alerts</h2>
+              <table class="data" id="table-alerts">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Severity</th>
+                    <th>Site</th>
+                    <th>Component</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                    <th>Duration</th>
+                    <th>Ack</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </article>
+            <article class="card">
+              <h2>Alerts by Severity</h2>
+              <div class="chart-box sm">
+                <canvas id="chart-alerts"></canvas>
+                <div class="donut-center">
+                  <strong id="alerts-total">70</strong>
+                  Total
+                </div>
+              </div>
+              <div class="legend" id="legend-alerts"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="page-other" class="page-placeholder">
+          <h2 id="other-title">Coming next</h2>
+          <p>This menu page will be filled after the Overview draft is approved.</p>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>Smart Sentinel · static Designer draft (no live data)</span>
+        <span
+          ><span class="status-dot"></span> Data OK · System time:
+          <span id="system-time">—</span></span
+        >
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
