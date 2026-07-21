@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (last updated: 2026-07-20 EOD #2 — IWA live)
+## Current State (last updated: 2026-07-21 EOD)
 
 | Item | Value |
 |------|-------|
@@ -13,7 +13,7 @@
 | **GitHub repo** | https://github.com/victorgonzalezmateos/inmation-healthmonitor |
 | **Git branch** | `master` |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **IWA ✓ + live HM tree ✓ → next: fix/finish counters + wire Overview** |
+| **Phase** | **HTML Smart Sentinel live: HM list/tree + Overview KPIs from nav table** |
 
 
 ### WebStudio freeze (do not lose)
@@ -24,22 +24,29 @@
 | Chart tag | `smart-sentinel-chart-submit-ok` |
 | Status | Saved; optional later for Trends parity |
 
-### HTML app — save point (2026-07-20)
+### HTML app — save point (2026-07-21 EOD)
 | Item | Value |
 |------|-------|
 | App | `web/` Vite + plain HTML/CSS/JS |
 | Run | `cd web && npm install && npm run dev` → http://localhost:5173 (or 5174 if busy) |
 | Title | Smart Sentinel |
-| Auth | **IWA works** — user `AD-BAYER-CNB\GOAKJ` |
-| Live data | **`fetchNavigationTree` OK** on Health Monitor → Connect |
+| Auth | **IWA auto-connect** on load; topbar CONNECTED/DISCONNECTED (HM conn bar removed) |
+| Live data | Tree, List View (`fetchNavigationTable`), props, counters, chart/values, Overview KPIs |
 
-**Pages:** Overview · Health Monitor (live tree) · Issues & Alerts · Trends · Drill-down · Configuration · Reports (placeholder)
+**Pages:** Overview (live KPIs) · Health Monitor (tree + list) · Issues & Alerts · Trends · Drill-down · Configuration · Reports (placeholder)
+
+**Health classification (`classifyNavHealth` in `hm-live.js`):**
+| Priority | Class | List color | Overview KPI |
+|----------|-------|------------|--------------|
+| 1 | Bad / COMM_ERROR | red (`#ef4444` tint) | Problems |
+| 2 | Disabled / OBJ_DISABLED | grey text | Disabled |
+| 3 | Warning, Empty, COMM_EMPTY | yellow (`#ca8a04` tint) | Warnings |
+| 4 | Good / Neutral (no yellow) | default | Good % / Other |
 
 **Next session (do not re-ask setup):**
 1. Read this Current State + latest Session History
-2. Finish **performance counters / props** live load (ObjectID numeric coerce in progress; Core still 400 once)
-3. Wire Overview KPIs from `fetchNavigationTable`
-4. Then Trends / Drill-down live as needed
+2. Optional: Sites Impacted live; Components-by-type from nav table
+3. Trends / Drill-down live as needed
 
 ### HTML phase — locked (2026-07-20)
 - Plan: `docs/architecture/AR-03-html-webapi-plan.md`
@@ -51,8 +58,12 @@
 | File | Role |
 |------|------|
 | `web/src/api/inmation.js` | IWA authorize + execfunction + token session |
-| `web/src/api/hm-live.js` | Map HM tree/props/counters |
-| `web/src/health-monitor.js` | Connect bar + live/mock mode |
+| `web/src/api/hm-live.js` | Tree/props/counters/nav table + `classifyNavHealth` / `summarizeNavHealth` |
+| `web/src/session.js` | App-wide IWA + topbar connection state |
+| `web/src/health-monitor.js` | HM page: tree/list, pens, chart period, values table |
+| `web/src/main.js` | Overview KPIs from nav table + doughnut |
+| `web/src/hm-chart-paint.js` | Chart.js trend paint |
+| `web/src/hm-chart-period.js` | Time period modal (`*-1h` default) |
 | `web/vite.config.js` | Proxy `/api` → `:8002` (Bearer); IWA hits host direct |
 
 ### Board status
@@ -63,7 +74,7 @@
 |------------|---------|
 | `smart-sentinel-chart-submit-ok` | WebStudio Chart/Submit (`a5a8326`) |
 | `smart-sentinel-overview-kpis-wip` | WebStudio app shell + KPI row (`ccf7ce5`) |
-| `web/` HTML + IWA | Multi-page draft + live tree (this EOD) |
+| `web/` HTML + IWA | Multi-page draft + live tree + list + Overview (this EOD) |
 
 ---
 
@@ -385,3 +396,71 @@ npm run dev
 **User sign-off:** Save + push for today.
 
 <!-- Append new sessions below this line -->
+
+### 2026-07-21 — Object Properties polish + IWA auto-connect
+
+**UX fixes:**
+1. Removed `fetchObjProps` / mock label next to “Object Properties”
+2. Auto IWA on app load (`ensureIwaSession` in `main.js`); Health Monitor auto-loads live tree on first open (no manual Connect each refresh)
+3. Topbar **CONNECTED** (green) / **DISCONNECTED** (gray) reflects real IWA session; Sign out clears session
+
+**Files:** `web/src/session.js`, `web/src/health-monitor.js`, `web/src/main.js`, `web/index.html`, `web/src/styles.css`
+
+### 2026-07-21 — Counters select / sort / Submit → chart
+
+**UX:**
+- Multi-select counters (row click + checkbox + select-all)
+- Sortable columns: Name, Type, Group, Value, Unit, Description (HM schema)
+- Submit → `POST /api/v2/readhistoricaldata` (1d) → Chart.js in same panel
+- Gauge / trend icons toggle table ↔ chart freely
+
+**Files:** `web/public/icons/hm-*.svg`, `web/src/hm-counter-chart.js`, `web/src/api/hm-live.js`, `web/src/health-monitor.js`, `web/index.html`, `web/src/styles.css`
+
+**Resume next:** Overview from `fetchNavigationTable`.
+
+---
+
+### 2026-07-21 — Chart pen toggle + Navigation list view
+
+**Chart:** With 2+ pens after Submit, click pens in the legend to show/hide series (Bayer navy accents). Selection retained when live history replaces the estimate.
+
+**Navigation:** Tree ↔ list toggle (HM-style Name / Type table). List from `fetchNavigationTable` (mock offline). Row colors from source states only:
+- **Bad** → burgundy `--bayer-bad` (`#6b1c2a`)
+- **Empty / Disabled / Neutral** → mustard `--bayer-warning` (`#c4a035`)
+
+**Files:** `web/src/health-monitor.js`, `web/src/api/hm-live.js`, `web/src/hm-mock-data.js`, `web/src/hm-chart-paint.js`, `web/index.html`, `web/src/styles.css`
+
+**Resume next:** Overview KPIs from same nav table.
+
+---
+
+### 2026-07-21 — Overview KPIs from navigation table
+
+**Overview live KPIs** (same source/classification as HM List View):
+- Total Components = `fetchNavigationTable` row count
+- Problems by Component = bad (red) count
+- Warnings by Component = warning (yellow) count
+- Health Score = doughnut (Good / Problems / Warnings / Disabled) + % healthy in center
+
+**Files:** `web/src/main.js`, `web/src/charts.js`, `web/src/api/hm-live.js`, `web/index.html`, `web/src/styles.css`
+
+---
+
+### 2026-07-21 EOD — Save + push (list polish + Overview)
+
+**Shipped today (HTML `web/`):**
+1. Chart: multi-pen select/deselect in legend
+2. Navigation List View: Name / Type / Object; sort arrows; horizontal scroll; full-height when list active (props hidden)
+3. List health colors (Overview palette): Bad=red, Warning/Empty/COMM_EMPTY=yellow, Disabled=grey text only; Disabled before Warning
+4. Removed HM LIVE/Connect bar (IWA via topbar only)
+5. Overview KPIs live from `fetchNavigationTable`: Total, Problems, Warnings, Disabled + Health Score doughnut (% Good)
+6. Object Properties header matches Navigation color
+7. List click loads performance counters (synthetic node from nav row when not in tree)
+
+**Classification** — see Current State table (`classifyNavHealth`).
+
+**Resume next:** Sites Impacted live; optional Components-by-type from nav table; Trends/Drill-down.
+
+**User sign-off:** Save + document + push.
+
+---

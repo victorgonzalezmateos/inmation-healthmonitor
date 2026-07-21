@@ -27,10 +27,10 @@ function sized(canvas) {
   // Ensure parent has layout before Chart.js measures it
   const parent = canvas.parentElement;
   if (parent) {
-    const w = parent.clientWidth || 300;
-    const h = parent.clientHeight || 180;
+    const w = Math.max(parent.clientWidth || 0, 320);
+    const h = Math.max(parent.clientHeight || 0, 260);
     canvas.style.width = "100%";
-    canvas.style.height = "100%";
+    canvas.style.height = `${h}px`;
     canvas.width = w;
     canvas.height = h;
   }
@@ -85,6 +85,79 @@ export function renderHealthGauge(canvas, score) {
   ctx.fill();
 
   return { destroy() {} };
+}
+
+/**
+ * Doughnut for Overview Health Score — Good / Problems / Warnings / Disabled.
+ * Center label is HTML overlay (caller).
+ */
+export function renderHealthDoughnut(canvas, summary) {
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+
+  const labels = [];
+  const values = [];
+  const colors = [];
+  const push = (label, value, color) => {
+    if (value > 0) {
+      labels.push(label);
+      values.push(value);
+      colors.push(color);
+    }
+  };
+  push("Good", summary.good || 0, "#16a34a");
+  push("Problems", summary.bad || 0, "#ef4444");
+  push("Warnings", summary.warning || 0, "#ca8a04");
+  push("Disabled", summary.disabled || 0, "#94a3b8");
+  push("Other", summary.other || 0, "#cbd5e1");
+
+  if (!values.length) {
+    labels.push("No data");
+    values.push(1);
+    colors.push("#e2e8f0");
+  }
+
+  const parent = canvas.parentElement;
+  const size = Math.min(Math.max(parent?.clientWidth || 140, 120), 160);
+  canvas.style.width = `${size}px`;
+  canvas.style.height = `${size}px`;
+  canvas.width = size;
+  canvas.height = size;
+
+  return new Chart(canvas, {
+    type: "doughnut",
+    data: {
+      labels,
+      datasets: [
+        {
+          data: values,
+          backgroundColor: colors,
+          borderWidth: 2,
+          borderColor: "#ffffff",
+        },
+      ],
+    },
+    options: {
+      responsive: false,
+      maintainAspectRatio: true,
+      animation: false,
+      cutout: "68%",
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label(ctx) {
+              const total =
+                ctx.dataset.data.reduce((a, b) => a + b, 0) || 1;
+              const v = ctx.parsed;
+              const pct = ((v / total) * 100).toFixed(1);
+              return ` ${ctx.label}: ${Number(v).toLocaleString()} (${pct}%)`;
+            },
+          },
+        },
+      },
+    },
+  });
 }
 
 /** Full pie chart. */
@@ -253,27 +326,39 @@ export function renderSparkline(canvas, values) {
   });
 }
 
-/** Multi-pen object trend (Trends page). */
+/** Multi-pen object trend (Trends page + HM Submit chart). */
 export function renderObjectTrend(canvas, { labels, pens }) {
-  sized(canvas);
+  // Always clear any Chart.js instance bound to this canvas
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+
+  const box = canvas.parentElement;
+  const w = Math.max(box?.clientWidth || 0, canvas.clientWidth || 0, 480);
+  const h = Math.max(box?.clientHeight || 0, 280);
+  canvas.width = w;
+  canvas.height = h;
+  canvas.style.width = "100%";
+  canvas.style.height = `${h}px`;
+
   return new Chart(canvas, {
     type: "line",
     data: {
-      labels,
-      datasets: pens.map((p) => ({
+      labels: labels || [],
+      datasets: (pens || []).map((p) => ({
         label: p.unit ? `${p.name} (${p.unit})` : p.name,
-        data: p.values,
-        borderColor: p.color,
+        data: p.values || [],
+        borderColor: p.color || "#00bcff",
         backgroundColor: "transparent",
         tension: 0.25,
         fill: false,
         pointRadius: 0,
         pointHoverRadius: 4,
         borderWidth: 2,
+        spanGaps: true,
       })),
     },
     options: {
-      responsive: true,
+      responsive: false,
       maintainAspectRatio: false,
       animation: false,
       interaction: { mode: "index", intersect: false },

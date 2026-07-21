@@ -14,7 +14,7 @@ Build a **Designer.png-style** Global Health Monitor webpage for Consumer Health
 
 WebStudio is frozen (not discarded). Trends data still comes from Health Monitor APIs when we wire HTML.
 
-## Current Phase — IWA live + HM tree (2026-07-20 EOD #2)
+## Current Phase — HTML live HM + Overview KPIs (2026-07-21 EOD)
 
 **Plan:** [`docs/architecture/AR-03-html-webapi-plan.md`](docs/architecture/AR-03-html-webapi-plan.md)
 
@@ -25,15 +25,15 @@ WebStudio is frozen (not discarded). Trends data still comes from Health Monitor
 | Auth now | **IWA works** (`AD-BAYER-CNB\GOAKJ`) |
 | Auth later | Secondary CWID (Q/P) |
 | Stack | **Vite + plain HTML/CSS/JS** in `web/` |
-| Live HM | **Tree OK**; counters/props still polishing |
-| **Next session** | Finish counters live → `fetchNavigationTable` Overview |
+| Live HM | Tree + **List View** + counters/chart + **Overview KPIs** from `fetchNavigationTable` |
+| **Next session** | Sites Impacted / type charts live; Trends / Drill-down as needed |
 
 ## Sequence
 
 1. ~~Static Designer draft~~ ✓
 2. ~~IWA spike + `fetchNavigationTree`~~ ✓ (2026-07-20)
-3. Finish live props/counters on Health Monitor
-4. Wire Overview KPIs from `fetchNavigationTable`
+3. ~~Live props/counters + chart/values on Health Monitor~~ ✓ (2026-07-21)
+4. ~~Overview KPIs from `fetchNavigationTable`~~ ✓ (2026-07-21)
 5. Wire Trends / Drill-down / Config as needed
 6. Shared host + CWID later
 
@@ -47,20 +47,22 @@ npm run dev
 
 Opens http://localhost:5173 (or 5174) — title **Smart Sentinel**.
 
-### Health Monitor — Connect
+### Health Monitor
 
-1. Open **Health Monitor**
-2. Click **Connect** (IWA → live tree)
-3. Click a node for props/counters
-4. **Use mock** to fall back; **Paste token** if IWA blocked
+- Auto IWA on load; topbar shows CONNECTED / DISCONNECTED
+- Navigation: **tree ↔ list** toggle; list columns Name / Type / Object
+- List row colors: Bad=red, Warning/Empty/COMM_EMPTY=yellow, Disabled=grey text
+- Counters: multi-select → Submit → chart (pen toggle) / values table / period modal
 
 ### Key live files
 
 | File | Role |
 |------|------|
 | `web/src/api/inmation.js` | IWA + execfunction |
-| `web/src/api/hm-live.js` | HM response mapping |
-| `web/src/health-monitor.js` | Live/mock UI |
+| `web/src/api/hm-live.js` | HM mapping + health classify/summarize |
+| `web/src/session.js` | IWA + topbar |
+| `web/src/health-monitor.js` | HM page |
+| `web/src/main.js` | Overview KPIs |
 
 ## Notes
 

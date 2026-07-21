@@ -1,13 +1,31 @@
 import "./styles.css";
 import * as mock from "./mock-data.js";
+import { mockNavTableRows } from "./hm-mock-data.js";
+import {
+  fetchLiveNavigationTable,
+  summarizeNavHealth,
+} from "./api/hm-live.js";
 import {
   fillLegend,
-  renderHealthGauge,
+  renderHealthDoughnut,
   renderPie,
   renderSparkline,
   renderTimeline,
   renderTopTypes,
 } from "./charts.js";
+import {
+  initHealthMonitorPage,
+  resetHealthMonitorToMock,
+} from "./health-monitor.js";
+import { initTrendsPage } from "./trends.js";
+import { initDrillDownPage } from "./drill-down.js";
+import { initConfigurationPage } from "./configuration.js";
+import {
+  disconnectIwaSession,
+  ensureIwaSession,
+  setTopbarConnectionState,
+} from "./session.js";
+import { getStoredToken } from "./api/inmation.js";
 
 function fmt(n) {
   return n.toLocaleString("en-US");
@@ -18,6 +36,13 @@ function scoreColor(score) {
   if (score >= 70) return "#89d329";
   if (score >= 50) return "#eab308";
   return "#ef4444";
+}
+
+function healthLabelFromPct(goodPct) {
+  if (goodPct >= 80) return "Good";
+  if (goodPct >= 70) return "Fair";
+  if (goodPct >= 50) return "Poor";
+  return "Critical";
 }
 
 function tickClock() {
@@ -34,23 +59,102 @@ function tickClock() {
   document.getElementById("last-refresh").textContent = s;
 }
 
-function fillKpis() {
+/** @type {import('chart.js').Chart | null} */
+let healthChart = null;
+
+function applyOverviewKpis(summary) {
+  const scoreEl = document.getElementById("kpi-score");
+  const scoreSub = document.getElementById("kpi-score-sub");
+  const scoreLabel = document.getElementById("kpi-score-label");
+  const totalEl = document.getElementById("kpi-total");
+  const totalFooter = document.getElementById("kpi-total-footer");
+  const problemsEl = document.getElementById("kpi-problems");
+  const problemsPct = document.getElementById("kpi-problems-pct");
+  const warningsEl = document.getElementById("kpi-warnings");
+  const warningsPct = document.getElementById("kpi-warnings-pct");
+
+  const pctText =
+    summary.goodPct % 1 === 0
+      ? `${summary.goodPct}%`
+      : `${summary.goodPct.toFixed(1)}%`;
+
+  if (scoreEl) scoreEl.textContent = pctText;
+  if (scoreSub) {
+    scoreSub.textContent = summary.total
+      ? `${fmt(summary.good)} / ${fmt(summary.total)}`
+      : "no data";
+  }
+  if (scoreLabel) {
+    scoreLabel.textContent = healthLabelFromPct(summary.goodPct);
+    scoreLabel.className = "kpi-footer";
+    if (summary.goodPct >= 70) scoreLabel.classList.add("good");
+    else if (summary.goodPct >= 50) scoreLabel.classList.add("warn");
+    else scoreLabel.classList.add("danger");
+  }
+
+  if (totalEl) totalEl.textContent = fmt(summary.total);
+  if (totalFooter) {
+    totalFooter.textContent = summary.total
+      ? "From Health Monitor table"
+      : "No components loaded";
+  }
+
+  if (problemsEl) problemsEl.textContent = fmt(summary.bad);
+  if (problemsPct) {
+    problemsPct.textContent = summary.total
+      ? `${summary.problemsPct}% of components`
+      : "—";
+  }
+
+  if (warningsEl) warningsEl.textContent = fmt(summary.warning);
+  if (warningsPct) {
+    warningsPct.textContent = summary.total
+      ? `${summary.warningsPct}% of components`
+      : "—";
+  }
+
+  const disabledEl = document.getElementById("kpi-disabled");
+  const disabledPctEl = document.getElementById("kpi-disabled-pct");
+  if (disabledEl) disabledEl.textContent = fmt(summary.disabled);
+  if (disabledPctEl) {
+    disabledPctEl.textContent = summary.total
+      ? `${summary.disabledPct}% of components`
+      : "—";
+  }
+
+  // Sites still from static mock until wired
   const k = mock.kpis;
-  document.getElementById("kpi-score").textContent = String(k.healthScore);
-  document.getElementById("kpi-score-label").textContent = k.healthLabel;
-  document.getElementById("kpi-total").textContent = fmt(k.totalComponents);
-  document.getElementById("kpi-problems").textContent = String(k.problems);
-  document.getElementById("kpi-problems-pct").textContent =
-    `${k.problemsPct}% of components`;
-  document.getElementById("kpi-warnings").textContent = String(k.warnings);
-  document.getElementById("kpi-warnings-pct").textContent =
-    `${k.warningsPct}% of components`;
-  document.getElementById("kpi-info").textContent = String(k.info);
-  document.getElementById("kpi-info-pct").textContent =
-    `${k.infoPct}% of components`;
-  document.getElementById("kpi-sites").textContent = String(k.sitesImpacted);
-  document.getElementById("kpi-sites-of").textContent =
-    `of ${k.sitesTotal} sites`;
+  const sitesEl = document.getElementById("kpi-sites");
+  const sitesOf = document.getElementById("kpi-sites-of");
+  if (sitesEl) sitesEl.textContent = String(k.sitesImpacted);
+  if (sitesOf) sitesOf.textContent = `of ${k.sitesTotal} sites`;
+
+  const canvas = document.getElementById("chart-health");
+  if (canvas) {
+    try {
+      healthChart = renderHealthDoughnut(canvas, summary);
+    } catch (err) {
+      console.error("[chart:health]", err);
+    }
+  }
+}
+
+async function loadOverviewKpis() {
+  let rows = [...mockNavTableRows];
+  try {
+    const ok = await ensureIwaSession({ force: false });
+    if (ok && getStoredToken()) {
+      const live = await fetchLiveNavigationTable();
+      if (live.length) rows = live;
+    }
+  } catch (err) {
+    console.warn("[overview] nav table", err);
+  }
+  applyOverviewKpis(summarizeNavHealth(rows));
+}
+
+function fillKpisFromMock() {
+  applyOverviewKpis(summarizeNavHealth(mockNavTableRows));
 }
 
 function fillCriticalTable() {
@@ -132,11 +236,6 @@ function fillIssuesPage() {
   fillIssueRows("table-system-warnings", "warnings-count", mock.systemWarnings);
 }
 
-import { initHealthMonitorPage } from "./health-monitor.js";
-import { initTrendsPage } from "./trends.js";
-import { initDrillDownPage } from "./drill-down.js";
-import { initConfigurationPage } from "./configuration.js";
-
 function wireNav() {
   const overview = document.getElementById("page-overview");
   const health = document.getElementById("page-health-monitor");
@@ -174,6 +273,7 @@ function wireNav() {
       const page = btn.dataset.page;
       if (page === "overview") {
         show("overview");
+        loadOverviewKpis();
       } else if (page === "health-monitor") {
         show("health-monitor");
         initHealthMonitorPage();
@@ -205,12 +305,7 @@ function safeChart(name, fn) {
 }
 
 function initCharts() {
-  safeChart("health", () =>
-    renderHealthGauge(
-      document.getElementById("chart-health"),
-      mock.kpis.healthScore
-    )
-  );
+  // Health Score doughnut is painted by applyOverviewKpis / loadOverviewKpis
 
   safeChart("components", () => {
     renderPie(document.getElementById("chart-components"), mock.componentsByType);
@@ -251,7 +346,7 @@ function initCharts() {
   });
 }
 
-fillKpis();
+fillKpisFromMock();
 fillCriticalTable();
 fillAlertsTable();
 fillIssuesPage();
@@ -259,9 +354,27 @@ wireNav();
 tickClock();
 setInterval(tickClock, 1000);
 
+setTopbarConnectionState(false);
+ensureIwaSession()
+  .then((ok) => {
+    if (ok) return loadOverviewKpis();
+    return null;
+  })
+  .catch(() => {});
+
+document.querySelector(".topbar-logout")?.addEventListener("click", () => {
+  disconnectIwaSession();
+  resetHealthMonitorToMock();
+  fillKpisFromMock();
+});
+
 // Defer charts until layout has real sizes (fixes blank Chart.js canvases)
 requestAnimationFrame(() => {
   fillSitesTable();
-  requestAnimationFrame(() => initCharts());
+  requestAnimationFrame(() => {
+    initCharts();
+    fillKpisFromMock();
+    loadOverviewKpis();
+  });
 });
 

@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
     <title>Smart Sentinel</title>
   </head>
   <body>
@@ -16,7 +18,7 @@
         <div class="topbar-right">
           <span class="topbar-env">Dev</span>
           <span class="topbar-restricted">RESTRICTED</span>
-          <span class="topbar-connected">CONNECTED<span class="status-dot" aria-hidden="true"></span></span>
+          <span class="topbar-connected is-disconnected">DISCONNECTED<span class="status-dot" aria-hidden="true"></span></span>
           <button type="button" class="topbar-logout" title="Sign out" aria-label="Sign out">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4" />
@@ -115,20 +117,20 @@
           <div class="kpi-row">
             <article class="card kpi">
               <div class="kpi-title" style="text-align: center">Health Score</div>
-              <div class="health-gauge-wrap">
+              <div class="health-gauge-wrap health-pie-wrap">
                 <canvas id="chart-health"></canvas>
                 <div class="health-score-num">
-                  <div class="big" id="kpi-score">78</div>
-                  <div class="small">/100</div>
+                  <div class="big" id="kpi-score">—</div>
+                  <div class="small" id="kpi-score-sub">healthy</div>
                 </div>
               </div>
-              <div class="kpi-footer good" id="kpi-score-label">Good</div>
+              <div class="kpi-footer good" id="kpi-score-label">—</div>
             </article>
 
             <article class="card kpi">
               <div class="kpi-title">Total Components</div>
               <div class="kpi-body">
-                <div class="kpi-value" id="kpi-total">1,248</div>
+                <div class="kpi-value" id="kpi-total">—</div>
                 <svg class="kpi-icon right" viewBox="0 0 64 64" aria-hidden="true">
                   <rect x="8" y="8" width="48" height="14" rx="4" fill="#2563eb" />
                   <rect x="8" y="25" width="48" height="14" rx="4" fill="#2563eb" />
@@ -138,7 +140,7 @@
                   <circle cx="46" cy="49" r="3" fill="#fff" />
                 </svg>
               </div>
-              <div class="kpi-footer">All Sites</div>
+              <div class="kpi-footer" id="kpi-total-footer">All components</div>
             </article>
 
             <article class="card kpi">
@@ -149,9 +151,9 @@
                   <rect x="29" y="24" width="6" height="16" rx="2" fill="#fff" />
                   <circle cx="32" cy="46" r="3.5" fill="#fff" />
                 </svg>
-                <div class="kpi-value" style="color: #ef4444" id="kpi-problems">23</div>
+                <div class="kpi-value" style="color: #ef4444" id="kpi-problems">—</div>
               </div>
-              <div class="kpi-footer danger" id="kpi-problems-pct">1.84% of components</div>
+              <div class="kpi-footer danger" id="kpi-problems-pct">—</div>
             </article>
 
             <article class="card kpi">
@@ -162,22 +164,21 @@
                   <rect x="29" y="24" width="6" height="16" rx="2" fill="#fff" />
                   <circle cx="32" cy="46" r="3.5" fill="#fff" />
                 </svg>
-                <div class="kpi-value" style="color: #ca8a04" id="kpi-warnings">47</div>
+                <div class="kpi-value" style="color: #ca8a04" id="kpi-warnings">—</div>
               </div>
-              <div class="kpi-footer warn" id="kpi-warnings-pct">3.76% of components</div>
+              <div class="kpi-footer warn" id="kpi-warnings-pct">—</div>
             </article>
 
             <article class="card kpi">
-              <div class="kpi-title">Info</div>
+              <div class="kpi-title">Disabled</div>
               <div class="kpi-body">
                 <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
-                  <circle cx="32" cy="32" r="28" fill="#3b82f6" />
-                  <circle cx="32" cy="18" r="4" fill="#fff" />
-                  <rect x="28" y="28" width="8" height="22" rx="3" fill="#fff" />
+                  <circle cx="32" cy="32" r="28" fill="#94a3b8" />
+                  <rect x="18" y="29" width="28" height="6" rx="2" fill="#fff" />
                 </svg>
-                <div class="kpi-value" style="color: #3b82f6" id="kpi-info">128</div>
+                <div class="kpi-value" style="color: #64748b" id="kpi-disabled">—</div>
               </div>
-              <div class="kpi-footer info" id="kpi-info-pct">10.26% of components</div>
+              <div class="kpi-footer" id="kpi-disabled-pct">—</div>
             </article>
 
             <article class="card kpi">
@@ -297,50 +298,196 @@
               <p>Object tree, properties, and performance counters</p>
             </div>
           </div>
-          <div class="hm-conn-bar">
-            <span class="hm-conn-badge" id="hm-conn-badge" data-state="mock">MOCK</span>
-            <span class="hm-conn-user" id="hm-conn-user">—</span>
-            <span class="hm-conn-status" id="hm-conn-status" data-kind="info">—</span>
-            <div class="hm-conn-actions">
-              <button type="button" class="btn-guide" id="hm-connect">Connect</button>
-              <button type="button" class="btn-ghost" id="hm-token-paste" title="Paste token from WebStudio if IWA blocked">Paste token</button>
-              <button type="button" class="btn-ghost" id="hm-disconnect">Use mock</button>
-            </div>
-          </div>
           <div class="hm-layout">
             <div class="hm-left">
               <div class="card hm-tree-card">
-                <div class="hm-panel-head">Navigation</div>
+                <div class="hm-panel-head hm-nav-head">
+                  <span>Navigation</span>
+                  <div class="hm-nav-switch" role="toolbar" aria-label="Navigation view">
+                    <button
+                      type="button"
+                      class="hm-view-btn is-active"
+                      id="hm-nav-tree-btn"
+                      title="Tree view"
+                      aria-label="Tree view"
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="currentColor">
+                        <path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 3h6v3h-6v-3z"/>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="hm-view-btn"
+                      id="hm-nav-list-btn"
+                      title="List view"
+                      aria-label="List view"
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="16" rx="1"/>
+                        <path d="M3 9h18M3 14h18M9 4v16"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
                 <ul id="hm-tree" class="hm-tree"></ul>
+                <div id="hm-nav-list-wrap" class="hm-nav-list-wrap" hidden>
+                  <div class="hm-nav-list-meta" id="hm-nav-list-meta"></div>
+                  <div class="hm-table-wrap hm-nav-list-scroll">
+                    <table class="data hm-nav-list-table" id="hm-nav-list-table">
+                      <thead>
+                        <tr>
+                          <th data-nav-sort="name" scope="col"><button type="button" class="hm-sort-btn" data-label="Name">Name</button></th>
+                          <th data-nav-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
+                          <th data-nav-sort="object" scope="col"><button type="button" class="hm-sort-btn" data-label="Object">Object</button></th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
               <div class="card hm-props-card">
-                <div class="hm-panel-head">Object Properties</div>
+                <div class="hm-panel-head" id="hm-props-head">Object Properties</div>
                 <div id="hm-props" class="hm-props"></div>
               </div>
             </div>
             <div class="hm-right">
               <div class="card hm-counters-card">
-                <div class="hm-panel-head" id="hm-counters-title">Performance Counters</div>
-                <p id="hm-counters-empty" class="hm-props-empty" hidden>
-                  Select an object in the tree.
-                </p>
-                <div class="hm-table-wrap">
-                  <table class="data" id="hm-counters-table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Value</th>
-                        <th>Unit</th>
-                        <th>penName</th>
-                        <th>path</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
+                <div class="hm-panel-head hm-counters-head">
+                  <span id="hm-counters-title">Performance Counters</span>
+                  <div class="hm-head-actions">
+                    <div class="hm-view-switch" role="toolbar" aria-label="Counters view">
+                      <button
+                        type="button"
+                        class="hm-view-btn is-active"
+                        id="hm-view-table"
+                        title="Performance Counters"
+                        aria-label="Show performance counters table"
+                      >
+                        <img src="/icons/hm-counters.svg" alt="" width="16" height="16" />
+                      </button>
+                      <button
+                        type="button"
+                        class="hm-view-btn"
+                        id="hm-view-chart"
+                        title="Trend chart"
+                        aria-label="Show trend chart"
+                      >
+                        <img src="/icons/hm-chart.svg" alt="" width="16" height="16" />
+                      </button>
+                      <button
+                        type="button"
+                        class="hm-view-btn"
+                        id="hm-view-values"
+                        title="Values table"
+                        aria-label="Show values table"
+                      >
+                        <img src="/icons/hm-values-table.svg" alt="" width="16" height="16" />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      class="hm-view-btn hm-maximize-btn"
+                      id="hm-chart-maximize"
+                      title="Maximize panel"
+                      aria-label="Maximize panel"
+                      hidden
+                    >
+                      <!-- Maximize: four corners pointing outward -->
+                      <svg class="hm-ico-expand" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 3H3v5" />
+                        <path d="M16 3h5v5" />
+                        <path d="M8 21H3v-5" />
+                        <path d="M16 21h5v-5" />
+                      </svg>
+                      <!-- Minimize: four corners pointing inward -->
+                      <svg class="hm-ico-compress" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" hidden fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 3v6H3" />
+                        <path d="M15 3v6h6" />
+                        <path d="M9 21v-6H3" />
+                        <path d="M15 21v-6h6" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-                <div class="hm-counters-footer">
-                  <button type="button" class="btn-submit" id="hm-submit">Submit</button>
+                <div id="hm-counters-view" class="hm-counters-view">
+                  <p id="hm-counters-empty" class="hm-props-empty" hidden>
+                    Select an object in the tree.
+                  </p>
+                  <div class="hm-table-wrap">
+                    <table class="data hm-counters-table" id="hm-counters-table">
+                      <thead>
+                        <tr>
+                          <th class="hm-col-check" scope="col" title="Select">
+                            <input type="checkbox" id="hm-select-all" aria-label="Select all counters" />
+                          </th>
+                          <th data-sort="ObjectName" scope="col"><button type="button" class="hm-sort-btn" data-label="Name">Name</button></th>
+                          <th data-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
+                          <th data-sort="group" scope="col"><button type="button" class="hm-sort-btn" data-label="Group">Group</button></th>
+                          <th data-sort="Value" scope="col"><button type="button" class="hm-sort-btn" data-label="Value">Value</button></th>
+                          <th data-sort="Unit" scope="col"><button type="button" class="hm-sort-btn" data-label="Unit">Unit</button></th>
+                          <th data-sort="Description" scope="col"><button type="button" class="hm-sort-btn" data-label="Description">Description</button></th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                  <div class="hm-counters-footer">
+                    <span id="hm-selection-hint" class="hm-selection-hint"></span>
+                    <button type="button" class="btn-submit" id="hm-submit" disabled>Submit</button>
+                  </div>
+                </div>
+                <div id="hm-chart-view" class="hm-chart-view" hidden>
+                  <div class="hm-chart-toolbar">
+                    <div id="hm-chart-status" class="hm-chart-status">Select counters and click Submit.</div>
+                    <button type="button" class="hm-period-btn" id="hm-period-open" title="Time Period Settings">
+                      <span class="hm-period-btn-label">Time period</span>
+                      <span id="hm-period-summary" class="hm-period-summary">*-1h → *</span>
+                    </button>
+                  </div>
+                  <p id="hm-chart-empty" class="hm-props-empty" hidden>
+                    Select counters in the table and click Submit.
+                  </p>
+                  <div id="hm-chart-wrap" class="hm-chart-wrap" hidden>
+                    <div class="hm-chart-canvas-box" id="hm-chart-canvas-box">
+                      <canvas id="chart-hm-counters"></canvas>
+                    </div>
+                    <div id="hm-chart-pens" class="hm-chart-pens" aria-live="polite"></div>
+                  </div>
+                </div>
+                <div id="hm-values-view" class="hm-values-view" hidden>
+                  <div class="hm-chart-toolbar">
+                    <div id="hm-values-status" class="hm-chart-status">Select counters and click Submit.</div>
+                    <div class="hm-values-toolbar-right">
+                      <label class="hm-values-pagesize-label"
+                        >Rows
+                        <select id="hm-values-pagesize" title="Rows per page">
+                          <option value="50" selected>50</option>
+                          <option value="100">100</option>
+                        </select>
+                      </label>
+                      <button type="button" class="hm-period-btn" id="hm-period-open-values" title="Time Period Settings">
+                        <span class="hm-period-btn-label">Time period</span>
+                        <span id="hm-period-summary-values" class="hm-period-summary">*-1h → *</span>
+                      </button>
+                    </div>
+                  </div>
+                  <p id="hm-values-empty" class="hm-props-empty">
+                    Select counters in the table and click Submit.
+                  </p>
+                  <div id="hm-values-wrap" class="hm-values-wrap" hidden>
+                    <div class="hm-table-wrap hm-values-table-wrap">
+                      <table class="data hm-values-table" id="hm-values-table">
+                        <thead></thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
+                    <div class="hm-values-pager" id="hm-values-pager" hidden>
+                      <button type="button" class="hm-pager-btn" id="hm-values-prev">Previous</button>
+                      <span id="hm-values-page-label" class="hm-values-page-label">Page 1 of 1</span>
+                      <button type="button" class="hm-pager-btn" id="hm-values-next">Next</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -602,6 +749,70 @@
         >
       </footer>
     </div>
+
+    <!-- inmation-style Time Period Settings -->
+    <div id="hm-period-modal" class="hm-period-modal" hidden>
+      <div class="hm-period-backdrop" data-period-close></div>
+      <div class="hm-period-dialog" role="dialog" aria-modal="true" aria-labelledby="hm-period-title">
+        <header class="hm-period-dialog-head">
+          <h2 id="hm-period-title">Time Period Settings</h2>
+          <button type="button" class="hm-period-x" data-period-close aria-label="Close">×</button>
+        </header>
+
+        <div class="hm-period-shorthand-bar">
+          <input id="hm-period-bar-start" class="hm-period-input mono" spellcheck="false" />
+          <input id="hm-period-bar-end" class="hm-period-input mono" spellcheck="false" />
+          <input id="hm-period-bar-intervals" class="hm-period-input mono narrow" type="number" min="2" max="2000" />
+        </div>
+
+        <div class="hm-period-presets">
+          <button type="button" data-period-preset="1h">*-1h</button>
+          <button type="button" data-period-preset="8h">*-8h</button>
+          <button type="button" data-period-preset="1d">*-1d</button>
+          <button type="button" data-period-preset="7d">*-7d</button>
+        </div>
+
+        <div class="hm-period-columns">
+          <section class="hm-period-col">
+            <h3>Start</h3>
+            <input id="hm-period-start-token" class="hm-period-input mono" spellcheck="false" />
+            <label class="hm-period-field"
+              >Date / time
+              <input id="hm-period-start-dt" type="datetime-local" class="hm-period-input" />
+            </label>
+          </section>
+          <section class="hm-period-col">
+            <h3>End</h3>
+            <input id="hm-period-end-token" class="hm-period-input mono" spellcheck="false" />
+            <label class="hm-period-field"
+              >Date / time
+              <input id="hm-period-end-dt" type="datetime-local" class="hm-period-input" />
+            </label>
+          </section>
+        </div>
+
+        <div class="hm-period-bottom">
+          <label class="hm-period-field inline"
+            >Intervals
+            <input id="hm-period-intervals" class="hm-period-input mono narrow" type="number" min="2" max="2000" />
+          </label>
+          <div class="hm-period-length">
+            <span>Length</span>
+            <label>d <input id="hm-period-len-d" type="number" min="0" class="hm-period-input mono tiny" /></label>
+            <label>h <input id="hm-period-len-h" type="number" min="0" class="hm-period-input mono tiny" /></label>
+            <label>m <input id="hm-period-len-m" type="number" min="0" class="hm-period-input mono tiny" /></label>
+            <label>s <input id="hm-period-len-s" type="number" min="0" class="hm-period-input mono tiny" /></label>
+            <label>ms <input id="hm-period-len-ms" type="number" min="0" class="hm-period-input mono tiny" /></label>
+          </div>
+        </div>
+
+        <footer class="hm-period-actions">
+          <button type="button" class="hm-period-btn-secondary" id="hm-period-apply">Apply</button>
+          <button type="button" class="hm-period-btn-primary" id="hm-period-ok">OK</button>
+        </footer>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

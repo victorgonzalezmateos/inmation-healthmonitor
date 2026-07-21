@@ -14,6 +14,19 @@ const TOKEN_EXP_KEY = "smart-sentinel-webapi-token-exp";
 let memoryToken = null;
 let memoryExp = 0;
 
+/**
+ * Keep 16+ digit integers as strings so ObjectIDs stay exact
+ * (JS Number loses precision above Number.MAX_SAFE_INTEGER).
+ */
+export function parseJsonPreservingLargeInts(text) {
+  if (!text) return null;
+  const safe = text.replace(
+    /([:\[,]\s*)(-?\d{16,})(?=\s*[,\]}])/g,
+    '$1"$2"'
+  );
+  return JSON.parse(safe);
+}
+
 export function getStoredToken() {
   if (memoryToken && Date.now() < memoryExp - 30_000) return memoryToken;
   try {
@@ -79,7 +92,7 @@ export async function authorizeIwa() {
       const text = await res.text();
       let body = null;
       try {
-        body = text ? JSON.parse(text) : null;
+        body = text ? parseJsonPreservingLargeInts(text) : null;
       } catch {
         body = { raw: text };
       }
@@ -130,9 +143,9 @@ export async function execFunction(lib, func, farg = {}, options = {}) {
     throw new Error("No access token — connect with IWA first");
   }
 
-  const libPath = encodeURIComponent(lib);
-  const funcPath = encodeURIComponent(func);
-  // Prefer proxy so Bearer calls stay same-origin after IWA
+  // Keep dots in lib name unencoded (syslib.app-…) — matches WebStudio URLs
+  const libPath = String(lib).replace(/[^A-Za-z0-9._\-]/g, encodeURIComponent);
+  const funcPath = String(func).replace(/[^A-Za-z0-9._\-]/g, encodeURIComponent);
   const url = `/api/v2/execfunction/${libPath}/${funcPath}`;
 
   const res = await fetch(url, {
@@ -149,7 +162,7 @@ export async function execFunction(lib, func, farg = {}, options = {}) {
   const text = await res.text();
   let body = null;
   try {
-    body = text ? JSON.parse(text) : null;
+    body = text ? parseJsonPreservingLargeInts(text) : null;
   } catch {
     body = { raw: text };
   }
