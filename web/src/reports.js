@@ -124,7 +124,8 @@ let selectedDesign = "Report";
 let lastParsed = null;
 let lastMeta = null;
 let dsPage = 0;
-let dsFilter = "all";
+/** Inventory/datasource state filter: issues | all | good | bad | warning | disabled */
+let stateFilter = "issues";
 let siteFilter = "All";
 /** @type {Record<string, { key: string, dir: number }>} */
 const tableSort = {};
@@ -337,9 +338,69 @@ function pctDisk(raw) {
 function stateClass(state) {
   const s = String(state || "").toLowerCase();
   if (s === "bad") return "is-bad";
+  if (s === "warning") return "is-warn";
   if (s === "disabled") return "is-disabled";
   if (s === "good") return "is-good";
   return "";
+}
+
+function normalizeReportState(state) {
+  return String(state || "")
+    .toLowerCase()
+    .trim();
+}
+
+function isGoodReportState(state) {
+  return normalizeReportState(state) === "good";
+}
+
+/** Worse first: Bad → Warning → Disabled → Empty/Neutral → other → Good */
+function stateSeverity(state) {
+  const s = normalizeReportState(state);
+  if (s === "bad") return 0;
+  if (s === "warning") return 1;
+  if (s === "disabled") return 2;
+  if (s === "empty" || s === "neutral") return 3;
+  if (s === "good") return 9;
+  return 5;
+}
+
+/**
+ * Site filter then state filter.
+ * Default `issues` = everything that is not Good (Bad / Warning / Disabled / …).
+ */
+function filterInventoryRows(rows) {
+  let list = filterRowsBySite(rows);
+  if (stateFilter === "all") return list;
+  if (stateFilter === "issues") {
+    return list.filter((r) => !isGoodReportState(r.state));
+  }
+  return list.filter(
+    (r) => normalizeReportState(r.state) === stateFilter
+  );
+}
+
+function sortInventoryRows(rows, tableId, defaultKey = "name") {
+  const sorted = sortRows(rows, tableId, defaultKey);
+  const { key } = getSort(tableId, defaultKey);
+  // When user hasn't sorted by State, keep issues ordered worst-first
+  if (key !== "state" && stateFilter !== "good") {
+    return [...sorted].sort((a, b) => {
+      const d = stateSeverity(a.state) - stateSeverity(b.state);
+      if (d !== 0) return d;
+      return 0;
+    });
+  }
+  return sorted;
+}
+
+function stateFilterNote(shown, siteTotal) {
+  if (stateFilter === "all" || siteTotal === shown) return "";
+  const hidden = Math.max(0, siteTotal - shown);
+  if (stateFilter === "issues") {
+    return `<p class="muted report-filter-note">Showing ${shown} not-Good · ${hidden} Good hidden.</p>`;
+  }
+  return `<p class="muted report-filter-note">Showing ${shown} of ${siteTotal} for state filter.</p>`;
 }
 
 function formatWhen(iso) {
@@ -373,15 +434,31 @@ function renderEnv(rows) {
 
 function renderInventoryTable(cfg, rows) {
   const tableId = `inv-${cfg.key}`;
-  const filtered = filterRowsBySite(rows);
-  if (!filtered.length) {
+  const siteRows = filterRowsBySite(rows);
+  const filtered = filterInventoryRows(rows);
+  if (!siteRows.length) {
     return `
       <section class="report-section" id="report-inv-${esc(cfg.key)}">
         <h3 class="report-section-title">${esc(cfg.title)} <span class="muted">(0)</span></h3>
         <p class="muted">${siteFilter !== "All" ? `No rows for site ${esc(siteFilter)}.` : "No rows."}</p>
       </section>`;
   }
-  const list = sortRows(filtered, tableId, cfg.cols[0][0]);
+  if (!filtered.length) {
+    return `
+      <section class="report-section" id="report-inv-${esc(cfg.key)}">
+        <h3 class="report-section-title">${esc(cfg.title)} <span class="muted">(0)</span></h3>
+        <p class="${
+          stateFilter === "issues"
+            ? "report-all-good"
+            : "muted"
+        }">${
+          stateFilter === "issues"
+            ? `All ${siteRows.length} ${esc(cfg.title.toLowerCase())} are Good.`
+            : `No rows for this state filter (${siteRows.length} total).`
+        }</p>
+      </section>`;
+  }
+  const list = sortInventoryRows(filtered, tableId, cfg.cols[0][0]);
   const head = cfg.cols
     .map(([key, label]) => sortTh(tableId, key, label))
     .join("");
@@ -403,6 +480,7 @@ function renderInventoryTable(cfg, rows) {
   return `
     <section class="report-section" id="report-inv-${esc(cfg.key)}">
       <h3 class="report-section-title">${esc(cfg.title)} <span class="muted">(${filtered.length})</span></h3>
+      ${stateFilterNote(filtered.length, siteRows.length)}
       <div class="report-table-wrap">
         <table class="report-table" data-report-table="${esc(tableId)}">
           <thead><tr>${head}</tr></thead>
@@ -413,20 +491,17 @@ function renderInventoryTable(cfg, rows) {
 }
 
 function filterDatasources(rows) {
-  let list = filterRowsBySite(rows);
-  if (dsFilter !== "all") {
-    list = list.filter((r) => String(r.state || "").toLowerCase() === dsFilter);
-  }
-  return list;
+  return filterInventoryRows(rows);
 }
 
 function renderDatasources(rows) {
   const tableId = "datasources";
+  const siteRows = filterRowsBySite(rows);
   const filtered = filterDatasources(rows);
   const total = filtered.length;
-  const pages = Math.max(1, Math.ceil(total / DATASOURCE_PAGE));
+  const pages = Math.max(1, Math.ceil(total / DATASOURCE_PAGE) || 1);
   if (dsPage >= pages) dsPage = Math.max(0, pages - 1);
-  const sorted = sortRows(filtered, tableId, "name");
+  const sorted = sortInventoryRows(filtered, tableId, "name");
   const slice = sorted.slice(
     dsPage * DATASOURCE_PAGE,
     dsPage * DATASOURCE_PAGE + DATASOURCE_PAGE
@@ -447,28 +522,33 @@ function renderDatasources(rows) {
     })
     .join("");
 
+  let emptyMsg = "No datasources for this filter.";
+  let emptyCls = "muted";
+  if (!siteRows.length) {
+    emptyMsg =
+      siteFilter !== "All"
+        ? `No datasources for site ${siteFilter}.`
+        : "No datasources.";
+  } else if (!filtered.length && stateFilter === "issues") {
+    emptyMsg = `All ${siteRows.length} datasources are Good.`;
+    emptyCls = "report-all-good";
+  }
+
   return `
     <section class="report-section" id="report-inv-datasources">
       <div class="report-section-head">
         <h3 class="report-section-title">Datasources <span class="muted">(${total})</span></h3>
         <div class="report-ds-toolbar">
-          <label>State
-            <select id="report-ds-filter">
-              <option value="all"${dsFilter === "all" ? " selected" : ""}>All</option>
-              <option value="good"${dsFilter === "good" ? " selected" : ""}>Good</option>
-              <option value="bad"${dsFilter === "bad" ? " selected" : ""}>Bad</option>
-              <option value="disabled"${dsFilter === "disabled" ? " selected" : ""}>Disabled</option>
-            </select>
-          </label>
           <span class="muted">${total} shown · page ${dsPage + 1}/${pages}</span>
           <button type="button" class="btn-ghost" id="report-ds-prev" ${dsPage <= 0 ? "disabled" : ""}>Prev</button>
-          <button type="button" class="btn-ghost" id="report-ds-next" ${dsPage >= pages - 1 ? "disabled" : ""}>Next</button>
+          <button type="button" class="btn-ghost" id="report-ds-next" ${dsPage >= pages - 1 || total === 0 ? "disabled" : ""}>Next</button>
         </div>
       </div>
+      ${stateFilterNote(total, siteRows.length)}
       <div class="report-table-wrap">
         <table class="report-table" data-report-table="${tableId}">
           <thead><tr>${head}</tr></thead>
-          <tbody>${body || `<tr><td colspan="4" class="muted">No datasources for this filter.</td></tr>`}</tbody>
+          <tbody>${body || `<tr><td colspan="4"><span class="${emptyCls}">${esc(emptyMsg)}</span></td></tr>`}</tbody>
         </table>
       </div>
     </section>`;
@@ -630,10 +710,25 @@ function renderReportHtml(parsed, meta) {
     parsed.header.Timestamp ||
     "";
   const version = parsed.global.inmationVersionCore || "";
-  const siteNote =
-    siteFilter !== "All"
-      ? `<p class="muted report-filter-note">Tables filtered by site <strong>${esc(siteFilter)}</strong>. Component health charts remain system-wide.</p>`
-      : "";
+  const filterNotes = [];
+  if (siteFilter !== "All") {
+    filterNotes.push(
+      `Tables filtered by site <strong>${esc(siteFilter)}</strong>.`
+    );
+  }
+  if (stateFilter === "issues") {
+    filterNotes.push("Inventory shows <strong>Not Good</strong> only (Good hidden).");
+  } else if (stateFilter !== "all") {
+    filterNotes.push(
+      `Inventory filtered by state <strong>${esc(stateFilter)}</strong>.`
+    );
+  }
+  if (filterNotes.length) {
+    filterNotes.push("Component health charts remain system-wide.");
+  }
+  const siteNote = filterNotes.length
+    ? `<p class="muted report-filter-note">${filterNotes.join(" ")}</p>`
+    : "";
 
   if (!isHmShaped(parsed)) {
     return `
@@ -752,14 +847,8 @@ function paintDoughnuts(parsed) {
 }
 
 function bindDatasourceToolbar() {
-  const filter = document.getElementById("report-ds-filter");
   const prev = document.getElementById("report-ds-prev");
   const next = document.getElementById("report-ds-next");
-  filter?.addEventListener("change", () => {
-    dsFilter = filter.value;
-    dsPage = 0;
-    paintReportBody({ keepCharts: true });
-  });
   prev?.addEventListener("click", () => {
     if (dsPage > 0) {
       dsPage -= 1;
@@ -770,6 +859,11 @@ function bindDatasourceToolbar() {
     dsPage += 1;
     paintReportBody({ keepCharts: true });
   });
+}
+
+function syncStateFilterSelect() {
+  const sel = document.getElementById("reports-state-filter");
+  if (sel && sel.value !== stateFilter) sel.value = stateFilter;
 }
 
 function paintReportBody({ keepCharts = false } = {}) {
@@ -853,7 +947,8 @@ async function loadReport() {
 
     setStatus("Parsing report XML…");
     dsPage = 0;
-    dsFilter = "all";
+    stateFilter = "issues";
+    syncStateFilterSelect();
     Object.keys(tableSort).forEach((k) => delete tableSort[k]);
     lastParsed = parseReportXml(xml);
     lastMeta = {
@@ -909,6 +1004,13 @@ export function initReportsPage() {
       .getElementById("reports-site-filter")
       ?.addEventListener("change", (e) => {
         siteFilter = e.target.value || "All";
+        dsPage = 0;
+        paintReportBody();
+      });
+    document
+      .getElementById("reports-state-filter")
+      ?.addEventListener("change", (e) => {
+        stateFilter = e.target.value || "issues";
         dsPage = 0;
         paintReportBody();
       });

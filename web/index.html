@@ -112,8 +112,8 @@
             </div>
           </div>
 
-          <!-- KPI row -->
-          <div class="kpi-row">
+          <!-- KPI row 1: summary -->
+          <div class="kpi-row kpi-row-summary">
             <article class="card kpi">
               <div class="kpi-title" style="text-align: center">Health Score</div>
               <div class="health-gauge-wrap health-pie-wrap">
@@ -143,6 +143,41 @@
             </article>
 
             <article class="card kpi">
+              <div class="kpi-title">Sites</div>
+              <div class="kpi-body">
+                <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
+                  <circle cx="32" cy="32" r="26" fill="none" stroke="#7c3aed" stroke-width="4" />
+                  <ellipse cx="32" cy="32" rx="12" ry="26" fill="none" stroke="#7c3aed" stroke-width="3" />
+                  <path d="M6 32h52M10 20h44M10 44h44" fill="none" stroke="#7c3aed" stroke-width="3" />
+                </svg>
+                <div class="kpi-value" style="color: #7c3aed" id="kpi-sites">—</div>
+              </div>
+              <div class="kpi-footer" id="kpi-sites-of">of 12 sites</div>
+            </article>
+          </div>
+
+          <!-- KPI row 2: health classes -->
+          <div class="kpi-row kpi-row-health">
+            <article class="card kpi">
+              <div class="kpi-title">Good</div>
+              <div class="kpi-body">
+                <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
+                  <circle cx="32" cy="32" r="28" fill="#16a34a" />
+                  <path
+                    fill="none"
+                    stroke="#fff"
+                    stroke-width="5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M18 33l10 10 18-20"
+                  />
+                </svg>
+                <div class="kpi-value" style="color: #16a34a" id="kpi-good">—</div>
+              </div>
+              <div class="kpi-footer good" id="kpi-good-pct">—</div>
+            </article>
+
+            <article class="card kpi">
               <div class="kpi-title">Problems</div>
               <div class="kpi-body">
                 <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
@@ -169,32 +204,39 @@
             </article>
 
             <article class="card kpi">
-              <div class="kpi-title">Disabled</div>
+              <div class="kpi-title">Unknown</div>
               <div class="kpi-body">
                 <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
                   <circle cx="32" cy="32" r="28" fill="#94a3b8" />
+                  <text
+                    x="32"
+                    y="38"
+                    text-anchor="middle"
+                    fill="#fff"
+                    font-size="28"
+                    font-weight="700"
+                    font-family="Segoe UI, sans-serif"
+                  >?</text>
+                </svg>
+                <div class="kpi-value" style="color: #64748b" id="kpi-unknown">—</div>
+              </div>
+              <div class="kpi-footer" id="kpi-unknown-pct">—</div>
+            </article>
+
+            <article class="card kpi">
+              <div class="kpi-title">Disabled</div>
+              <div class="kpi-body">
+                <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
+                  <circle cx="32" cy="32" r="28" fill="#64748b" />
                   <rect x="18" y="29" width="28" height="6" rx="2" fill="#fff" />
                 </svg>
                 <div class="kpi-value" style="color: #64748b" id="kpi-disabled">—</div>
               </div>
               <div class="kpi-footer" id="kpi-disabled-pct">—</div>
             </article>
-
-            <article class="card kpi">
-              <div class="kpi-title">Sites</div>
-              <div class="kpi-body">
-                <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
-                  <circle cx="32" cy="32" r="26" fill="none" stroke="#7c3aed" stroke-width="4" />
-                  <ellipse cx="32" cy="32" rx="12" ry="26" fill="none" stroke="#7c3aed" stroke-width="3" />
-                  <path d="M6 32h52M10 20h44M10 44h44" fill="none" stroke="#7c3aed" stroke-width="3" />
-                </svg>
-                <div class="kpi-value" style="color: #7c3aed" id="kpi-sites">—</div>
-              </div>
-              <div class="kpi-footer" id="kpi-sites-of">of 12 sites</div>
-            </article>
           </div>
 
-          <!-- Row 2 -->
+          <!-- Charts / tables row -->
           <div class="grid-2 overview-row-components">
             <article class="card">
               <h2>Components by Site</h2>
@@ -232,8 +274,10 @@
                       <th data-site-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
                       <th data-site-sort="score" scope="col"><button type="button" class="hm-sort-btn" data-label="Health">Health</button></th>
                       <th data-site-sort="total" scope="col"><button type="button" class="hm-sort-btn" data-label="Total">Total</button></th>
+                      <th data-site-sort="good" scope="col" title="Goods"><button type="button" class="hm-sort-btn" data-label="G">G</button></th>
                       <th data-site-sort="problems" scope="col" title="Problems"><button type="button" class="hm-sort-btn" data-label="P">P</button></th>
                       <th data-site-sort="warnings" scope="col" title="Warnings"><button type="button" class="hm-sort-btn" data-label="W">W</button></th>
+                      <th data-site-sort="unknown" scope="col" title="Unknown"><button type="button" class="hm-sort-btn" data-label="U">U</button></th>
                       <th data-site-sort="disabled" scope="col" title="Disabled"><button type="button" class="hm-sort-btn" data-label="D">D</button></th>
                     </tr>
                   </thead>
@@ -333,6 +377,7 @@
                           <th data-nav-sort="name" scope="col"><button type="button" class="hm-sort-btn" data-label="Name">Name</button></th>
                           <th data-nav-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
                           <th data-nav-sort="object" scope="col"><button type="button" class="hm-sort-btn" data-label="Object">Object</button></th>
+                          <th data-nav-sort="comm" scope="col"><button type="button" class="hm-sort-btn" data-label="Comm.">Comm.</button></th>
                         </tr>
                       </thead>
                       <tbody></tbody>
@@ -492,7 +537,7 @@
           <div class="page-head">
             <div>
               <h1>Issues &amp; Alerts</h1>
-              <p>Problems, warnings, disabled components, and expiring certificates</p>
+              <p>Problems, warnings, unknown state, and expiring certificates</p>
             </div>
           </div>
           <div class="issues-split">
@@ -511,7 +556,6 @@
                       <th data-issues-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
                       <th data-issues-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
                       <th data-issues-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
-                      <th data-issues-sort="status" scope="col"><button type="button" class="hm-sort-btn" data-label="Status">Status</button></th>
                       <th data-issues-sort="duration" scope="col"><button type="button" class="hm-sort-btn" data-label="Duration">Duration</button></th>
                     </tr>
                   </thead>
@@ -533,14 +577,9 @@
                 <table class="data" id="table-system-warnings">
                   <thead>
                     <tr>
-                      <th data-issues-sort="time" scope="col"><button type="button" class="hm-sort-btn" data-label="Time">Time</button></th>
-                      <th data-issues-sort="severity" scope="col"><button type="button" class="hm-sort-btn" data-label="Severity">Severity</button></th>
                       <th data-issues-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
                       <th data-issues-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
-                      <th data-issues-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
                       <th data-issues-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
-                      <th data-issues-sort="status" scope="col"><button type="button" class="hm-sort-btn" data-label="Status">Status</button></th>
-                      <th data-issues-sort="duration" scope="col"><button type="button" class="hm-sort-btn" data-label="Duration">Duration</button></th>
                     </tr>
                   </thead>
                   <tbody></tbody>
@@ -554,21 +593,16 @@
             </article>
             <article class="card issues-panel">
               <div class="hm-panel-head issues-panel-head disabled">
-                <span>Disabled</span>
+                <span>Unknown</span>
                 <span class="issues-count" id="disabled-count">0</span>
               </div>
               <div class="hm-table-wrap">
                 <table class="data" id="table-system-disabled">
                   <thead>
                     <tr>
-                      <th data-issues-sort="time" scope="col"><button type="button" class="hm-sort-btn" data-label="Time">Time</button></th>
-                      <th data-issues-sort="severity" scope="col"><button type="button" class="hm-sort-btn" data-label="Severity">Severity</button></th>
                       <th data-issues-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
                       <th data-issues-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
-                      <th data-issues-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
                       <th data-issues-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
-                      <th data-issues-sort="status" scope="col"><button type="button" class="hm-sort-btn" data-label="Status">Status</button></th>
-                      <th data-issues-sort="duration" scope="col"><button type="button" class="hm-sort-btn" data-label="Duration">Duration</button></th>
                     </tr>
                   </thead>
                   <tbody></tbody>
@@ -823,6 +857,21 @@
                   title="Filter report tables by site"
                 >
                   <option value="All" selected>All</option>
+                </select>
+              </label>
+              <label class="filter reports-site-label">
+                State
+                <select
+                  id="reports-state-filter"
+                  class="hm-select"
+                  title="Filter inventory tables by health state"
+                >
+                  <option value="issues" selected>Not Good</option>
+                  <option value="all">All</option>
+                  <option value="bad">Bad</option>
+                  <option value="warning">Warning</option>
+                  <option value="disabled">Disabled</option>
+                  <option value="good">Good</option>
                 </select>
               </label>
               <label class="reports-design-label">

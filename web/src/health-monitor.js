@@ -15,7 +15,7 @@ import {
   setTopbarConnectionState,
 } from "./session.js";
 import {
-  classifyNavHealth,
+  classifyNavListAccent,
   fetchCounterHistorySeries,
   fetchLiveCounters,
   fetchLiveNavigationTable,
@@ -387,10 +387,13 @@ function renderStateRow(state) {
 }
 
 function stateAccentClass(state) {
-  if (/COMM_ERROR|STATE_ERROR/.test(state)) return "accent-bad";
-  if (/OBJ_DISABLED/.test(state)) return "accent-muted";
-  if (/COMM_GOOD|STATE_GOOD|OBJ_ENABLED/.test(state)) return "accent-good";
-  return "accent-good";
+  if (/COMM_ERROR|STATE_ERROR/i.test(state)) return "accent-bad";
+  if (/COMM_WARNING|STATE_WARNING|STATE_UNCONFIRMED|OBJ_CLASS_MISMATCH/i.test(state)) {
+    return "accent-warn";
+  }
+  if (/COMM_NEUTRAL|STATE_NEUTRAL|STATE_EMPTY/i.test(state)) return "accent-muted";
+  if (/COMM_GOOD|STATE_GOOD/i.test(state)) return "accent-good";
+  return "";
 }
 
 function counterRowKey(r) {
@@ -1434,15 +1437,24 @@ function applyNavView() {
 function sortedNavRows() {
   const rows = [...navTableRows];
   const dir = navSortDir;
-  const field =
-    navSortKey === "type"
-      ? "type"
-      : navSortKey === "object"
-        ? "ObjectState"
-        : "name";
   rows.sort((a, b) => {
-    const av = String(a[field] ?? "").toLowerCase();
-    const bv = String(b[field] ?? "").toLowerCase();
+    let av = "";
+    let bv = "";
+    if (navSortKey === "type") {
+      av = String(a.type ?? "");
+      bv = String(b.type ?? "");
+    } else if (navSortKey === "object") {
+      av = String(a.ObjectState ?? "");
+      bv = String(b.ObjectState ?? "");
+    } else if (navSortKey === "comm") {
+      av = String(a.CommState ?? "");
+      bv = String(b.CommState ?? "");
+    } else {
+      av = String(a.name ?? "");
+      bv = String(b.name ?? "");
+    }
+    av = av.toLowerCase();
+    bv = bv.toLowerCase();
     if (av < bv) return -1 * dir;
     if (av > bv) return 1 * dir;
     return 0;
@@ -1458,10 +1470,15 @@ function renderNavList() {
 
   const rows = sortedNavRows();
   const selectedNode = resolveSelectedNode();
-  const bad = rows.filter((r) => classifyNavHealth(r) === "bad").length;
-  const warn = rows.filter((r) => classifyNavHealth(r) === "warning").length;
+  const bad = rows.filter((r) => classifyNavListAccent(r) === "bad").length;
+  const warn = rows.filter((r) => classifyNavListAccent(r) === "warning").length;
+  const disabled = rows.filter((r) => classifyNavListAccent(r) === "disabled").length;
   if (meta) {
-    meta.textContent = `${rows.length} objects${bad || warn ? ` · ${bad} problems · ${warn} warnings` : ""}`;
+    const parts = [];
+    if (bad) parts.push(`${bad} bad`);
+    if (warn) parts.push(`${warn} warning`);
+    if (disabled) parts.push(`${disabled} disabled`);
+    meta.textContent = `${rows.length} objects${parts.length ? ` · ${parts.join(" · ")}` : ""}`;
   }
 
   table?.querySelectorAll("th[data-nav-sort]").forEach((th) => {
@@ -1480,16 +1497,28 @@ function renderNavList() {
 
   tbody.innerHTML = rows
     .map((r) => {
-      const health = classifyNavHealth(r);
+      const accent = classifyNavListAccent(r);
       const sel =
         String(r.id) === String(selectedId) ||
         (r.path && selectedNode?.path && r.path === selectedNode.path);
       const displayName = r.name || r.path || "—";
       const objectState = r.ObjectState || "—";
-      return `<tr class="hm-nav-row health-${health}${sel ? " is-selected" : ""}" data-id="${escapeHtml(String(r.id))}" data-path="${escapeHtml(String(r.path || ""))}" title="${escapeHtml([r.path, r.WorstState, r.CommState, r.ObjectState].filter(Boolean).join(" · "))}">
+      const commState = r.CommState || "—";
+      const title = [
+        r.path,
+        r.WorstState && `WorstState: ${r.WorstState}`,
+        r.CommState && `Comm: ${r.CommState}`,
+        r.ObjectState && `Object: ${r.ObjectState}`,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      const objNeutral = /^neutral$/i.test(String(objectState)) ? " is-neutral" : "";
+      const commNeutral = /^neutral$/i.test(String(commState)) ? " is-neutral" : "";
+      return `<tr class="hm-nav-row ws-${accent}${sel ? " is-selected" : ""}" data-id="${escapeHtml(String(r.id))}" data-path="${escapeHtml(String(r.path || ""))}" title="${escapeHtml(title)}">
         <td class="hm-nav-name">${escapeHtml(displayName)}</td>
         <td class="hm-nav-type">${escapeHtml(String(r.type || "—"))}</td>
-        <td class="hm-nav-object">${escapeHtml(String(objectState))}</td>
+        <td class="hm-nav-object${objNeutral}">${escapeHtml(String(objectState))}</td>
+        <td class="hm-nav-comm${commNeutral}">${escapeHtml(String(commState))}</td>
       </tr>`;
     })
     .join("");

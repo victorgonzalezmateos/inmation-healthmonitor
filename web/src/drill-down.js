@@ -38,11 +38,9 @@ function escapeHtml(s) {
 
 function stateClass(worst) {
   const w = String(worst || "").toLowerCase();
-  if (w === "bad") return "bad";
-  if (w === "warning" || w === "empty" || w === "uncertain" || w === "neutral") {
-    return "uncertain";
-  }
-  if (w === "disabled") return "disabled";
+  if (w === "bad" || w === "problem") return "bad";
+  if (w === "warning") return "uncertain";
+  if (w === "unknown" || w === "disabled" || w === "empty") return "disabled";
   return "good";
 }
 
@@ -220,7 +218,7 @@ function renderDetail(obj) {
       ["Health Score", String(obj.score)],
       ["Problems", String(obj.problems)],
       ["Warnings", String(obj.warnings)],
-      ["Disabled flag", String(obj.info)],
+      ["Unknown flag", String(obj.info)],
       ["Message", obj.message],
     ];
     props.innerHTML = rows
@@ -255,7 +253,7 @@ function renderDetail(obj) {
           relEmpty.textContent =
             !obj.site || obj.site === "—"
               ? "This object is Good. No site code in the name, so there are no related site issues to show."
-              : `This object is Good. No Bad / Warning / Disabled components found at site ${obj.site}.`;
+              : `This object is Good. No Problem / Warning / Unknown components found at site ${obj.site}.`;
         } else {
           relEmpty.textContent =
             "No related issue row found for this object yet.";

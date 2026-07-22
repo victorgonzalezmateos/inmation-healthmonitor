@@ -88,7 +88,7 @@ export function renderHealthGauge(canvas, score) {
 }
 
 /**
- * Doughnut for Overview Health Score — Good / Problems / Warnings / Disabled.
+ * Doughnut for Overview Health Score — Good / Problems / Warnings / Unknown.
  * Center label is HTML overlay (caller).
  */
 export function renderHealthDoughnut(canvas, summary) {
@@ -108,7 +108,8 @@ export function renderHealthDoughnut(canvas, summary) {
   push("Good", summary.good || 0, "#16a34a");
   push("Problems", summary.bad || 0, "#ef4444");
   push("Warnings", summary.warning || 0, "#ca8a04");
-  push("Disabled", summary.disabled || 0, "#94a3b8");
+  push("Unknown", summary.unknown || 0, "#94a3b8");
+  push("Disabled", summary.disabled || 0, "#64748b");
 
   if (!values.length) {
     labels.push("No data");
@@ -233,7 +234,7 @@ export function renderTimeline(canvas, data) {
           spanGaps: true,
         },
         {
-          label: "Disabled",
+          label: "Unknown",
           data: data.info,
           borderColor: "#64748b",
           backgroundColor: "rgba(100,116,139,0.12)",

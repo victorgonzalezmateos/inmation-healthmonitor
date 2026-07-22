@@ -86,6 +86,160 @@ export async function fetchLiveNavigationTree() {
   return [];
 }
 
+/** Normalize HM state cells (plain string, array of flags, numeric bitmask, or VQT `{ v }`). */
+function unwrapStateValue(v) {
+  if (v == null) return "";
+  if (Array.isArray(v)) {
+    return v
+      .map((x) => unwrapStateValue(x))
+      .filter(Boolean)
+      .join("|");
+  }
+  if (typeof v === "object" && !Array.isArray(v) && "v" in v) {
+    return unwrapStateValue(v.v);
+  }
+  return String(v).trim();
+}
+
+/**
+ * ModUserState flag values (docs.inmation.com ModUserState).
+ * Used when `State` arrives as a numeric bitmask instead of COMM_*|STATE_*|OBJ_*.
+ */
+const MOD_USER_STATE_FLAGS = Object.freeze([
+  // Communication (exactly one expected)
+  ["COMM_EMPTY", 1],
+  ["COMM_NEUTRAL", 2],
+  ["COMM_GOOD", 4],
+  ["COMM_WARNING", 8],
+  ["COMM_ERROR", 16],
+  // Functional state (exactly one expected)
+  ["STATE_EMPTY", 256],
+  ["STATE_NEUTRAL", 512],
+  ["STATE_GOOD", 1024],
+  ["STATE_WARNING", 2048],
+  ["STATE_ERROR", 4096],
+  ["STATE_UNCONFIRMED", 8192],
+  // Object characteristics
+  ["OBJ_ENABLED", 65536],
+  ["OBJ_DELETED", 131072],
+  ["OBJ_CLASS_MISMATCH", 2097152],
+  ["OBJ_DYNAMIC", 16777216],
+  ["OBJ_SECURITY_REF", 33554432],
+  ["OBJ_OBJECT_REF", 67108864],
+  ["OBJ_EXPLORING", 536870912],
+  ["OBJ_REGISTERING", 1073741824],
+]);
+
+/** Decode ModUserState integer → `COMM_ERROR|STATE_GOOD|OBJ_ENABLED`. */
+export function decodeModUserState(bitmask) {
+  const n = typeof bitmask === "bigint" ? Number(bitmask) : Number(bitmask);
+  if (!Number.isFinite(n) || n <= 0) return "";
+  // Keep as unsigned 32-bit for high OBJ_* flags
+  const bits = n >>> 0;
+  const flags = [];
+  for (const [name, value] of MOD_USER_STATE_FLAGS) {
+    if ((bits & value) === value) flags.push(name);
+  }
+  return flags.join("|");
+}
+
+function coerceToBitmask(raw) {
+  if (typeof raw === "number" && Number.isFinite(raw)) return raw >>> 0;
+  if (typeof raw === "bigint") return Number(raw) >>> 0;
+  if (typeof raw === "string" && /^\d+$/.test(raw.trim())) {
+    return Number(raw.trim()) >>> 0;
+  }
+  return null;
+}
+
+/** True when string already looks like Object-Properties compound State. */
+function hasCompoundStateFlags(raw) {
+  return /(?:^|\|)(?:COMM_|STATE_|OBJ_)[A-Z0-9_]+/i.test(String(raw || ""));
+}
+
+/** Normalize `COMM_GOOD | STATE_GOOD | OBJ_ENABLED` → `COMM_GOOD|STATE_GOOD|OBJ_ENABLED`. */
+function normalizeCompoundState(raw) {
+  // Numeric bitmask from Web API / nav table
+  const mask = coerceToBitmask(raw);
+  if (mask != null && !hasCompoundStateFlags(String(raw))) {
+    return decodeModUserState(mask);
+  }
+  const s = unwrapStateValue(raw);
+  if (!s) return "";
+  // Digit-only string already handled above; still try decode if no flags
+  if (/^\d+$/.test(s)) return decodeModUserState(Number(s));
+  return s
+    .split("|")
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .join("|");
+}
+
+/**
+ * Map fetchNavigationTable rollup words (Good/Bad/Empty/…) to compound flags.
+ * Only used as a last resort when no real State bitmask/string is available.
+ * Never invent STATE_* from WorstState (WorstState rolls up Comm+State).
+ */
+const COMM_WORD_TO_FLAG = Object.freeze({
+  good: "COMM_GOOD",
+  bad: "COMM_ERROR",
+  empty: "COMM_EMPTY",
+  warning: "COMM_WARNING",
+  neutral: "COMM_NEUTRAL",
+  disabled: "COMM_NEUTRAL",
+});
+
+const OBJ_WORD_TO_FLAG = Object.freeze({
+  good: "OBJ_ENABLED",
+  bad: "OBJ_CLASS_MISMATCH",
+  empty: "",
+  warning: "",
+  neutral: "",
+  disabled: "",
+});
+
+function mapRollupWord(value, table) {
+  const w = unwrapStateValue(value).toLowerCase();
+  if (!w) return "";
+  if (hasCompoundStateFlags(w)) return normalizeCompoundState(value);
+  return table[w] || "";
+}
+
+/**
+ * Resolve Object-Properties-style compound `State` for a nav/props row.
+ * 1) Real compound string or ModUserState bitmask
+ * 2) Last resort: CommState → COMM_*, ObjectState → OBJ_* (no STATE_* from WorstState)
+ * 3) If HM ObjectState/WorstState === "Disabled" and no STATE_* yet → STATE_NEUTRAL
+ *    (do NOT invent NEUTRAL from mere Comm/Worst "Neutral" — that over-counts Disabled)
+ */
+export function resolveCompoundState(row) {
+  // Prefer raw State before any previous mapping (bitmask or pipe string)
+  const candidates = [row?.State, row?.state, row?.UserState, row?.ModUserState];
+  for (const c of candidates) {
+    if (c == null || c === "") continue;
+    const normalized = normalizeCompoundState(c);
+    if (hasCompoundStateFlags(normalized)) return normalized;
+  }
+
+  const parts = [
+    mapRollupWord(row?.CommState ?? row?.commState, COMM_WORD_TO_FLAG),
+    mapRollupWord(row?.ObjectState ?? row?.objectState, OBJ_WORD_TO_FLAG),
+  ].filter(Boolean);
+
+  const joined = parts.join("|");
+  const groups = splitStateGroups(joined);
+  const worst = unwrapStateValue(row?.WorstState ?? row?.worstState);
+  const obj = unwrapStateValue(row?.ObjectState ?? row?.objectState);
+  const looksExplicitlyDisabled =
+    /^disabled$/i.test(worst) || /^disabled$/i.test(obj);
+
+  if (looksExplicitlyDisabled && groups.state === "—") {
+    parts.push("STATE_NEUTRAL");
+  }
+
+  return parts.filter(Boolean).join("|");
+}
+
 /**
  * Flat health table — Name / Type / WorstState / CommState / …
  * Used for HM-style list view in the Navigation panel.
@@ -98,72 +252,131 @@ export async function fetchLiveNavigationTable() {
     console.warn("[hm-live] unexpected nav table shape", body);
     return [];
   }
-  return rows.map((r, i) => ({
-    id: String(r.ObjectID ?? r.i ?? r.path ?? r.Path ?? `nav-${i}`),
-    name: r.ObjectName ?? r.n ?? r.Name ?? "—",
-    path: r.Path ?? r.path ?? "",
-    type: r.Type ?? r.type ?? "—",
-    image: r.Image ?? r.image ?? "",
-    CommState: unwrapStateValue(r.CommState ?? r.commState),
-    ObjectState: unwrapStateValue(r.ObjectState ?? r.objectState),
-    WorstState: unwrapStateValue(r.WorstState ?? r.worstState),
-    State: unwrapStateValue(r.State ?? r.state),
-  }));
+  return rows.map((r, i) => {
+    const CommState = unwrapStateValue(r.CommState ?? r.commState);
+    const ObjectState = unwrapStateValue(r.ObjectState ?? r.objectState);
+    const WorstState = unwrapStateValue(r.WorstState ?? r.worstState);
+    // Keep raw State (may be bitmask number) for decodeModUserState
+    const rawState = r.State ?? r.state ?? r.UserState ?? null;
+    const mapped = {
+      id: String(r.ObjectID ?? r.i ?? r.path ?? r.Path ?? `nav-${i}`),
+      name: r.ObjectName ?? r.n ?? r.Name ?? "—",
+      path: r.Path ?? r.path ?? "",
+      type: r.Type ?? r.type ?? "—",
+      image: r.Image ?? r.image ?? "",
+      CommState,
+      ObjectState,
+      WorstState,
+      State: rawState,
+    };
+    mapped.State = resolveCompoundState(mapped);
+    return mapped;
+  });
 }
 
-/** Normalize HM state cells (plain string or VQT `{ v }`). */
-function unwrapStateValue(v) {
-  if (v == null) return "";
-  if (typeof v === "object" && !Array.isArray(v) && "v" in v) {
-    return unwrapStateValue(v.v);
-  }
-  return String(v).trim();
-}
-
-function stateEquals(value, expected) {
-  return unwrapStateValue(value).toLowerCase() === String(expected).toLowerCase();
-}
-
-function stateIn(value, list) {
-  return list.some((x) => stateEquals(value, x));
+/** Parse `State` pipe flags into an uppercase set (e.g. COMM_GOOD|STATE_GOOD). */
+export function parseStateFlags(state) {
+  const raw = normalizeCompoundState(state);
+  if (!raw) return new Set();
+  return new Set(
+    raw
+      .split("|")
+      .map((s) => s.trim().toUpperCase())
+      .filter(Boolean)
+  );
 }
 
 /**
- * Row emphasis from source states (DC-02 + HM Warning).
- * Priority: Bad → Disabled → Warning (yellow) → Good
- * Yellow: WorstState Warning, Empty / COMM_EMPTY (not Neutral).
+ * Split `State` into Comm / State / Object flag groups (order preserved).
+ * Example: "COMM_GOOD|STATE_GOOD|OBJ_ENABLED|OBJ_DYNAMIC"
+ *   → { comm: "COMM_GOOD", state: "STATE_GOOD", object: "OBJ_ENABLED|OBJ_DYNAMIC" }
+ */
+export function splitStateGroups(state) {
+  const raw = normalizeCompoundState(state);
+  const comm = [];
+  const st = [];
+  const obj = [];
+  if (raw) {
+    for (const part of raw.split("|")) {
+      const flag = part.trim();
+      if (!flag) continue;
+      const u = flag.toUpperCase();
+      if (u.startsWith("COMM_")) comm.push(u);
+      else if (u.startsWith("STATE_")) st.push(u);
+      else if (u.startsWith("OBJ_")) obj.push(u);
+    }
+  }
+  return {
+    comm: comm.join("|") || "—",
+    state: st.join("|") || "—",
+    object: obj.join("|") || "—",
+  };
+}
+
+/**
+ * Classify object health from Object Properties `State` (ModUserState flags).
+ * Aligned with inmation DataStudio traffic lights + docs examples:
+ * https://docs.inmation.com/datastudio/1.110/general/states.html
+ * https://docs.inmation.com/system/1.110/object-states/states-in-the-system.html
+ *
+ * Used by Overview KPIs + Site Summary — NOT by HM Navigation list coloring.
+ *
+ * Priority: Problem > Warning > Disabled > Unknown > Good
+ *
+ * PROBLEM:  COMM_ERROR | STATE_ERROR
+ * WARNING:  COMM_WARNING | STATE_WARNING | STATE_UNCONFIRMED | OBJ_CLASS_MISMATCH
+ * DISABLED: object explicitly off (DataStudio grey) —
+ *           (COMM_NEUTRAL|STATE_NEUTRAL) AND NOT OBJ_ENABLED,
+ *           or HM ObjectState/WorstState === "Disabled"
+ *           NOTE: STATE_NEUTRAL + OBJ_ENABLED is NOT disabled (e.g. under a down connector)
+ * UNKNOWN:  STATE_EMPTY (mainly relays)
+ * GOOD:     everything else (COMM_EMPTY alone is normal for I/O items)
  */
 export function classifyNavHealth(row) {
-  const worst = unwrapStateValue(row?.WorstState);
-  const comm = unwrapStateValue(row?.CommState);
-  const obj = unwrapStateValue(row?.ObjectState);
-  const state = unwrapStateValue(row?.State);
+  const flags = parseStateFlags(resolveCompoundState(row));
 
-  if (stateIn(worst, ["Bad"]) || stateIn(comm, ["Bad"]) || stateIn(obj, ["Bad"])) {
+  if (flags.has("COMM_ERROR") || flags.has("STATE_ERROR")) {
     return "bad";
   }
-  if (/COMM_ERROR|STATE_ERROR/i.test(state)) return "bad";
 
   if (
-    stateIn(worst, ["Disabled"]) ||
-    stateIn(comm, ["Disabled"]) ||
-    stateIn(obj, ["Disabled"]) ||
-    /OBJ_DISABLED/i.test(state)
+    flags.has("COMM_WARNING") ||
+    flags.has("STATE_WARNING") ||
+    flags.has("STATE_UNCONFIRMED") ||
+    flags.has("OBJ_CLASS_MISMATCH")
   ) {
+    return "warning";
+  }
+
+  // DataStudio grey = disabled object: neutral lights and no OBJ_ENABLED
+  const objectState = unwrapStateValue(row?.ObjectState ?? row?.objectState);
+  const worstState = unwrapStateValue(row?.WorstState ?? row?.worstState);
+  const explicitlyDisabled =
+    /^disabled$/i.test(objectState) || /^disabled$/i.test(worstState);
+  const neutralOff =
+    (flags.has("COMM_NEUTRAL") || flags.has("STATE_NEUTRAL")) &&
+    !flags.has("OBJ_ENABLED");
+  if (explicitlyDisabled || neutralOff) {
     return "disabled";
   }
 
-  // Yellow: Warning, Empty, or compound COMM_EMPTY
-  if (stateIn(worst, ["Warning", "Empty"])) {
-    return "warning";
-  }
-  if (stateIn(comm, ["Empty"]) || stateIn(obj, ["Empty"])) {
-    return "warning";
-  }
-  if (/COMM_EMPTY/i.test(state)) {
-    return "warning";
+  if (flags.has("STATE_EMPTY")) {
+    return "unknown";
   }
 
+  return "good";
+}
+
+/**
+ * HM Navigation list row accent — same idea as default Health Monitor table rules
+ * on WorstState (Bad / Warning / Disabled). Cell text stays CommState / ObjectState.
+ */
+export function classifyNavListAccent(row) {
+  const worst = unwrapStateValue(row?.WorstState ?? row?.worstState);
+  if (/^bad$/i.test(worst)) return "bad";
+  if (/^warning$/i.test(worst)) return "warning";
+  if (/^disabled$/i.test(worst)) return "disabled";
+  if (/^empty$/i.test(worst)) return "empty";
   return "good";
 }
 
@@ -274,9 +487,14 @@ export function listCriticalIssues(rows) {
       component: r.name || r.ObjectName || "—",
       type: r.type || r.Type || "—",
       message:
-        [r.WorstState && `WorstState: ${r.WorstState}`, r.CommState && `Comm: ${r.CommState}`, r.State]
+        resolveCompoundState(r) ||
+        [
+          r.WorstState && `WorstState: ${r.WorstState}`,
+          r.CommState && `Comm: ${r.CommState}`,
+        ]
           .filter(Boolean)
-          .join(" · ") || "Bad",
+          .join(" · ") ||
+        "Problem",
       path: r.path || "",
     }))
     .sort((a, b) =>
@@ -288,12 +506,20 @@ export function listCriticalIssues(rows) {
 /**
  * Per-site Health Score summary (known sites only — no Other).
  * Health = % Good (same rule as Overview doughnut).
- * P = Problems (Bad), W = Warnings, D = Disabled.
+ * G / P / W / U / D = Good / Problems / Warnings / Unknown / Disabled.
  */
 export function siteSummaryRows(rows) {
   const buckets = new Map();
   for (const site of KNOWN_SITES) {
-    buckets.set(site, { site, total: 0, good: 0, problems: 0, warnings: 0, disabled: 0 });
+    buckets.set(site, {
+      site,
+      total: 0,
+      good: 0,
+      problems: 0,
+      warnings: 0,
+      unknown: 0,
+      disabled: 0,
+    });
   }
   for (const r of rows || []) {
     const site = siteFromRow(r);
@@ -303,6 +529,7 @@ export function siteSummaryRows(rows) {
     const h = classifyNavHealth(r);
     if (h === "bad") b.problems += 1;
     else if (h === "warning") b.warnings += 1;
+    else if (h === "unknown") b.unknown += 1;
     else if (h === "disabled") b.disabled += 1;
     else b.good += 1;
   }
@@ -313,27 +540,27 @@ export function siteSummaryRows(rows) {
       site,
       score,
       total: b.total,
+      good: b.good,
       problems: b.problems,
       warnings: b.warnings,
+      unknown: b.unknown,
       disabled: b.disabled,
       present: b.total > 0,
     };
   }).filter((r) => r.present);
 }
 
-/** Classify issue category for Top Issue Types (from State / health fields). */
+/** Classify issue category for Top Issue Types (from State flags). */
 export function issueTypeLabel(row) {
-  const state = String(row?.State || "");
-  const worst = String(row?.WorstState || "");
-  const comm = String(row?.CommState || "");
-  if (/COMM_ERROR/i.test(state) || comm === "Bad") return "Communication";
-  if (/STATE_ERROR/i.test(state)) return "State Error";
-  if (/COMM_EMPTY/i.test(state) || comm === "Empty" || worst === "Empty") {
-    return "Empty / No data";
-  }
-  if (/OBJ_DISABLED/i.test(state) || worst === "Disabled") return "Disabled";
-  if (worst === "Warning") return "Warning";
-  if (worst === "Bad") return row?.type ? `Bad · ${row.type}` : "Bad";
+  const flags = parseStateFlags(row?.State);
+  if (flags.has("COMM_ERROR")) return "Communication";
+  if (flags.has("STATE_ERROR")) return "State Error";
+  if (flags.has("OBJ_CLASS_MISMATCH")) return "Class Mismatch";
+  if (flags.has("COMM_WARNING")) return "Comm Warning";
+  if (flags.has("STATE_WARNING")) return "State Warning";
+  if (flags.has("STATE_UNCONFIRMED")) return "Unconfirmed";
+  if (flags.has("STATE_EMPTY")) return "Unknown / Empty";
+  if (flags.has("COMM_NEUTRAL") || flags.has("STATE_NEUTRAL")) return "Disabled";
   return row?.type || "Other";
 }
 
@@ -390,12 +617,13 @@ function formatIssueDuration(ms) {
 }
 
 function issueMessage(row) {
+  const compound = resolveCompoundState(row);
+  if (compound) return compound;
   return (
     [
       row?.WorstState && `WorstState: ${row.WorstState}`,
       row?.CommState && `Comm: ${row.CommState}`,
       row?.ObjectState && `Object: ${row.ObjectState}`,
-      row?.State,
     ]
       .filter(Boolean)
       .join(" · ") || "—"
@@ -406,11 +634,12 @@ function severityForHealth(health) {
   if (health === "bad") return "High";
   if (health === "warning") return "Medium";
   if (health === "disabled") return "Disabled";
+  if (health === "unknown") return "Unknown";
   return "Low";
 }
 
 /**
- * Record first-seen timestamps for Bad/Warning/Disabled rows so Duration/Time
+ * Record first-seen timestamps for Problem/Warning/Unknown/Disabled rows so Duration/Time
  * can be shown (nav table has no onset field). Call on each Overview refresh.
  */
 export function touchIssueOnsets(rows, now = Date.now()) {
@@ -432,12 +661,13 @@ export function touchIssueOnsets(rows, now = Date.now()) {
 
 /**
  * Issues & Alerts tables from live nav rows.
- * @returns {{ problems: object[], warnings: object[], disabled: object[] }}
+ * @returns {{ problems: object[], warnings: object[], unknown: object[], disabled: object[] }}
  */
 export function listIssuesAndAlerts(rows, now = Date.now()) {
   const onset = touchIssueOnsets(rows, now);
   const problems = [];
   const warnings = [];
+  const unknown = [];
   const disabled = [];
 
   for (const r of rows || []) {
@@ -454,13 +684,15 @@ export function listIssuesAndAlerts(rows, now = Date.now()) {
       component: r.name || r.ObjectName || "—",
       type: issueTypeLabel(r),
       message: issueMessage(r),
-      status: unwrapStateValue(r.WorstState) || health,
+      // Full compound State (same as Message) — Status column removed from P/W/U tables
+      status: issueMessage(r),
       duration: formatIssueDuration(now - started),
       durationMs: Math.max(0, now - started),
       health,
     };
     if (health === "bad") problems.push(entry);
     else if (health === "warning") warnings.push(entry);
+    else if (health === "unknown") unknown.push(entry);
     else if (health === "disabled") disabled.push(entry);
   }
 
@@ -469,23 +701,26 @@ export function listIssuesAndAlerts(rows, now = Date.now()) {
     String(a.component).localeCompare(String(b.component));
   problems.sort(bySiteThenName);
   warnings.sort(bySiteThenName);
+  unknown.sort(bySiteThenName);
   disabled.sort(bySiteThenName);
-  return { problems, warnings, disabled };
+  return { problems, warnings, unknown, disabled };
 }
 
 function scoreFromHealth(health) {
   if (health === "bad") return 40;
   if (health === "warning") return 70;
-  if (health === "disabled") return 55;
+  if (health === "unknown") return 55;
+  if (health === "disabled") return 50;
   return 100;
 }
 
 function displayWorstState(row, health) {
+  if (health === "bad") return "Problem";
+  if (health === "warning") return "Warning";
+  if (health === "unknown") return "Unknown";
+  if (health === "disabled") return "Disabled";
   const worst = unwrapStateValue(row?.WorstState);
   if (worst) return worst;
-  if (health === "bad") return "Bad";
-  if (health === "warning") return "Warning";
-  if (health === "disabled") return "Disabled";
   return "Good";
 }
 
@@ -505,7 +740,7 @@ export function navRowToDrillObject(row) {
     severity: health === "good" ? "Good" : severityForHealth(health),
     problems: health === "bad" ? 1 : 0,
     warnings: health === "warning" ? 1 : 0,
-    info: health === "disabled" ? 1 : 0,
+    info: health === "unknown" || health === "disabled" ? 1 : 0,
     score: scoreFromHealth(health),
     state: unwrapStateValue(row?.State) || "—",
     CommState: unwrapStateValue(row?.CommState) || "—",
@@ -530,7 +765,7 @@ export function drillFilterOptions(objects) {
   return {
     sites: ["All", ...[...sites].sort()],
     types: ["All", ...[...types].sort()],
-    severities: ["All", "High", "Medium", "Disabled", "Good"],
+    severities: ["All", "High", "Medium", "Unknown", "Disabled", "Good"],
   };
 }
 
@@ -546,13 +781,13 @@ export function filterDrillObjects(objects, { site, type, severity, nonGoodOnly 
 
 /**
  * Related issues for the selected object:
- * 1) Its own Bad/Warning/Disabled entry if unhealthy
+ * 1) Its own Problem/Warning/Unknown/Disabled entry if unhealthy
  * 2) Otherwise other unhealthy objects at the same site (context)
  */
 export function relatedIssuesForDrillObject(obj, allRows, now = Date.now()) {
   if (!obj) return [];
-  const { problems, warnings, disabled } = listIssuesAndAlerts(allRows, now);
-  const all = [...problems, ...warnings, ...disabled];
+  const { problems, warnings, unknown, disabled } = listIssuesAndAlerts(allRows, now);
+  const all = [...problems, ...warnings, ...(unknown || []), ...(disabled || [])];
   const self = all.filter((i) => i.id === obj.id || (obj.path && i.path === obj.path));
   if (self.length) return self;
   if (obj.site && obj.site !== "—") {
@@ -643,8 +878,9 @@ export function recordAndBuildIssuesOverTime(
   store[hk][siteKey] = {
     problems: summary.bad || 0,
     warnings: summary.warning || 0,
+    unknown: summary.unknown || 0,
     disabled: summary.disabled || 0,
-    info: summary.disabled || 0,
+    info: (summary.unknown || 0) + (summary.disabled || 0),
   };
 
   const cutoff = new Date(now.getTime() - 35 * 24 * 3600_000);
@@ -728,31 +964,36 @@ export function summarizeNavHealth(rows) {
   const list = Array.isArray(rows) ? rows : [];
   let bad = 0;
   let warning = 0;
+  let unknown = 0;
   let disabled = 0;
   let good = 0;
   for (const r of list) {
     const h = classifyNavHealth(r);
     if (h === "bad") bad += 1;
     else if (h === "warning") warning += 1;
+    else if (h === "unknown") unknown += 1;
     else if (h === "disabled") disabled += 1;
-    else good += 1; // Good, Neutral, and anything else not Bad/Warning/Disabled
+    else good += 1;
   }
   const sites = extractKnownSites(list);
   const total = list.length;
   const goodPct = total ? Math.round((good / total) * 1000) / 10 : 0;
   const problemsPct = total ? Math.round((bad / total) * 1000) / 10 : 0;
   const warningsPct = total ? Math.round((warning / total) * 1000) / 10 : 0;
+  const unknownPct = total ? Math.round((unknown / total) * 1000) / 10 : 0;
   const disabledPct = total ? Math.round((disabled / total) * 1000) / 10 : 0;
   return {
     total,
     bad,
     warning,
+    unknown,
     disabled,
     good,
     other: 0,
     goodPct,
     problemsPct,
     warningsPct,
+    unknownPct,
     disabledPct,
     sites,
     sitesCount: sites.length,
@@ -798,6 +1039,11 @@ function flattenPropValue(key, v) {
       return { date, user };
     }
     return { date: v, user: null };
+  }
+  // Object Properties State may arrive as ModUserState bitmask
+  if (key === "State") {
+    const decoded = normalizeCompoundState(v);
+    if (decoded) return decoded;
   }
   if (typeof v === "object" && !Array.isArray(v)) {
     try {
@@ -889,6 +1135,84 @@ export async function fetchLiveObjProps(node) {
     }
   }
   throw lastErr || new Error("fetchObjProps returned no usable properties");
+}
+
+/** True when compound State includes both COMM_* and STATE_* (Object Properties shape). */
+export function compoundStateHasCommAndState(state) {
+  const g = splitStateGroups(state);
+  return g.comm !== "—" && g.state !== "—";
+}
+
+const propsStateCache = new Map();
+
+/**
+ * Ensure row.State is the full Object Properties compound string.
+ * Nav table often omits STATE_* (fallback → COMM_ERROR|OBJ_ENABLED only).
+ * Fetches fetchObjProps when COMM or STATE group is missing.
+ */
+export async function ensureFullCompoundState(row) {
+  if (!row) return "";
+  const current = resolveCompoundState(row);
+  if (compoundStateHasCommAndState(current)) {
+    row.State = current;
+    return current;
+  }
+
+  const key = String(row.id || row.path || row.name || "");
+  if (key && propsStateCache.has(key)) {
+    const cached = propsStateCache.get(key);
+    if (cached) row.State = cached;
+    return cached || current;
+  }
+
+  try {
+    const props = await fetchLiveObjProps({
+      id: row.id,
+      path: row.path,
+      name: row.name,
+      type: row.type,
+      image: row.image,
+    });
+    const full = normalizeCompoundState(props?.State);
+    if (full && hasCompoundStateFlags(full)) {
+      if (key) propsStateCache.set(key, full);
+      row.State = full;
+      return full;
+    }
+  } catch (err) {
+    console.warn("[hm-live] ensureFullCompoundState", row?.name, err?.message || err);
+  }
+
+  if (key) propsStateCache.set(key, current);
+  return current;
+}
+
+/**
+ * For Problem / Warning / Unknown / Disabled rows missing STATE_*, pull full State from props.
+ * Keeps Active Critical Issues / Issues Message columns complete (COMM|STATE|OBJ).
+ */
+export async function enrichIncompleteCompoundStates(
+  rows,
+  { concurrency = 8 } = {}
+) {
+  const list = Array.isArray(rows) ? rows : [];
+  const need = list.filter((r) => {
+    const h = classifyNavHealth(r);
+    if (h === "good") return false;
+    return !compoundStateHasCommAndState(resolveCompoundState(r));
+  });
+  if (!need.length) return list;
+
+  let i = 0;
+  async function worker() {
+    while (i < need.length) {
+      const idx = i++;
+      await ensureFullCompoundState(need[idx]);
+    }
+  }
+  const n = Math.min(concurrency, need.length);
+  await Promise.all(Array.from({ length: n }, () => worker()));
+  return list;
 }
 
 /**

@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (last updated: 2026-07-22 EOD)
+## Current State (last updated: 2026-07-22 EOD #2 — classification + Reports)
 
 | Item | Value |
 |------|-------|
@@ -24,7 +24,7 @@
 | Chart tag | `smart-sentinel-chart-submit-ok` |
 | Status | Saved; optional later for Trends parity |
 
-### HTML app — save point (2026-07-22 EOD)
+### HTML app — save point (2026-07-22 EOD #2)
 | Item | Value |
 |------|-------|
 | App | `web/` Vite + plain HTML/CSS/JS |
@@ -38,24 +38,44 @@
 **Reports (live):**
 - API: `POST …/inmation.app-reportviewer/reports|reportdata` with body `{ objspec, reportname?, omitreportdesign: true }` + `?ctx=`
 - Design prefer `"Report"`; render ADO.NET XML as Smart Sentinel HTML (no Stimulsoft)
-- Site filter + sortable tables; Certificates table = expired or &lt;30d (red / yellow / yellow→red &lt;15d)
+- Site filter + **State filter default Not Good** (hides Good); sortable tables
+- Certificates table = expired or &lt;30d (red / yellow / yellow→red &lt;15d)
+- “All N are Good.” messages use Good greens (`#dcfce7` / `#166534`)
 - Dynamic `import("./reports.js")` so Reports errors do not blank app CSS
 - Use Case Report **removed** (not wanted)
 
 **Issues Certificates:** same report XML source via `hm-certificates.js`; panel on Issues & Alerts page
 
-**Health classification (`classifyNavHealth` in `hm-live.js`):**
-| Priority | Class | List color | Overview KPI |
-|----------|-------|------------|--------------|
-| 1 | Bad / COMM_ERROR | red (`#ef4444` tint) | Problems |
-| 2 | Disabled / OBJ_DISABLED | grey text | Disabled |
-| 3 | Warning, Empty, COMM_EMPTY | yellow (`#ca8a04` tint) | Warnings |
-| 4 | Good / Neutral (no yellow) | default | Good % / Other |
+**Health classification (`classifyNavHealth` in `hm-live.js`) — from `State` flags only:**
+| Priority | Class | Flags | UI |
+|----------|-------|-------|-----|
+| 1 | Problem (`bad`) | `COMM_ERROR`, `STATE_ERROR` | red |
+| 2 | Warning | `COMM_WARNING`, `STATE_WARNING`, `STATE_UNCONFIRMED`, `OBJ_CLASS_MISMATCH` | yellow |
+| 3 | Disabled | `(COMM_NEUTRAL\|STATE_NEUTRAL)` without `OBJ_ENABLED`, or HM Object/Worst = Disabled | grey |
+| 4 | Unknown | `STATE_EMPTY` (relays) | grey |
+| 5 | Good | all other (incl. `COMM_EMPTY` alone; `OBJ_DYNAMIC` / `OBJ_ENABLED` ignored) | default |
+
+**Overview KPIs:** Health Score · Total · Sites · Good · Problems · Warnings · Unknown · Disabled
+
+**Data sources (split):**
+| UI | Source | Display / class |
+|----|--------|-----------------|
+| HM Navigation list | `fetchNavigationTable` | Object=`ObjectState`, Comm.=`CommState`; row color by `WorstState` |
+| Overview KPIs + Site Summary | `State` bitmask/flags (ModUserState) | Problem > Warning > Disabled > Unknown > Good |
+
+**Overview classification (inmation docs 1.110):**
+| Class | Flags |
+|-------|--------|
+| Problem | `COMM_ERROR`, `STATE_ERROR` |
+| Warning | `COMM_WARNING`, `STATE_WARNING`, `STATE_UNCONFIRMED`, `OBJ_CLASS_MISMATCH` |
+| Disabled | neutral **and** no `OBJ_ENABLED` (or HM Object/Worst = Disabled) |
+| Unknown | `STATE_EMPTY` |
+| Good | else (`COMM_EMPTY` alone OK) |
 
 **Next session (do not re-ask setup):**
 1. Read this Current State + latest Session History
 2. Optional: Trends polish; share `hm-certificates` helpers with Reports to DRY
-3. Commit/push already done for 2026-07-22 EOD — only push if user asks again
+3. Commit/push done for 2026-07-22 EOD #2 — only push if user asks again
 
 ### HTML phase — locked (2026-07-20)
 - Plan: `docs/architecture/AR-03-html-webapi-plan.md`
@@ -584,5 +604,54 @@ npm run dev
 **Run:** `cd web && npm run dev` → proxy to `byus00876m1.bayer.cnb:8002`.
 
 **Resume next:** Trends polish if needed; push only when asked.
+
+---
+
+### 2026-07-22 — State-flag health classification
+
+Reworked `classifyNavHealth` to use **only** the object `State` pipe flags:
+
+| Class | Flags |
+|-------|--------|
+| Problem | `COMM_ERROR`, `STATE_ERROR`, `OBJ_CLASS_MISMATCH` |
+| Warning | `COMM_WARNING`, `STATE_WARNING`, `STATE_UNCONFIRMED` |
+| Unknown | `STATE_EMPTY` |
+| Good | else (`COMM_EMPTY` alone OK; ignore `OBJ_DYNAMIC` / `OBJ_ENABLED`) |
+
+UI: KPI / Issues panel / doughnut / timeline label **Disabled → Unknown**. Legacy summary key `disabled` kept as alias of `unknown`.
+
+---
+
+### 2026-07-22 — Docs-aligned classification applied
+
+Applied inmation states docs to Overview / Site Summary / Issues:
+
+| Class | Flags |
+|-------|--------|
+| Problem | `COMM_ERROR`, `STATE_ERROR` |
+| Warning | `COMM_WARNING`, `STATE_WARNING`, `STATE_UNCONFIRMED`, `OBJ_CLASS_MISMATCH` |
+| Disabled | neutral **and** no `OBJ_ENABLED` (DataStudio grey), or HM Object/Worst = Disabled |
+| Unknown | `STATE_EMPTY` |
+| Good | else |
+
+`OBJ_CLASS_MISMATCH` moved Problem → Warning. Rollup fallback maps Disabled/Neutral → `COMM_NEUTRAL` / `STATE_NEUTRAL`. Smoke tests OK (MQTT Problem, mismatch Warning, neutrals Disabled).
+
+---
+
+### 2026-07-22 — Reports: default Not Good
+
+Reports inventory (Cores / Relays / Connectors / Datasources / …) defaults to **State = Not Good** (hides Good). Toolbar filter: Not Good | All | Bad | Warning | Disabled | Good. Rows sorted worst-first within that view. “All N are Good.” uses Good greens.
+
+---
+
+### 2026-07-22 EOD #2 — save + push (classification + Reports)
+
+Saved and pushed to `origin/master`:
+
+1. Docs-aligned Overview classification; Disabled = off objects only (`!OBJ_ENABLED` + neutral).
+2. Nav vs Overview data-source split; Issues Message enrich; KPIs G/P/W/U/D.
+3. Reports default **Not Good** filter + green “all Good” messages.
+
+**Run next:** `cd web && npm run dev` → http://localhost:5173
 
 ---

@@ -3,6 +3,7 @@ import * as mock from "./mock-data.js";
 import { mockNavTableRows } from "./hm-mock-data.js";
 import {
   componentsBySiteChart,
+  enrichIncompleteCompoundStates,
   extractKnownSites,
   fetchLiveNavigationTable,
   listCriticalIssues,
@@ -164,12 +165,30 @@ function applyOverviewKpis(summary) {
       : "—";
   }
 
+  const unknownEl = document.getElementById("kpi-unknown");
+  const unknownPctEl = document.getElementById("kpi-unknown-pct");
+  if (unknownEl) unknownEl.textContent = fmt(summary.unknown ?? 0);
+  if (unknownPctEl) {
+    unknownPctEl.textContent = summary.total
+      ? `${summary.unknownPct ?? 0}% of components`
+      : "—";
+  }
+
   const disabledEl = document.getElementById("kpi-disabled");
   const disabledPctEl = document.getElementById("kpi-disabled-pct");
-  if (disabledEl) disabledEl.textContent = fmt(summary.disabled);
+  if (disabledEl) disabledEl.textContent = fmt(summary.disabled ?? 0);
   if (disabledPctEl) {
     disabledPctEl.textContent = summary.total
-      ? `${summary.disabledPct}% of components`
+      ? `${summary.disabledPct ?? 0}% of components`
+      : "—";
+  }
+
+  const goodEl = document.getElementById("kpi-good");
+  const goodPctEl = document.getElementById("kpi-good-pct");
+  if (goodEl) goodEl.textContent = fmt(summary.good);
+  if (goodPctEl) {
+    goodPctEl.textContent = summary.total
+      ? `${summary.goodPct}% of components`
       : "—";
   }
 
@@ -204,7 +223,11 @@ async function loadOverviewKpis() {
     const ok = await ensureIwaSession({ force: false });
     if (ok && getStoredToken()) {
       const live = await fetchLiveNavigationTable();
-      if (live.length) rows = live;
+      if (live.length) {
+        // Nav table often lacks STATE_* — fill from Object Properties for unhealthy rows
+        await enrichIncompleteCompoundStates(live);
+        rows = live;
+      }
     }
   } catch (err) {
     console.warn("[overview] nav table", err);
@@ -463,7 +486,7 @@ function renderSitesTableBody() {
   });
   const rows = sortedSiteRows();
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="hm-props-empty">No sites detected</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="hm-props-empty">No sites detected</td></tr>`;
     return;
   }
   tbody.innerHTML = rows
@@ -474,8 +497,10 @@ function renderSitesTableBody() {
         <td>${escapeHtml(r.site)}</td>
         <td><span class="score-pill"><i class="score-dot" style="background:${color}"></i>${score}${r.score != null ? "%" : ""}</span></td>
         <td>${fmt(r.total)}</td>
+        <td>${fmt(r.good)}</td>
         <td>${fmt(r.problems)}</td>
         <td>${fmt(r.warnings)}</td>
+        <td>${fmt(r.unknown)}</td>
         <td>${fmt(r.disabled)}</td>
       </tr>`;
     })
@@ -520,7 +545,7 @@ function fillAlertsTable() {
 
 const ISSUES_PAGE_SIZE = 15;
 
-const SEVERITY_RANK = { High: 3, Medium: 2, Disabled: 1, Low: 0 };
+const SEVERITY_RANK = { High: 3, Medium: 2, Unknown: 1, Disabled: 1, Low: 0 };
 
 /** @type {Record<string, { rows: object[], page: number, tableId: string, countId: string, sortKey: string, sortDir: number }>} */
 const issuesLists = {
@@ -625,8 +650,21 @@ function renderIssuesList(kind) {
   const tbody = document.querySelector(`#${list.tableId} tbody`);
   if (!tbody) return;
 
+  // warnings / unknown (disabled): Site · Component · Message only
+  // problems: full set without Status
+  // certificates: full set with Status
+  const layout =
+    kind === "warnings" || kind === "disabled"
+      ? "message-focus"
+      : kind === "certificates"
+        ? "certificates"
+        : "problems";
+
+  const colSpan =
+    layout === "message-focus" ? 3 : layout === "certificates" ? 8 : 7;
+
   if (!total) {
-    tbody.innerHTML = `<tr><td colspan="8" class="hm-props-empty">${
+    tbody.innerHTML = `<tr><td colspan="${colSpan}" class="hm-props-empty">${
       kind === "certificates"
         ? "No expired or soon-expiring certificates"
         : "None"
@@ -641,6 +679,17 @@ function renderIssuesList(kind) {
         const rowStyle = r.rowStyle
           ? ` style="${String(r.rowStyle).replace(/"/g, "")}"`
           : "";
+        if (layout === "message-focus") {
+          return `<tr class="${rowClass}"${rowStyle} title="${escapeHtml(r.path || "")}">
+        <td>${escapeHtml(r.site)}</td>
+        <td>${escapeHtml(r.component)}</td>
+        <td>${escapeHtml(r.message)}</td>
+      </tr>`;
+        }
+        const statusCell =
+          layout === "certificates"
+            ? `<td>${escapeHtml(r.status)}</td>`
+            : "";
         return `<tr class="${rowClass}"${rowStyle} title="${escapeHtml(r.path || "")}">
         <td>${escapeHtml(r.time)}</td>
         <td><span class="badge ${escapeHtml(sev)}">${escapeHtml(r.severity)}</span></td>
@@ -648,7 +697,7 @@ function renderIssuesList(kind) {
         <td>${escapeHtml(r.component)}</td>
         <td>${escapeHtml(r.type)}</td>
         <td>${escapeHtml(r.message)}</td>
-        <td>${escapeHtml(r.status)}</td>
+        ${statusCell}
         <td>${escapeHtml(r.duration)}</td>
       </tr>`;
       })
@@ -680,10 +729,11 @@ function setIssuesList(kind, rows, { resetPage = false } = {}) {
 }
 
 function applyIssuesPageFromRows(rows, { resetPage = false } = {}) {
-  const { problems, warnings, disabled } = listIssuesAndAlerts(rows);
+  const { problems, warnings, unknown, disabled } = listIssuesAndAlerts(rows);
   setIssuesList("problems", problems, { resetPage });
   setIssuesList("warnings", warnings, { resetPage });
-  setIssuesList("disabled", disabled, { resetPage });
+  // Issues panel labeled Unknown — include Disabled rows there until a separate panel exists
+  setIssuesList("disabled", [...(unknown || []), ...(disabled || [])], { resetPage });
 }
 
 async function loadIssuesPage() {
@@ -693,6 +743,7 @@ async function loadIssuesPage() {
     if (ok && getStoredToken()) {
       const live = await fetchLiveNavigationTable();
       if (live.length) {
+        await enrichIncompleteCompoundStates(live);
         rows = live;
         overviewRawRows = live;
       }

@@ -415,9 +415,16 @@ body {
 
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 14px;
+}
+
+.kpi-row-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.kpi-row-health {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .kpi {
@@ -1313,15 +1320,30 @@ table.data tr.critical td {
   color: #166534;
 }
 
+.report-all-good {
+  display: inline-block;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .report-state.is-bad {
   background: #fee2e2;
   color: #991b1b;
 }
 
-.report-state.is-disabled,
-.report-state.is-warn {
+.report-state.is-disabled {
   background: #f1f5f9;
   color: #64748b;
+}
+
+.report-state.is-warn {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .report-table tr.is-bad {
@@ -1330,6 +1352,11 @@ table.data tr.critical td {
 
 .report-table tr.is-warn {
   background: #fffbeb;
+}
+
+.report-table tr.is-disabled {
+  background: #f8fafc;
+  color: #64748b;
 }
 
 .report-table tr.is-cert-urgent td:last-child {
@@ -2456,11 +2483,12 @@ table.data tr.critical td {
 .hm-nav-list-scroll {
   flex: 1 1 0;
   min-height: 0;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .hm-nav-list-table {
-  width: max(100%, 480px);
+  width: max-content;
   min-width: 100%;
   border-collapse: collapse;
   font-size: 12px;
@@ -2486,7 +2514,8 @@ table.data tr.critical td {
 }
 
 .hm-nav-list-table th[data-nav-sort="type"],
-.hm-nav-list-table th[data-nav-sort="object"] {
+.hm-nav-list-table th[data-nav-sort="object"],
+.hm-nav-list-table th[data-nav-sort="comm"] {
   width: 1%;
   white-space: nowrap;
 }
@@ -2536,15 +2565,17 @@ table.data tr.critical td {
   padding: 6px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .hm-nav-list-table .hm-nav-name {
   font-weight: 500;
   min-width: 12rem;
-  word-break: break-word;
+  white-space: nowrap;
 }
 
 .hm-nav-list-table .hm-nav-type,
+.hm-nav-list-table .hm-nav-comm,
 .hm-nav-list-table .hm-nav-object {
   width: 1%;
   white-space: nowrap;
@@ -2557,70 +2588,80 @@ table.data tr.critical td {
   text-transform: uppercase;
 }
 
+.hm-nav-list-table .hm-nav-comm,
 .hm-nav-list-table .hm-nav-object {
   font-size: 12px;
   letter-spacing: 0;
 }
 
-/* Overview Problems / Warnings palette (#ef4444 / #ca8a04) */
-.hm-nav-list-table tbody tr.health-bad,
-.hm-nav-list-table tbody tr.health-bad:nth-child(even) {
-  background: #fee2e2;
-  color: #991b1b;
-  box-shadow: inset 3px 0 0 #ef4444;
+.hm-nav-list-table .hm-nav-comm.is-neutral,
+.hm-nav-list-table .hm-nav-object.is-neutral {
+  font-style: italic;
 }
 
-.hm-nav-list-table tbody tr.health-bad .hm-nav-type,
-.hm-nav-list-table tbody tr.health-bad .hm-nav-object {
-  color: #b91c1c;
+/* Default HM WorstState row rules (Bad / Warning / Disabled) */
+.hm-nav-list-table tbody tr.ws-bad,
+.hm-nav-list-table tbody tr.ws-bad:nth-child(even) {
+  background: #f20d0d;
+  color: #fff;
 }
 
-.hm-nav-list-table tbody tr.health-bad:hover {
-  background: #fecaca;
+.hm-nav-list-table tbody tr.ws-bad .hm-nav-type,
+.hm-nav-list-table tbody tr.ws-bad .hm-nav-comm,
+.hm-nav-list-table tbody tr.ws-bad .hm-nav-object {
+  color: #ffe4e4;
 }
 
-.hm-nav-list-table tbody tr.health-warning,
-.hm-nav-list-table tbody tr.health-warning:nth-child(even) {
-  background: #fef9c3;
-  color: #854d0e;
-  box-shadow: inset 3px 0 0 #ca8a04;
+.hm-nav-list-table tbody tr.ws-bad:hover {
+  background: #cc0000;
 }
 
-.hm-nav-list-table tbody tr.health-warning .hm-nav-type,
-.hm-nav-list-table tbody tr.health-warning .hm-nav-object {
-  color: #a16207;
+.hm-nav-list-table tbody tr.ws-warning,
+.hm-nav-list-table tbody tr.ws-warning:nth-child(even) {
+  background: #fbde02;
+  color: #422006;
 }
 
-.hm-nav-list-table tbody tr.health-warning:hover {
-  background: #fef08a;
+.hm-nav-list-table tbody tr.ws-warning .hm-nav-type,
+.hm-nav-list-table tbody tr.ws-warning .hm-nav-comm,
+.hm-nav-list-table tbody tr.ws-warning .hm-nav-object {
+  color: #713f12;
 }
 
-.hm-nav-list-table tbody tr.health-disabled,
-.hm-nav-list-table tbody tr.health-disabled:nth-child(even) {
-  color: #64748b;
-  opacity: 0.85;
+.hm-nav-list-table tbody tr.ws-warning:hover {
+  background: #ae930f;
+  color: #fff;
 }
 
-.hm-nav-list-table tbody tr.health-disabled .hm-nav-name,
-.hm-nav-list-table tbody tr.health-disabled .hm-nav-type,
-.hm-nav-list-table tbody tr.health-disabled .hm-nav-object {
-  color: #64748b;
+.hm-nav-list-table tbody tr.ws-warning:hover .hm-nav-type,
+.hm-nav-list-table tbody tr.ws-warning:hover .hm-nav-comm,
+.hm-nav-list-table tbody tr.ws-warning:hover .hm-nav-object {
+  color: #fef9c3;
 }
 
-.hm-nav-list-table tbody tr.health-disabled:hover {
+.hm-nav-list-table tbody tr.ws-disabled,
+.hm-nav-list-table tbody tr.ws-disabled:nth-child(even) {
   color: #94a3b8;
 }
 
-.hm-nav-list-table tbody tr.health-disabled:hover .hm-nav-name,
-.hm-nav-list-table tbody tr.health-disabled:hover .hm-nav-type,
-.hm-nav-list-table tbody tr.health-disabled:hover .hm-nav-object {
+.hm-nav-list-table tbody tr.ws-disabled .hm-nav-name,
+.hm-nav-list-table tbody tr.ws-disabled .hm-nav-type,
+.hm-nav-list-table tbody tr.ws-disabled .hm-nav-comm,
+.hm-nav-list-table tbody tr.ws-disabled .hm-nav-object {
   color: #94a3b8;
 }
 
-.hm-nav-list-table tbody tr.health-bad.is-selected,
-.hm-nav-list-table tbody tr.health-warning.is-selected,
-.hm-nav-list-table tbody tr.health-disabled.is-selected {
-  outline-color: #10384f;
+.hm-nav-list-table tbody tr.ws-empty,
+.hm-nav-list-table tbody tr.ws-empty:nth-child(even) {
+  color: #cbd5e1;
+}
+
+.hm-nav-list-table tbody tr.ws-bad.is-selected,
+.hm-nav-list-table tbody tr.ws-warning.is-selected,
+.hm-nav-list-table tbody tr.ws-disabled.is-selected,
+.hm-nav-list-table tbody tr.ws-empty.is-selected,
+.hm-nav-list-table tbody tr.ws-good.is-selected {
+  outline-color: #89d329;
 }
 
 .hm-tree {
@@ -2813,6 +2854,11 @@ table.data tr.critical td {
   color: #fecaca;
 }
 
+.hm-state-seg.accent-warn {
+  background: rgba(202, 138, 4, 0.28);
+  color: #fde68a;
+}
+
 .hm-state-seg.accent-muted {
   background: rgba(148, 163, 184, 0.25);
   color: #e2e8f0;
@@ -2986,7 +3032,10 @@ table.data tr.critical td {
 }
 
 @media (max-width: 1200px) {
-  .kpi-row {
+  .kpi-row-summary {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .kpi-row-health {
     grid-template-columns: repeat(3, 1fr);
   }
   .grid-2-1,
@@ -3006,7 +3055,8 @@ table.data tr.critical td {
   .sidebar {
     display: none;
   }
-  .kpi-row {
+  .kpi-row-summary,
+  .kpi-row-health {
     grid-template-columns: 1fr 1fr;
   }
 }
