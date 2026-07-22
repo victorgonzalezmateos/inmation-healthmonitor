@@ -94,21 +94,20 @@
             <div class="filters">
               <label class="filter"
                 >Time range
-                <select>
-                  <option>Last 24 hours</option>
-                  <option>Last 7 days</option>
+                <select id="overview-time-range" title="Time range for Issues Over Time">
+                  <option value="24h" selected>Last 24 hours</option>
+                  <option value="7d">Last 7 days</option>
+                  <option value="1m">Last month</option>
                 </select>
               </label>
               <label class="filter"
                 >Site
-                <select>
-                  <option>All</option>
-                  <option>Alcala</option>
-                  <option>Bitterfeld</option>
+                <select id="overview-site-filter" title="Filter Overview by site">
+                  <option value="All" selected>All</option>
                 </select>
               </label>
               <label class="toggle">
-                <input type="checkbox" checked /> Auto refresh · 5 min
+                <input type="checkbox" id="overview-auto-refresh" checked /> Auto refresh · 5 min
               </label>
             </div>
           </div>
@@ -182,49 +181,43 @@
             </article>
 
             <article class="card kpi">
-              <div class="kpi-title">Sites Impacted</div>
+              <div class="kpi-title">Sites</div>
               <div class="kpi-body">
                 <svg class="kpi-icon" viewBox="0 0 64 64" aria-hidden="true">
                   <circle cx="32" cy="32" r="26" fill="none" stroke="#7c3aed" stroke-width="4" />
                   <ellipse cx="32" cy="32" rx="12" ry="26" fill="none" stroke="#7c3aed" stroke-width="3" />
                   <path d="M6 32h52M10 20h44M10 44h44" fill="none" stroke="#7c3aed" stroke-width="3" />
                 </svg>
-                <div class="kpi-value" style="color: #7c3aed" id="kpi-sites">8</div>
+                <div class="kpi-value" style="color: #7c3aed" id="kpi-sites">—</div>
               </div>
-              <div class="kpi-footer" id="kpi-sites-of">of 23 sites</div>
+              <div class="kpi-footer" id="kpi-sites-of">of 12 sites</div>
             </article>
           </div>
 
           <!-- Row 2 -->
-          <div class="grid-2-1">
+          <div class="grid-2 overview-row-components">
             <article class="card">
-              <h2>Components by Type</h2>
+              <h2>Components by Site</h2>
               <div class="chart-box sm">
                 <canvas id="chart-components"></canvas>
               </div>
               <div class="legend" id="legend-components"></div>
             </article>
             <article class="card">
-              <h2>Issues by Severity</h2>
-              <div class="chart-box sm">
-                <canvas id="chart-severity"></canvas>
+              <h2>Active Critical Issues <span class="issues-count" id="critical-count">0</span></h2>
+              <div class="hm-table-wrap overview-critical-wrap">
+                <table class="data" id="table-critical">
+                  <thead>
+                    <tr>
+                      <th data-crit-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
+                      <th data-crit-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
+                      <th data-crit-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
+                      <th data-crit-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
               </div>
-              <div class="legend" id="legend-severity"></div>
-            </article>
-            <article class="card">
-              <h2>Active Critical Issues</h2>
-              <table class="data" id="table-critical">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Site</th>
-                    <th>Component</th>
-                    <th>Type</th>
-                    <th>Message</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
             </article>
           </div>
 
@@ -232,29 +225,30 @@
           <div class="grid-3">
             <article class="card">
               <h2>Site Summary</h2>
-              <table class="data" id="table-sites">
-                <thead>
-                  <tr>
-                    <th>Site</th>
-                    <th>Health</th>
-                    <th>Total</th>
-                    <th>P</th>
-                    <th>W</th>
-                    <th>I</th>
-                    <th>Trend 7d</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
+              <div class="hm-table-wrap overview-sites-wrap">
+                <table class="data" id="table-sites">
+                  <thead>
+                    <tr>
+                      <th data-site-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
+                      <th data-site-sort="score" scope="col"><button type="button" class="hm-sort-btn" data-label="Health">Health</button></th>
+                      <th data-site-sort="total" scope="col"><button type="button" class="hm-sort-btn" data-label="Total">Total</button></th>
+                      <th data-site-sort="problems" scope="col" title="Problems"><button type="button" class="hm-sort-btn" data-label="P">P</button></th>
+                      <th data-site-sort="warnings" scope="col" title="Warnings"><button type="button" class="hm-sort-btn" data-label="W">W</button></th>
+                      <th data-site-sort="disabled" scope="col" title="Disabled"><button type="button" class="hm-sort-btn" data-label="D">D</button></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
             </article>
             <article class="card">
-              <h2>Issues Over Time</h2>
+              <h2>Issues Over Time <span class="chart-hint" id="timeline-hint">(last 24h)</span></h2>
               <div class="chart-box">
                 <canvas id="chart-timeline"></canvas>
               </div>
             </article>
             <article class="card">
-              <h2>Top Issue Types (Last 24h)</h2>
+              <h2>Top Issue Types <span class="chart-hint">(live Bad + Warning)</span></h2>
               <div class="chart-box">
                 <canvas id="chart-top-types"></canvas>
               </div>
@@ -498,31 +492,36 @@
           <div class="page-head">
             <div>
               <h1>Issues &amp; Alerts</h1>
-              <p>System issues and warnings</p>
+              <p>Problems, warnings, disabled components, and expiring certificates</p>
             </div>
           </div>
           <div class="issues-split">
             <article class="card issues-panel">
               <div class="hm-panel-head issues-panel-head issues">
-                <span>Issues</span>
+                <span>Issues (Problems)</span>
                 <span class="issues-count" id="issues-count">0</span>
               </div>
               <div class="hm-table-wrap">
                 <table class="data" id="table-system-issues">
                   <thead>
                     <tr>
-                      <th>Time</th>
-                      <th>Severity</th>
-                      <th>Site</th>
-                      <th>Component</th>
-                      <th>Type</th>
-                      <th>Message</th>
-                      <th>Status</th>
-                      <th>Duration</th>
+                      <th data-issues-sort="time" scope="col"><button type="button" class="hm-sort-btn" data-label="Time">Time</button></th>
+                      <th data-issues-sort="severity" scope="col"><button type="button" class="hm-sort-btn" data-label="Severity">Severity</button></th>
+                      <th data-issues-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
+                      <th data-issues-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
+                      <th data-issues-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
+                      <th data-issues-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
+                      <th data-issues-sort="status" scope="col"><button type="button" class="hm-sort-btn" data-label="Status">Status</button></th>
+                      <th data-issues-sort="duration" scope="col"><button type="button" class="hm-sort-btn" data-label="Duration">Duration</button></th>
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
+              </div>
+              <div class="hm-values-pager issues-pager" id="issues-pager-problems">
+                <button type="button" class="hm-pager-btn" data-issues-prev="problems">Previous</button>
+                <span class="hm-values-page-label" id="issues-page-label-problems">Page 1 of 1</span>
+                <button type="button" class="hm-pager-btn" data-issues-next="problems">Next</button>
               </div>
             </article>
             <article class="card issues-panel">
@@ -534,18 +533,84 @@
                 <table class="data" id="table-system-warnings">
                   <thead>
                     <tr>
-                      <th>Time</th>
-                      <th>Severity</th>
-                      <th>Site</th>
-                      <th>Component</th>
-                      <th>Type</th>
-                      <th>Message</th>
-                      <th>Status</th>
-                      <th>Duration</th>
+                      <th data-issues-sort="time" scope="col"><button type="button" class="hm-sort-btn" data-label="Time">Time</button></th>
+                      <th data-issues-sort="severity" scope="col"><button type="button" class="hm-sort-btn" data-label="Severity">Severity</button></th>
+                      <th data-issues-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
+                      <th data-issues-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
+                      <th data-issues-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
+                      <th data-issues-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
+                      <th data-issues-sort="status" scope="col"><button type="button" class="hm-sort-btn" data-label="Status">Status</button></th>
+                      <th data-issues-sort="duration" scope="col"><button type="button" class="hm-sort-btn" data-label="Duration">Duration</button></th>
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
+              </div>
+              <div class="hm-values-pager issues-pager" id="issues-pager-warnings">
+                <button type="button" class="hm-pager-btn" data-issues-prev="warnings">Previous</button>
+                <span class="hm-values-page-label" id="issues-page-label-warnings">Page 1 of 1</span>
+                <button type="button" class="hm-pager-btn" data-issues-next="warnings">Next</button>
+              </div>
+            </article>
+            <article class="card issues-panel">
+              <div class="hm-panel-head issues-panel-head disabled">
+                <span>Disabled</span>
+                <span class="issues-count" id="disabled-count">0</span>
+              </div>
+              <div class="hm-table-wrap">
+                <table class="data" id="table-system-disabled">
+                  <thead>
+                    <tr>
+                      <th data-issues-sort="time" scope="col"><button type="button" class="hm-sort-btn" data-label="Time">Time</button></th>
+                      <th data-issues-sort="severity" scope="col"><button type="button" class="hm-sort-btn" data-label="Severity">Severity</button></th>
+                      <th data-issues-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
+                      <th data-issues-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
+                      <th data-issues-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
+                      <th data-issues-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
+                      <th data-issues-sort="status" scope="col"><button type="button" class="hm-sort-btn" data-label="Status">Status</button></th>
+                      <th data-issues-sort="duration" scope="col"><button type="button" class="hm-sort-btn" data-label="Duration">Duration</button></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="hm-values-pager issues-pager" id="issues-pager-disabled">
+                <button type="button" class="hm-pager-btn" data-issues-prev="disabled">Previous</button>
+                <span class="hm-values-page-label" id="issues-page-label-disabled">Page 1 of 1</span>
+                <button type="button" class="hm-pager-btn" data-issues-next="disabled">Next</button>
+              </div>
+            </article>
+            <article class="card issues-panel">
+              <div class="hm-panel-head issues-panel-head certificates">
+                <span>Certificates</span>
+                <span class="issues-count" id="certificates-count">0</span>
+              </div>
+              <p class="issues-cert-note muted" id="certificates-note">
+                Expired or expiring within 30 days (from Health Monitor Report)
+              </p>
+              <div class="hm-table-wrap">
+                <table class="data" id="table-system-certificates">
+                  <thead>
+                    <tr>
+                      <th data-issues-sort="time" scope="col"><button type="button" class="hm-sort-btn" data-label="Valid to">Valid to</button></th>
+                      <th data-issues-sort="severity" scope="col"><button type="button" class="hm-sort-btn" data-label="Severity">Severity</button></th>
+                      <th data-issues-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
+                      <th data-issues-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Name">Name</button></th>
+                      <th data-issues-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
+                      <th data-issues-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
+                      <th data-issues-sort="status" scope="col"><button type="button" class="hm-sort-btn" data-label="Status">Status</button></th>
+                      <th data-issues-sort="duration" scope="col"><button type="button" class="hm-sort-btn" data-label="Expires">Expires</button></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="8" class="hm-props-empty">Open this page while connected to load certificates.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="hm-values-pager issues-pager" id="issues-pager-certificates">
+                <button type="button" class="hm-pager-btn" data-issues-prev="certificates">Previous</button>
+                <span class="hm-values-page-label" id="issues-page-label-certificates">Page 1 of 1</span>
+                <button type="button" class="hm-pager-btn" data-issues-next="certificates">Next</button>
               </div>
             </article>
           </div>
@@ -621,18 +686,23 @@
                 <table class="data" id="dd-table">
                   <thead>
                     <tr>
-                      <th>Site</th>
-                      <th>Component</th>
-                      <th>Type</th>
-                      <th>Worst State</th>
-                      <th>Score</th>
-                      <th>Problems</th>
-                      <th>Warnings</th>
-                      <th>Message</th>
+                      <th data-dd-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
+                      <th data-dd-sort="name" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
+                      <th data-dd-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
+                      <th data-dd-sort="worstState" scope="col"><button type="button" class="hm-sort-btn" data-label="Worst State">Worst State</button></th>
+                      <th data-dd-sort="score" scope="col"><button type="button" class="hm-sort-btn" data-label="Score">Score</button></th>
+                      <th data-dd-sort="problems" scope="col"><button type="button" class="hm-sort-btn" data-label="Problems">Problems</button></th>
+                      <th data-dd-sort="warnings" scope="col"><button type="button" class="hm-sort-btn" data-label="Warnings">Warnings</button></th>
+                      <th data-dd-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
+              </div>
+              <div class="hm-values-pager issues-pager" id="dd-pager" hidden>
+                <button type="button" class="hm-pager-btn" id="dd-page-prev">Previous</button>
+                <span class="hm-values-page-label" id="dd-page-label">Page 1 of 1</span>
+                <button type="button" class="hm-pager-btn" id="dd-page-next">Next</button>
               </div>
             </article>
             <aside class="card dd-detail-card">
@@ -733,6 +803,52 @@
               </div>
             </aside>
           </div>
+        </section>
+
+        <section id="page-reports" class="page-panel">
+          <div class="page-head">
+            <div>
+              <h1>Reports</h1>
+              <p>
+                Same Report Items as Health Monitor — live data via
+                <code>inmation.app-reportviewer</code>
+              </p>
+            </div>
+            <div class="filters reports-toolbar">
+              <label class="filter reports-site-label">
+                Site
+                <select
+                  id="reports-site-filter"
+                  class="hm-select"
+                  title="Filter report tables by site"
+                >
+                  <option value="All" selected>All</option>
+                </select>
+              </label>
+              <label class="reports-design-label">
+                Design
+                <select id="reports-design" class="hm-select" aria-label="Report design"></select>
+              </label>
+              <button type="button" class="hm-pager-btn" id="reports-reload" title="Reload report">
+                Reload
+              </button>
+              <a
+                class="hm-pager-btn reports-open-link"
+                id="reports-open"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Open in Health Monitor</a
+              >
+            </div>
+          </div>
+          <p class="reports-path muted" id="reports-path"></p>
+          <p class="reports-status muted" id="reports-status" aria-live="polite"></p>
+          <article class="card reports-body-card">
+            <div id="reports-body" class="reports-body">
+              <p class="muted">Open this page after connecting to load the report.</p>
+            </div>
+          </article>
         </section>
 
         <section id="page-other" class="page-placeholder">

@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (last updated: 2026-07-21 EOD)
+## Current State (last updated: 2026-07-22 EOD)
 
 | Item | Value |
 |------|-------|
@@ -13,7 +13,7 @@
 | **GitHub repo** | https://github.com/victorgonzalezmateos/inmation-healthmonitor |
 | **Git branch** | `master` |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **HTML Smart Sentinel live: HM list/tree + Overview KPIs from nav table** |
+| **Phase** | **HTML Smart Sentinel live: HM + Overview + Reports + Issues certs** |
 
 
 ### WebStudio freeze (do not lose)
@@ -24,16 +24,25 @@
 | Chart tag | `smart-sentinel-chart-submit-ok` |
 | Status | Saved; optional later for Trends parity |
 
-### HTML app — save point (2026-07-21 EOD)
+### HTML app — save point (2026-07-22 EOD)
 | Item | Value |
 |------|-------|
 | App | `web/` Vite + plain HTML/CSS/JS |
-| Run | `cd web && npm install && npm run dev` → http://localhost:5173 (or 5174 if busy) |
+| Run | `cd web && npm install && npm run dev` → http://localhost:5173 (or next free port) |
 | Title | Smart Sentinel |
-| Auth | **IWA auto-connect** on load; topbar CONNECTED/DISCONNECTED (HM conn bar removed) |
-| Live data | Tree, List View (`fetchNavigationTable`), props, counters, chart/values, Overview KPIs |
+| Auth | **IWA auto-connect** on load; topbar CONNECTED/DISCONNECTED |
+| Live data | Tree, List View, props, counters, chart/values, Overview KPIs, Reports XML, Issues certs |
 
-**Pages:** Overview (live KPIs) · Health Monitor (tree + list) · Issues & Alerts · Trends · Drill-down · Configuration · Reports (placeholder)
+**Pages:** Overview (live KPIs + site filter) · Health Monitor · Issues & Alerts (Problems / Warnings / Disabled / **Certificates**) · Trends · Drill-down · Configuration · **Reports** (HM Report HTML from `app-reportviewer`)
+
+**Reports (live):**
+- API: `POST …/inmation.app-reportviewer/reports|reportdata` with body `{ objspec, reportname?, omitreportdesign: true }` + `?ctx=`
+- Design prefer `"Report"`; render ADO.NET XML as Smart Sentinel HTML (no Stimulsoft)
+- Site filter + sortable tables; Certificates table = expired or &lt;30d (red / yellow / yellow→red &lt;15d)
+- Dynamic `import("./reports.js")` so Reports errors do not blank app CSS
+- Use Case Report **removed** (not wanted)
+
+**Issues Certificates:** same report XML source via `hm-certificates.js`; panel on Issues & Alerts page
 
 **Health classification (`classifyNavHealth` in `hm-live.js`):**
 | Priority | Class | List color | Overview KPI |
@@ -45,8 +54,8 @@
 
 **Next session (do not re-ask setup):**
 1. Read this Current State + latest Session History
-2. Optional: Sites Impacted live; Components-by-type from nav table
-3. Trends / Drill-down live as needed
+2. Optional: Trends polish; share `hm-certificates` helpers with Reports to DRY
+3. Commit/push already done for 2026-07-22 EOD — only push if user asks again
 
 ### HTML phase — locked (2026-07-20)
 - Plan: `docs/architecture/AR-03-html-webapi-plan.md`
@@ -57,14 +66,16 @@
 ### Key live API files
 | File | Role |
 |------|------|
-| `web/src/api/inmation.js` | IWA authorize + execfunction + token session |
+| `web/src/api/inmation.js` | IWA authorize + execfunction (`?ctx=`) + reportviewer helpers |
 | `web/src/api/hm-live.js` | Tree/props/counters/nav table + `classifyNavHealth` / `summarizeNavHealth` |
+| `web/src/api/hm-certificates.js` | Fetch/parse HM Report certificates for Issues (+ shared rules) |
 | `web/src/session.js` | App-wide IWA + topbar connection state |
 | `web/src/health-monitor.js` | HM page: tree/list, pens, chart period, values table |
-| `web/src/main.js` | Overview KPIs from nav table + doughnut |
+| `web/src/main.js` | Overview KPIs + Issues (incl. Certificates panel) |
+| `web/src/reports.js` | Reports: app-reportviewer XML → Smart Sentinel HTML (dynamic import) |
 | `web/src/hm-chart-paint.js` | Chart.js trend paint |
 | `web/src/hm-chart-period.js` | Time period modal (`*-1h` default) |
-| `web/vite.config.js` | Proxy `/api` → `:8002` (Bearer); IWA hits host direct |
+| `web/vite.config.js` | Proxy `/api` + `/apps` → `:8002` (Bearer); IWA hits host direct |
 
 ### Board status
 - Proposed (purple): VA-03, VA-04, AR-03
@@ -74,7 +85,8 @@
 |------------|---------|
 | `smart-sentinel-chart-submit-ok` | WebStudio Chart/Submit (`a5a8326`) |
 | `smart-sentinel-overview-kpis-wip` | WebStudio app shell + KPI row (`ccf7ce5`) |
-| `web/` HTML + IWA | Multi-page draft + live tree + list + Overview (this EOD) |
+| `web/` HTML + IWA | Multi-page draft + live tree + list + Overview |
+| **2026-07-22 EOD** | Reports live + Issues Certificates + site/sort |
 
 ---
 
@@ -462,5 +474,115 @@ npm run dev
 **Resume next:** Sites Impacted live; optional Components-by-type from nav table; Trends/Drill-down.
 
 **User sign-off:** Save + document + push.
+
+---
+
+### 2026-07-22 — Overview filter bar
+
+**Wired Overview filters** (`web/index.html`, `web/src/main.js`, `web/src/api/hm-live.js`):
+1. **Time range** — Last 24 hours / Last 7 days / Last month → Issues Over Time window (hourly vs daily samples in `localStorage`)
+2. **Site** — Dynamic options from detected known sites + All; filters all Overview widgets
+3. **Auto refresh · 5 min** — when checked, refetch nav table every 5 min while Overview is visible
+
+**Also:** HM Navigation tree always starts collapsed; Time Period modal uses Object Properties palette.
+
+**Issues & Alerts live:** three panels (Problems / Warnings / Disabled) from `fetchNavigationTable` via `listIssuesAndAlerts` — Time, Severity, Site, Component, Type, Message, Status, Duration (onset tracked in `localStorage` because nav table has no start timestamp). Pagination 15/page + sortable headers.
+
+**Drill-down live:** `navRowsToDrillObjects` from nav table; Site/Type/Severity filters dynamic; sortable headers; 15/page; related issues from same live classification.
+
+**Reports tab:** embeds host Report Viewer for the same two Report Items as default HM (Health Monitor Report + Use Case Report). Data is generated on the Core Report Item, not in the browser/cloud SPA.
+
+**Resume next:** Trends live as needed; commit/push when asked.
+
+---
+
+### 2026-07-22 — Reports via `inmation.app-reportviewer`
+
+**API (confirmed from Network on host Report Viewer):**
+1. `POST …/execfunction/inmation.app-reportviewer/reports?ctx=<Report Item path>` → designs (`Header` default, `Report`)
+2. `POST …/reportdata?ctx=<same>` body `{ name: "Report" }` → Stimulsoft `design` + ADO.NET DataSet XML in `data`
+
+**Smart Sentinel:** custom HTML from XML (doughnuts + inventory tables + certificates). No Stimulsoft. Prefer design `"Report"`. Paths: Health Monitor Report + Use Case Report under System Monitoring.
+
+**Files:** `web/src/api/inmation.js` (`ctx` + reportviewer helpers), `web/src/reports.js`, `web/index.html`, `web/src/styles.css`, `main.js` → `initReportsPage()`.
+
+**Resume next:** Live smoke-test Reports; Use Case schema if needed; commit when asked.
+
+---
+
+### 2026-07-22 — Revert Reports (page unbroken)
+
+**Cause:** `reports.js` imported `ensureConnected` from `session.js`, but only `ensureIwaSession` exists. Vite failed to load `main.js` → CSS never applied (unstyled nav / huge icons).
+
+**Reverted:** deleted `web/src/reports.js`; removed Reports panel + wiring from `index.html` / `main.js`; removed reportviewer helpers + `?ctx=` from `inmation.js`; removed Reports CSS. Reports nav falls back to `page-other` placeholder.
+
+**Resume next:** Confirm styled app loads; re-do Reports only when asked.
+
+---
+
+### 2026-07-22 — Reports re-implemented (safe)
+
+**Fixes vs broken attempt:**
+- `ensureIwaSession` (not `ensureConnected`)
+- `renderHealthDoughnut(canvas, …)` + `Chart.getChart` destroy
+- **Dynamic** `import("./reports.js")` from nav — Reports errors cannot blank the whole app CSS
+- Prefer design `"Report"`; XML HTML render (no Stimulsoft); `?ctx=` on reportviewer
+
+**Verified:** `node --check` + `vite build` OK (separate `reports-*.js` chunk).
+
+**Resume next:** Live smoke-test Reports on host; commit when asked.
+
+---
+
+### 2026-07-22 — Fix reportviewer `objspec` / Open HM link
+
+**Root cause:** WebStudio body is `{ objspec: path, reportname }` — not empty/`{ name }` with only `?ctx=`. Missing `objspec` → `Argument 'objspec' must be a string or a number.`
+
+**Open in Health Monitor:** use absolute `WEBAPI_HOST/apps/webstudio?...` (relative localhost URL failed to load properly).
+
+**Resume next:** Reload Reports tab and confirm XML HTML render.
+
+---
+
+### 2026-07-22 — Use Case Report hang / schema
+
+**Issue:** Use Case stuck on `Loading "Report"…` while HM Report worked.
+
+**Fixes:** `omitreportdesign: true` (skip huge Stimulsoft design); abort + 180s timeout when switching; if XML isn’t HM-shaped, render generic tables from all dataset rows.
+
+**Resume next:** Retest Use Case Report live.
+
+---
+
+### 2026-07-22 — Reports: drop Use Case; site filter + sortable tables
+
+- Removed Use Case Report tab (HM Report only).
+- Site filter in Reports toolbar (same known-site convention as Overview).
+- All report tables: clickable column headers to sort (▲/▼); works for inventory, datasources, certificates, env, and future generic tables.
+
+**Resume next:** Smoke-test site filter + sort on live HM Report.
+
+---
+
+### 2026-07-22 — Certificates panel on Issues & Alerts
+
+- New panel under Problems / Warnings / Disabled.
+- Data from HM Report (`reportdata`, XML only): expired or &lt;30 days, same red / yellow / yellow→red rules.
+- Helper: `web/src/api/hm-certificates.js`.
+
+**Resume next:** Open Issues & Alerts connected and confirm Certificates loads.
+
+---
+
+### 2026-07-22 EOD — save point (Reports + Issues Certificates)
+
+**Shipped today:**
+1. **Reports** — live HM Report via `inmation.app-reportviewer` (`objspec` + `reportname` + `omitreportdesign`); custom HTML (no Stimulsoft); site filter; sortable tables; cert urgency colors; Use Case tab removed; safe dynamic import.
+2. **Issues & Alerts** — Certificates panel (expired / &lt;30d) from same report XML (`hm-certificates.js`).
+3. Supporting live wiring in Overview / Issues / Drill-down / HM as already in working tree.
+
+**Run:** `cd web && npm run dev` → proxy to `byus00876m1.bayer.cnb:8002`.
+
+**Resume next:** Trends polish if needed; push only when asked.
 
 ---

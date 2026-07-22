@@ -17,6 +17,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      "/static": {
+        target: "https://byus00876m1.bayer.cnb:8002",
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

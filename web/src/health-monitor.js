@@ -45,7 +45,8 @@ import { formatHmTimestamp } from "./hm-time-format.js";
 let mode = "mock"; // "mock" | "live"
 let treeRoots = mockTreeRoots;
 let selectedId = "core";
-const expanded = new Set(["io-model", "system", "core", "server-model"]);
+/** Navigation tree starts fully collapsed; user expands via ▸/▾. */
+const expanded = new Set();
 let liveProps = null;
 let liveCounters = [];
 let busy = false;
@@ -1623,12 +1624,8 @@ async function connectLive({ force = true } = {}) {
     mode = "live";
     treeRoots = roots;
     expanded.clear();
-    roots.forEach((r) => expanded.add(r.id));
     const first = firstLeafOrRoot(roots);
     selectedId = first?.id || roots[0].id;
-    if (first?.children?.length) {
-      first.children.slice(0, 3).forEach((c) => expanded.add(c.id));
-    }
     liveProps = null;
     liveCounters = [];
     navTableLoaded = false;
@@ -1658,9 +1655,6 @@ function disconnectLive() {
   treeRoots = mockTreeRoots;
   selectedId = "core";
   expanded.clear();
-  ["io-model", "system", "core", "server-model"].forEach((id) =>
-    expanded.add(id)
-  );
   liveProps = null;
   liveCounters = [];
   navTableRows = [...mockNavTableRows];
@@ -1698,7 +1692,6 @@ async function connectWithExistingToken() {
     mode = "live";
     treeRoots = roots;
     expanded.clear();
-    roots.forEach((r) => expanded.add(r.id));
     selectedId = roots[0].id;
     liveProps = null;
     liveCounters = [];
@@ -1727,9 +1720,6 @@ export function resetHealthMonitorToMock() {
   treeRoots = mockTreeRoots;
   selectedId = "core";
   expanded.clear();
-  ["io-model", "system", "core", "server-model"].forEach((id) =>
-    expanded.add(id)
-  );
   liveProps = null;
   liveCounters = [];
   navTableRows = [...mockNavTableRows];

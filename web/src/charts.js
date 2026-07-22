@@ -109,7 +109,6 @@ export function renderHealthDoughnut(canvas, summary) {
   push("Problems", summary.bad || 0, "#ef4444");
   push("Warnings", summary.warning || 0, "#ca8a04");
   push("Disabled", summary.disabled || 0, "#94a3b8");
-  push("Other", summary.other || 0, "#cbd5e1");
 
   if (!values.length) {
     labels.push("No data");
@@ -162,6 +161,9 @@ export function renderHealthDoughnut(canvas, summary) {
 
 /** Full pie chart. */
 export function renderPie(canvas, { labels, values, colors }) {
+  if (!canvas) return null;
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
   sized(canvas);
   return new Chart(canvas, {
     type: "pie",
@@ -199,6 +201,9 @@ export function renderPie(canvas, { labels, values, colors }) {
 
 /** Multi-line trend chart. */
 export function renderTimeline(canvas, data) {
+  if (!canvas) return null;
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
   sized(canvas);
   return new Chart(canvas, {
     type: "line",
@@ -214,26 +219,29 @@ export function renderTimeline(canvas, data) {
           fill: true,
           pointRadius: 3,
           borderWidth: 2,
+          spanGaps: true,
         },
         {
           label: "Warnings",
           data: data.warnings,
-          borderColor: "#eab308",
-          backgroundColor: "rgba(234,179,8,0.12)",
+          borderColor: "#ca8a04",
+          backgroundColor: "rgba(202,138,4,0.12)",
           tension: 0.35,
           fill: true,
           pointRadius: 3,
           borderWidth: 2,
+          spanGaps: true,
         },
         {
-          label: "Info",
+          label: "Disabled",
           data: data.info,
-          borderColor: "#3b82f6",
-          backgroundColor: "rgba(59,130,246,0.12)",
+          borderColor: "#64748b",
+          backgroundColor: "rgba(100,116,139,0.12)",
           tension: 0.35,
           fill: true,
           pointRadius: 3,
           borderWidth: 2,
+          spanGaps: true,
         },
       ],
     },
@@ -251,13 +259,14 @@ export function renderTimeline(canvas, data) {
       },
       scales: {
         x: {
-          title: { display: true, text: "Time (24h)", font: { size: 11 } },
+          title: { display: true, text: "Time (last 24h)", font: { size: 11 } },
           grid: { display: false },
         },
         y: {
           beginAtZero: true,
           title: { display: true, text: "Count", font: { size: 11 } },
           grid: { color: "#f1f5f9" },
+          ticks: { precision: 0 },
         },
       },
     },
@@ -266,6 +275,9 @@ export function renderTimeline(canvas, data) {
 
 /** Horizontal bar chart. */
 export function renderTopTypes(canvas, data) {
+  if (!canvas) return null;
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
   sized(canvas);
   return new Chart(canvas, {
     type: "bar",
@@ -281,6 +293,8 @@ export function renderTopTypes(canvas, data) {
             "#a855f7",
             "#3b82f6",
             "#94a3b8",
+            "#16a34a",
+            "#0891b2",
           ],
           borderRadius: 4,
           barThickness: 18,

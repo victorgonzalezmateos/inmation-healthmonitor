@@ -136,6 +136,7 @@ export async function authorizeIwa() {
 /**
  * POST /api/v2/execfunction/{lib}/{func}
  * `farg` becomes the JSON body (Lua `arg`).
+ * `options.ctx` → `?ctx=` query (Report Item path for app-reportviewer).
  */
 export async function execFunction(lib, func, farg = {}, options = {}) {
   const token = options.token || getStoredToken();
@@ -146,7 +147,11 @@ export async function execFunction(lib, func, farg = {}, options = {}) {
   // Keep dots in lib name unencoded (syslib.app-…) — matches WebStudio URLs
   const libPath = String(lib).replace(/[^A-Za-z0-9._\-]/g, encodeURIComponent);
   const funcPath = String(func).replace(/[^A-Za-z0-9._\-]/g, encodeURIComponent);
-  const url = `/api/v2/execfunction/${libPath}/${funcPath}`;
+  let url = `/api/v2/execfunction/${libPath}/${funcPath}`;
+  if (options.ctx != null && String(options.ctx).length) {
+    // URLSearchParams encodes spaces as + (matches HM Network capture)
+    url += `?${new URLSearchParams({ ctx: String(options.ctx) })}`;
+  }
 
   const res = await fetch(url, {
     method: "POST",
@@ -157,6 +162,7 @@ export async function execFunction(lib, func, farg = {}, options = {}) {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(farg ?? {}),
+    signal: options.signal,
   });
 
   const text = await res.text();
@@ -181,6 +187,66 @@ export async function execFunction(lib, func, farg = {}, options = {}) {
 
 export function execHm(func, farg = {}) {
   return execFunction(HM_LIB, func, farg);
+}
+
+/** Health Monitor Stimulsoft report viewer library. */
+export const REPORTVIEWER_LIB = "inmation.app-reportviewer";
+
+/**
+ * WebStudio calls reportviewer with body `{ objspec: path|id }`
+ * (and `?ctx=` often equals the same Report Item path).
+ */
+function reportObjSpec(reportItemPath) {
+  const s = String(reportItemPath ?? "").trim();
+  if (!s) throw new Error("Report Item path/id required");
+  // Match WebStudio: isNaN(e) ? e : parseInt(e, 0)
+  return Number.isNaN(Number(s)) ? s : parseInt(s, 10);
+}
+
+/**
+ * List report designs for a Report Item.
+ * WebStudio: `reports` body `{ objspec }`.
+ * @returns {Promise<{ name: string, default?: boolean, order?: number }[]>}
+ */
+export async function fetchReportDesigns(reportItemPath, options = {}) {
+  const objspec = reportObjSpec(reportItemPath);
+  const body = await execFunction(
+    REPORTVIEWER_LIB,
+    "reports",
+    { objspec },
+    { ctx: String(reportItemPath), signal: options.signal }
+  );
+  const list = body?.data?.reports;
+  return Array.isArray(list) ? list : [];
+}
+
+/**
+ * Fetch report dataset XML (and optionally Stimulsoft design).
+ * WebStudio: `reportdata` body
+ * `{ objspec, reportname, omitreportdesign, query? }`.
+ * Default `omitReportDesign: true` — we only render XML, and designs can be huge.
+ */
+export async function fetchReportData(reportItemPath, designName, options = {}) {
+  const objspec = reportObjSpec(reportItemPath);
+  const farg = {
+    objspec,
+    omitreportdesign: options.omitReportDesign !== false,
+  };
+  if (designName != null && String(designName).length) {
+    farg.reportname = String(designName);
+  }
+  if (options.query && typeof options.query === "object") {
+    farg.query = options.query;
+  }
+  const body = await execFunction(REPORTVIEWER_LIB, "reportdata", farg, {
+    ctx: String(reportItemPath),
+    signal: options.signal,
+  });
+  const report = body?.data?.report;
+  if (!report || typeof report !== "object") {
+    throw new Error("reportdata: missing data.report");
+  }
+  return report;
 }
 
 export function formatApiError(body) {
