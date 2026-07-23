@@ -4,16 +4,31 @@
 
 ---
 
-## Current State (last updated: 2026-07-23 — saved & pushed User Guide)
+## Current State (last updated: 2026-07-23 EOD — coworker review kickoff)
 
 | Item | Value |
 |------|-------|
 | **Project folder** | `C:\Users\GOAKJ\Documents\Cursor Project\inmation-healthmonitor` |
 | **Kanvas install** | `C:\Users\GOAKJ\Documents\Cursor Project\Kanvas` |
 | **GitHub repo** | https://github.com/victorgonzalezmateos/inmation-healthmonitor |
-| **Git branch** | `master` |
+| **Git branch** | `master` @ `7432d93` (+ SESSION_LOG EOD commit) |
+| **Restore tag** | `smart-sentinel-review-ready` (= `7432d93` app code) |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **HTML Smart Sentinel live: HM + Overview + Reports + Config EAM** |
+| **Phase** | **HTML Smart Sentinel live — ready for coworker review (local clone)** |
+
+**Coworker review (chosen path):** each person clones repo, `git checkout smart-sentinel-review-ready`, `cd web && npm install && npm run dev` → http://localhost:5173 with their IWA.  
+**Tried & abandoned for now:** shared host on BYUS008MQLA (did not work).  
+**Do not re-ask:** paths, GitHub, Kanvas, IWA host.
+
+**User Guide:** in-app topbar button + [`docs/USER_GUIDE.md`](../docs/USER_GUIDE.md)
+
+**Next session:**
+1. Read this Current State + latest Session History
+2. Collect coworker feedback from local review
+3. Optional later: stable internal hosting (not MQLA unless revisited)
+4. Config Apply smoke-test on host if needed
+5. Commit/push only if user asks
+
 
 
 ### WebStudio freeze (do not lose)
@@ -24,6 +39,13 @@
 | Chart tag | `smart-sentinel-chart-submit-ok` |
 | Status | Saved; optional later for Trends parity |
 
+### HTML app — save point (2026-07-23 review-ready)
+| Item | Value |
+|------|-------|
+| Commit | `7432d93` |
+| Tag | `smart-sentinel-review-ready` |
+| Notes | User Guide + Diagnostics logs + polish; before BYUS008MQLA share trial |
+
 ### HTML app — save point (2026-07-22 EOD #2)
 | Item | Value |
 |------|-------|
@@ -33,7 +55,7 @@
 | Auth | **IWA auto-connect** on load; topbar CONNECTED/DISCONNECTED |
 | Live data | Tree, List View, props, counters, chart/values, Overview KPIs, Reports XML, Issues certs |
 
-**Pages:** **Dashboard** (live KPIs + site filter) · Health Monitor · **Health Overview** (Problems / Warnings / Disabled / **Certificates**) · Trends · **Diagnostics** · Configuration · **Reports** (HM Report HTML from `app-reportviewer`)
+**Pages:** **Dashboard** · Health Monitor · **Health Overview** (Problems / Warnings / Unknown & Disabled / **Connector Certificates**) · Trends (under development) · **Diagnostics** (logs + Log Details) · Configuration · **Reports** (HM Report HTML from `app-reportviewer`)
 
 **Reports (live):**
 - API: `POST …/inmation.app-reportviewer/reports|reportdata` with body `{ objspec, reportname?, omitreportdesign: true }` + `?ctx=`
@@ -44,7 +66,7 @@
 - Dynamic `import("./reports.js")` so Reports errors do not blank app CSS
 - Use Case Report **removed** (not wanted)
 
-**Issues Certificates:** same report XML source via `hm-certificates.js`; panel on Issues & Alerts page
+**Health Overview Certificates:** same report XML source via `hm-certificates.js`; panel labeled **Connector Certificates**
 
 **Health classification (`classifyNavHealth` in `hm-live.js`) — from `State` flags only:**
 | Priority | Class | Flags | UI |
@@ -55,13 +77,13 @@
 | 4 | Unknown | `STATE_EMPTY` (relays) | grey |
 | 5 | Good | all other (incl. `COMM_EMPTY` alone; `OBJ_DYNAMIC` / `OBJ_ENABLED` ignored) | default |
 
-**Overview KPIs:** Health Score · Total · Sites · Good · Problems · Warnings · Unknown · Disabled
+**Dashboard KPIs:** Health Score · Total · Sites · Good · Problems · Warnings · Unknown · Disabled
 
 **Data sources (split):**
 | UI | Source | Display / class |
 |----|--------|-----------------|
 | HM Navigation list | `fetchNavigationTable` | Object=`ObjectState`, Comm.=`CommState`; row color by `WorstState` |
-| Overview KPIs + Site Summary | `State` bitmask/flags (ModUserState) | Problem > Warning > Disabled > Unknown > Good |
+| Dashboard KPIs + Site Summary | `State` bitmask/flags (ModUserState) | Problem > Warning > Disabled > Unknown > Good |
 
 **Overview classification (inmation docs 1.110):**
 | Class | Flags |
@@ -71,12 +93,6 @@
 | Disabled | neutral **and** no `OBJ_ENABLED` (or HM Object/Worst = Disabled) |
 | Unknown | `STATE_EMPTY` |
 | Good | else (`COMM_EMPTY` alone OK) |
-
-**Next session (do not re-ask setup):**
-1. Read this Current State + latest Session History
-2. Smoke-test User Guide popup (topbar) + Diagnostics Log Details
-3. Config: smoke-test Browse path picker + Apply on host
-4. Commit/push only if user asks
 
 ### HTML phase — locked (2026-07-20)
 - Plan: `docs/architecture/AR-03-html-webapi-plan.md`
@@ -676,6 +692,7 @@ Configuration loads **EAM Critical Objects** via `POST /api/v2/read` on `.TableD
 
 ---
 
+### 2026-07-22 — EOD save (classification + Reports filter)
 
 Saved and pushed to `origin/master`:
 
@@ -713,11 +730,22 @@ Saved and pushed to `origin/master`:
 
 ---
 
+### 2026-07-23 — Shared full pagers (First/Prev/Page/Next/Last)
+
 Wired `updateFullPager` / `sliceRows` across:
 
 - **drill-down.js** — full pager + related-issues column sort (`data-dd-rel-sort`, timeMs/durationMs)
 - **configuration.js** — CFG_PAGE_SIZE 15
 - **health-monitor.js** — counters + nav list page size 25; values Time-column sort only
 - **reports.js** — datasources + inventory + certificates + generic tables (page 25); removed 500-row hard cap
+
+---
+
+### 2026-07-23 EOD — Pause for coworker review
+
+- App code freeze: tag **`smart-sentinel-review-ready`** → commit **`7432d93`** (pushed).
+- BYUS008MQLA shared hosting **did not work**; review path = each coworker clones + `npm run dev` locally.
+- Accidental Reports iframe experiment **reverted** (kept HTML reportviewer renderer).
+- Next session: feedback from reviewers; do not re-ask setup/paths/GitHub.
 
 ---
