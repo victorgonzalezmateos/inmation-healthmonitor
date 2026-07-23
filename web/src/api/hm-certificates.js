@@ -4,7 +4,7 @@
  */
 
 import { fetchReportData } from "./inmation.js";
-import { siteFromRow } from "./hm-live.js";
+import { siteLabelFromRow } from "./hm-live.js";
 
 export const HM_REPORT_PATH =
   "/System/Core/_Global Core Logic/System Monitoring/Report/Health Monitor/Health Monitor Report";
@@ -78,7 +78,7 @@ export function certificatesToIssueRows(rawRows, now = Date.now()) {
       const days = certExpiryDays(r);
       const expired = Number.isFinite(days) && days < 0;
       const { cls, style } = certRowAppearance(days);
-      const site = siteFromRow({
+      const site = siteLabelFromRow({
         name: r.name,
         path: r.path,
         ObjectName: r.name,
@@ -91,7 +91,7 @@ export function certificatesToIssueRows(rawRows, now = Date.now()) {
         time: formatValidTo(r.validTo),
         timeMs: Number.isFinite(validMs) ? validMs : 0,
         severity: expired ? "High" : "Medium",
-        site: site || "—",
+        site,
         component: r.name || "—",
         type: "Certificate",
         message: expired

@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (last updated: 2026-07-22 EOD #2 — classification + Reports)
+## Current State (last updated: 2026-07-23 — saved & pushed User Guide)
 
 | Item | Value |
 |------|-------|
@@ -13,7 +13,7 @@
 | **GitHub repo** | https://github.com/victorgonzalezmateos/inmation-healthmonitor |
 | **Git branch** | `master` |
 | **Host** | `byus00876m1.bayer.cnb:8002` |
-| **Phase** | **HTML Smart Sentinel live: HM + Overview + Reports + Issues certs** |
+| **Phase** | **HTML Smart Sentinel live: HM + Overview + Reports + Config EAM** |
 
 
 ### WebStudio freeze (do not lose)
@@ -33,7 +33,7 @@
 | Auth | **IWA auto-connect** on load; topbar CONNECTED/DISCONNECTED |
 | Live data | Tree, List View, props, counters, chart/values, Overview KPIs, Reports XML, Issues certs |
 
-**Pages:** Overview (live KPIs + site filter) · Health Monitor · Issues & Alerts (Problems / Warnings / Disabled / **Certificates**) · Trends · Drill-down · Configuration · **Reports** (HM Report HTML from `app-reportviewer`)
+**Pages:** **Dashboard** (live KPIs + site filter) · Health Monitor · **Health Overview** (Problems / Warnings / Disabled / **Certificates**) · Trends · **Diagnostics** · Configuration · **Reports** (HM Report HTML from `app-reportviewer`)
 
 **Reports (live):**
 - API: `POST …/inmation.app-reportviewer/reports|reportdata` with body `{ objspec, reportname?, omitreportdesign: true }` + `?ctx=`
@@ -74,8 +74,9 @@
 
 **Next session (do not re-ask setup):**
 1. Read this Current State + latest Session History
-2. Optional: Trends polish; share `hm-certificates` helpers with Reports to DRY
-3. Commit/push done for 2026-07-22 EOD #2 — only push if user asks again
+2. Smoke-test User Guide popup (topbar) + Diagnostics Log Details
+3. Config: smoke-test Browse path picker + Apply on host
+4. Commit/push only if user asks
 
 ### HTML phase — locked (2026-07-20)
 - Plan: `docs/architecture/AR-03-html-webapi-plan.md`
@@ -644,7 +645,37 @@ Reports inventory (Cores / Relays / Connectors / Datasources / …) defaults to 
 
 ---
 
-### 2026-07-22 EOD #2 — save + push (classification + Reports)
+### 2026-07-22 — Configuration: live EAM Critical Objects
+
+Configuration loads **EAM Critical Objects** via `POST /api/v2/read` on `.TableData` (candidates under BCH Health Monitor). Table columns: Path · Object Type · Standby · Local Contact. Read-only detail panel; email edit later.
+
+---
+
+### 2026-07-23 — Configuration: Add / Edit / Apply + path picker
+
+- Local Add / Edit / Delete; **Apply** writes `TableData` (confirm modal).
+- Add form Path has **Browse…** → modal with I/O Model tree (`fetchLiveNavigationTree`) **and** manual Path fields **above and below** the tree; OK fills Add Path (and Object Type from node if empty).
+- Files: `configuration.js`, `eam-critical.js`, `index.html`, `styles.css`.
+
+---
+
+### 2026-07-23 — Issues & Problems: drop Time / Comment
+
+- Removed **Time** and **Comment** columns from Issues & Problems (no `fetchLogTable` enrichment).
+- Problems columns: Severity · Site · Component · Type · Message.
+
+---
+
+### 2026-07-23 — Tables: full pager + Global site filters
+
+- Shared `table-pager.js`: First · Previous · Page [n] of N · total · Next · Last.
+- Applied to Overview (Critical + Sites), Issues (×4), Drill-down, Config EAM, HM counters/nav list/values, Reports tables.
+- Sortable: related issues in Drill-down; HM values Time column; others already sortable.
+- All Site filters include **Global** (`buildSiteFilterOptions` / `siteLabelFromRow`) — unmatched paths → Global.
+- Site Summary includes a Global bucket when present.
+
+---
+
 
 Saved and pushed to `origin/master`:
 
@@ -653,5 +684,40 @@ Saved and pushed to `origin/master`:
 3. Reports default **Not Good** filter + green “all Good” messages.
 
 **Run next:** `cd web && npm run dev` → http://localhost:5173
+
+---
+
+### 2026-07-23 — Save & push: polish + User Guide
+
+- Renames: Overview→Dashboard, Issues→Health Overview, Drill-down→Diagnostics; Certificates→Connector Certificates.
+- Diagnostics Log Details popup + maximize; UI polish; full pagers; User Guide in-app + `docs/USER_GUIDE.md`.
+- Commit/push to `origin/master` for coworker review prep.
+
+---
+
+### 2026-07-23 — User Guide popup
+
+- Topbar **User Guide** opens almost full-screen modal (navy palette).
+- 7 sections matching menu: Dashboard, Health Monitor, Health Overview, Trends, Diagnostics, Reports, Configuration (Spanish how-to).
+- Left TOC + scroll sync; Esc / backdrop / Close.
+- Files: `user-guide.js`, `index.html`, `styles.css`, `main.js`.
+
+---
+
+### 2026-07-23 — Drill-down: Log Details popup (DataStudio-style)
+
+- Double-click a Recent Logs row → dark **Log Details** modal (Name/Value sections from `buildLogDetailSections`).
+- Side nav: First · PageUp · Prev · Next · PageDown · Last (also keyboard arrows / Home / End / PageUp/Down / Esc).
+- **Copy** (clipboard) + **Close**; sections collapse/expand; table row highlight + page sync while navigating.
+- Files: `drill-down.js`, `index.html`, `styles.css`, `hm-live.js` (`sections` on log rows).
+
+---
+
+Wired `updateFullPager` / `sliceRows` across:
+
+- **drill-down.js** — full pager + related-issues column sort (`data-dd-rel-sort`, timeMs/durationMs)
+- **configuration.js** — CFG_PAGE_SIZE 15
+- **health-monitor.js** — counters + nav list page size 25; values Time-column sort only
+- **reports.js** — datasources + inventory + certificates + generic tables (page 25); removed 500-row hard cap
 
 ---

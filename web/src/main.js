@@ -1,33 +1,32 @@
 import "./styles.css";
-import * as mock from "./mock-data.js";
 import { mockNavTableRows } from "./hm-mock-data.js";
 import {
   componentsBySiteChart,
   enrichIncompleteCompoundStates,
-  extractKnownSites,
+  buildSiteFilterOptions,
   fetchLiveNavigationTable,
   listCriticalIssues,
   listIssuesAndAlerts,
   recordAndBuildIssuesOverTime,
-  siteFromRow,
+  siteLabelFromRow,
   siteSummaryRows,
   summarizeNavHealth,
-  topIssueTypesFromRows,
   touchIssueOnsets,
 } from "./api/hm-live.js";
+import { clampPage, sliceRows, updateFullPager } from "./table-pager.js";
 import {
   fillLegend,
   renderHealthDoughnut,
   renderPie,
   renderTimeline,
-  renderTopTypes,
 } from "./charts.js";
 import {
   initHealthMonitorPage,
   resetHealthMonitorToMock,
 } from "./health-monitor.js";
 import { initTrendsPage } from "./trends.js";
-import { initDrillDownPage } from "./drill-down.js";
+import { initDrillDownPage, closeDrillLogModal } from "./drill-down.js";
+import { initUserGuide } from "./user-guide.js";
 import { initConfigurationPage } from "./configuration.js";
 import {
   disconnectIwaSession,
@@ -92,14 +91,14 @@ function getOverviewSiteFilter() {
 
 function filterRowsBySite(rows, site) {
   if (!site || site === "All") return rows;
-  return (rows || []).filter((r) => siteFromRow(r) === site);
+  return (rows || []).filter((r) => siteLabelFromRow(r) === site);
 }
 
 function syncOverviewSiteOptions(rows) {
   const sel = document.getElementById("overview-site-filter");
   if (!sel) return;
   const prev = sel.value || "All";
-  const sites = extractKnownSites(rows);
+  const sites = buildSiteFilterOptions(rows);
   sel.innerHTML = "";
   const allOpt = document.createElement("option");
   allOpt.value = "All";
@@ -258,7 +257,6 @@ function applyOverviewFromRows(rows) {
   fillCriticalTable(filtered);
   fillSitesTable(filtered);
   applyIssuesOverTime(summary, site);
-  applyTopIssueTypes(filtered);
   // Keep issue onset clocks warm while Overview refreshes
   touchIssueOnsets(overviewRawRows);
   // Refresh Issues tables if already populated; keep current page when possible
@@ -349,28 +347,19 @@ function syncOverviewAutoRefresh() {
   }, AUTO_REFRESH_MS);
 }
 
-function applyTopIssueTypes(rows) {
-  const data = topIssueTypesFromRows(rows);
-  const canvas = document.getElementById("chart-top-types");
-  if (!canvas) return;
-  if (!data.labels.length) {
-    safeChart("top-types", () =>
-      renderTopTypes(canvas, { labels: ["No issues"], values: [0] })
-    );
-    return;
-  }
-  safeChart("top-types", () => renderTopTypes(canvas, data));
-}
-
 /** @type {ReturnType<typeof listCriticalIssues>} */
 let criticalIssueRows = [];
 let critSortKey = "site";
 let critSortDir = 1;
+let critPage = 1;
+const OVERVIEW_TABLE_PAGE_SIZE = 15;
 
 function fillCriticalTable(rows = mockNavTableRows) {
   criticalIssueRows = listCriticalIssues(rows);
+  critPage = 1;
   renderCriticalTableBody();
   wireCriticalSortOnce();
+  wireCriticalPagerOnce();
 }
 
 function sortedCriticalRows() {
@@ -403,11 +392,30 @@ function renderCriticalTableBody() {
     }
   });
   if (!tbody) return;
+  const paged = sliceRows(issues, critPage, OVERVIEW_TABLE_PAGE_SIZE);
+  critPage = paged.page;
+  updateFullPager(
+    {
+      pager: document.getElementById("overview-critical-pager"),
+      first: document.getElementById("overview-critical-first"),
+      prev: document.getElementById("overview-critical-prev"),
+      next: document.getElementById("overview-critical-next"),
+      last: document.getElementById("overview-critical-last"),
+      pageInput: document.getElementById("overview-critical-page-input"),
+      pageOf: document.getElementById("overview-critical-page-of"),
+    },
+    {
+      page: paged.page,
+      pages: paged.pages,
+      total: paged.total,
+      pageSize: OVERVIEW_TABLE_PAGE_SIZE,
+    }
+  );
   if (!issues.length) {
     tbody.innerHTML = `<tr><td colspan="4" class="hm-props-empty">No Bad components</td></tr>`;
     return;
   }
-  tbody.innerHTML = issues
+  tbody.innerHTML = paged.slice
     .map(
       (r) => `<tr class="critical">
       <td>${escapeHtml(r.site)}</td>
@@ -417,6 +425,30 @@ function renderCriticalTableBody() {
     </tr>`
     )
     .join("");
+}
+
+function wireCriticalPagerOnce() {
+  const root = document.getElementById("overview-critical-pager");
+  if (!root || root.dataset.wired === "1") return;
+  root.dataset.wired = "1";
+  const go = (p) => {
+    critPage = clampPage(p, criticalIssueRows.length, OVERVIEW_TABLE_PAGE_SIZE);
+    renderCriticalTableBody();
+  };
+  document.getElementById("overview-critical-first")?.addEventListener("click", () => go(1));
+  document.getElementById("overview-critical-prev")?.addEventListener("click", () => go(critPage - 1));
+  document.getElementById("overview-critical-next")?.addEventListener("click", () => go(critPage + 1));
+  document.getElementById("overview-critical-last")?.addEventListener("click", () =>
+    go(sliceRows(criticalIssueRows, 99999, OVERVIEW_TABLE_PAGE_SIZE).pages)
+  );
+  const input = document.getElementById("overview-critical-page-input");
+  input?.addEventListener("change", () => go(input.value));
+  input?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      go(input.value);
+    }
+  });
 }
 
 function wireCriticalSortOnce() {
@@ -432,6 +464,7 @@ function wireCriticalSortOnce() {
       critSortKey = key;
       critSortDir = 1;
     }
+    critPage = 1;
     renderCriticalTableBody();
   });
 }
@@ -440,11 +473,14 @@ function wireCriticalSortOnce() {
 let siteSummaryData = [];
 let siteSortKey = "site";
 let siteSortDir = 1;
+let sitesPage = 1;
 
 function fillSitesTable(rows = mockNavTableRows) {
   siteSummaryData = siteSummaryRows(rows);
+  sitesPage = 1;
   renderSitesTableBody();
   wireSiteSortOnce();
+  wireSitesPagerOnce();
 }
 
 function sortedSiteRows() {
@@ -485,11 +521,30 @@ function renderSitesTableBody() {
     }
   });
   const rows = sortedSiteRows();
+  const paged = sliceRows(rows, sitesPage, OVERVIEW_TABLE_PAGE_SIZE);
+  sitesPage = paged.page;
+  updateFullPager(
+    {
+      pager: document.getElementById("overview-sites-pager"),
+      first: document.getElementById("overview-sites-first"),
+      prev: document.getElementById("overview-sites-prev"),
+      next: document.getElementById("overview-sites-next"),
+      last: document.getElementById("overview-sites-last"),
+      pageInput: document.getElementById("overview-sites-page-input"),
+      pageOf: document.getElementById("overview-sites-page-of"),
+    },
+    {
+      page: paged.page,
+      pages: paged.pages,
+      total: paged.total,
+      pageSize: OVERVIEW_TABLE_PAGE_SIZE,
+    }
+  );
   if (!rows.length) {
     tbody.innerHTML = `<tr><td colspan="8" class="hm-props-empty">No sites detected</td></tr>`;
     return;
   }
-  tbody.innerHTML = rows
+  tbody.innerHTML = paged.slice
     .map((r) => {
       const score = r.score == null ? "—" : r.score;
       const color = r.score == null ? "#94a3b8" : scoreColor(r.score);
@@ -507,6 +562,30 @@ function renderSitesTableBody() {
     .join("");
 }
 
+function wireSitesPagerOnce() {
+  const root = document.getElementById("overview-sites-pager");
+  if (!root || root.dataset.wired === "1") return;
+  root.dataset.wired = "1";
+  const go = (p) => {
+    sitesPage = clampPage(p, siteSummaryData.length, OVERVIEW_TABLE_PAGE_SIZE);
+    renderSitesTableBody();
+  };
+  document.getElementById("overview-sites-first")?.addEventListener("click", () => go(1));
+  document.getElementById("overview-sites-prev")?.addEventListener("click", () => go(sitesPage - 1));
+  document.getElementById("overview-sites-next")?.addEventListener("click", () => go(sitesPage + 1));
+  document.getElementById("overview-sites-last")?.addEventListener("click", () =>
+    go(sliceRows(siteSummaryData, 99999, OVERVIEW_TABLE_PAGE_SIZE).pages)
+  );
+  const input = document.getElementById("overview-sites-page-input");
+  input?.addEventListener("change", () => go(input.value));
+  input?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      go(input.value);
+    }
+  });
+}
+
 function wireSiteSortOnce() {
   const table = document.getElementById("table-sites");
   if (!table || table.dataset.sortReady === "1") return;
@@ -520,30 +599,17 @@ function wireSiteSortOnce() {
       siteSortKey = key;
       siteSortDir = 1;
     }
+    sitesPage = 1;
     renderSitesTableBody();
   });
 }
 
-function fillAlertsTable() {
-  const tbody = document.querySelector("#table-alerts tbody");
-  tbody.innerHTML = mock.recentAlerts
-    .map((r) => {
-      const sev = r.severity.toLowerCase();
-      return `<tr>
-        <td>${r.time}</td>
-        <td><span class="badge ${sev}">${r.severity}</span></td>
-        <td>${r.site}</td>
-        <td>${r.component}</td>
-        <td>${r.message}</td>
-        <td>${r.status}</td>
-        <td>${r.duration}</td>
-        <td>${r.ack}</td>
-      </tr>`;
-    })
-    .join("");
-}
-
 const ISSUES_PAGE_SIZE = 15;
+
+/** Full nav rows for Issues (before site filter). */
+let issuesNavRows = [];
+/** Full certificate issue rows (before site filter). */
+let issuesCertAllRows = [];
 
 const SEVERITY_RANK = { High: 3, Medium: 2, Unknown: 1, Disabled: 1, Low: 0 };
 
@@ -650,18 +716,11 @@ function renderIssuesList(kind) {
   const tbody = document.querySelector(`#${list.tableId} tbody`);
   if (!tbody) return;
 
-  // warnings / unknown (disabled): Site · Component · Message only
-  // problems: full set without Status
-  // certificates: full set with Status
-  const layout =
-    kind === "warnings" || kind === "disabled"
-      ? "message-focus"
-      : kind === "certificates"
-        ? "certificates"
-        : "problems";
+  // problems / warnings / unknown+disabled: Severity · Site · Component · Type · Message
+  // certificates: Valid to · Severity · … · Status · Expires
+  const layout = kind === "certificates" ? "certificates" : "issues";
 
-  const colSpan =
-    layout === "message-focus" ? 3 : layout === "certificates" ? 8 : 7;
+  const colSpan = layout === "certificates" ? 8 : 5;
 
   if (!total) {
     tbody.innerHTML = `<tr><td colspan="${colSpan}" class="hm-props-empty">${
@@ -679,17 +738,15 @@ function renderIssuesList(kind) {
         const rowStyle = r.rowStyle
           ? ` style="${String(r.rowStyle).replace(/"/g, "")}"`
           : "";
-        if (layout === "message-focus") {
+        if (layout === "issues") {
           return `<tr class="${rowClass}"${rowStyle} title="${escapeHtml(r.path || "")}">
+        <td><span class="badge ${escapeHtml(sev)}">${escapeHtml(r.severity)}</span></td>
         <td>${escapeHtml(r.site)}</td>
         <td>${escapeHtml(r.component)}</td>
+        <td>${escapeHtml(r.type)}</td>
         <td>${escapeHtml(r.message)}</td>
       </tr>`;
         }
-        const statusCell =
-          layout === "certificates"
-            ? `<td>${escapeHtml(r.status)}</td>`
-            : "";
         return `<tr class="${rowClass}"${rowStyle} title="${escapeHtml(r.path || "")}">
         <td>${escapeHtml(r.time)}</td>
         <td><span class="badge ${escapeHtml(sev)}">${escapeHtml(r.severity)}</span></td>
@@ -697,27 +754,57 @@ function renderIssuesList(kind) {
         <td>${escapeHtml(r.component)}</td>
         <td>${escapeHtml(r.type)}</td>
         <td>${escapeHtml(r.message)}</td>
-        ${statusCell}
+        <td>${escapeHtml(r.status)}</td>
         <td>${escapeHtml(r.duration)}</td>
       </tr>`;
       })
       .join("");
   }
 
-  const label = document.getElementById(`issues-page-label-${kind}`);
-  if (label) {
-    label.textContent =
-      total === 0
-        ? "Page 0 of 0"
-        : `Page ${list.page} of ${pages} · ${total} total`;
-  }
   const pager = document.getElementById(`issues-pager-${kind}`);
   if (pager) pager.hidden = total <= ISSUES_PAGE_SIZE;
 
+  const pageInput = document.getElementById(`issues-page-input-${kind}`);
+  const pageOf = document.getElementById(`issues-page-of-${kind}`);
+  if (pageInput) {
+    pageInput.max = String(Math.max(1, pages));
+    pageInput.value = String(list.page);
+  }
+  if (pageOf) {
+    pageOf.textContent =
+      total === 0 ? `of 0` : `of ${pages} · ${total} total`;
+  }
+
+  const atStart = list.page <= 1 || total === 0;
+  const atEnd = list.page >= pages || total === 0;
+  const first = document.querySelector(`[data-issues-first="${kind}"]`);
   const prev = document.querySelector(`[data-issues-prev="${kind}"]`);
   const next = document.querySelector(`[data-issues-next="${kind}"]`);
-  if (prev) prev.disabled = list.page <= 1 || total === 0;
-  if (next) next.disabled = list.page >= pages || total === 0;
+  const last = document.querySelector(`[data-issues-last="${kind}"]`);
+  if (first) first.disabled = atStart;
+  if (prev) prev.disabled = atStart;
+  if (next) next.disabled = atEnd;
+  if (last) last.disabled = atEnd;
+}
+
+function goToIssuesPage(kind, page1Based) {
+  const list = issuesLists[kind];
+  if (!list) return;
+  const pages = issuesPageCount(list.rows.length);
+  const page = Math.min(pages, Math.max(1, Number(page1Based) || 1));
+  if (list.page === page) {
+    renderIssuesList(kind);
+    return;
+  }
+  list.page = page;
+  renderIssuesList(kind);
+}
+
+function commitIssuesPageInput(kind) {
+  const input = document.getElementById(`issues-page-input-${kind}`);
+  const list = issuesLists[kind];
+  if (!input || !list) return;
+  goToIssuesPage(kind, input.value);
 }
 
 function setIssuesList(kind, rows, { resetPage = false } = {}) {
@@ -728,12 +815,75 @@ function setIssuesList(kind, rows, { resetPage = false } = {}) {
   renderIssuesList(kind);
 }
 
+function getIssuesSiteFilter() {
+  const el = document.getElementById("issues-site-filter");
+  return el?.value || "All";
+}
+
+function filterRowsByIssueSite(rows, site) {
+  if (!site || site === "All") return rows || [];
+  return (rows || []).filter((r) => siteLabelFromRow(r) === site);
+}
+
+function filterIssueEntriesBySite(rows, site) {
+  if (!site || site === "All") return rows || [];
+  return (rows || []).filter((r) => {
+    const s = String(r?.site || "").trim();
+    if (s && s !== "—") return s === site;
+    return siteLabelFromRow(r) === site;
+  });
+}
+
+function syncIssuesSiteOptions(navRows, certRows) {
+  const sel = document.getElementById("issues-site-filter");
+  if (!sel) return;
+  const prev = sel.value || "All";
+  const bag = [...(navRows || [])];
+  for (const r of certRows || []) {
+    bag.push({ name: r.component || r.name, path: r.path });
+  }
+  const sites = buildSiteFilterOptions(bag);
+  sel.innerHTML = "";
+  const allOpt = document.createElement("option");
+  allOpt.value = "All";
+  allOpt.textContent = "All";
+  sel.appendChild(allOpt);
+  for (const site of sites) {
+    const opt = document.createElement("option");
+    opt.value = site;
+    opt.textContent = site;
+    sel.appendChild(opt);
+  }
+  sel.value = sites.includes(prev) || prev === "All" ? prev : "All";
+}
+
 function applyIssuesPageFromRows(rows, { resetPage = false } = {}) {
-  const { problems, warnings, unknown, disabled } = listIssuesAndAlerts(rows);
+  issuesNavRows = Array.isArray(rows) ? rows : [];
+  syncIssuesSiteOptions(issuesNavRows, issuesCertAllRows);
+  const site = getIssuesSiteFilter();
+  const filtered = filterRowsByIssueSite(issuesNavRows, site);
+  const { problems, warnings, unknown, disabled } =
+    listIssuesAndAlerts(filtered);
   setIssuesList("problems", problems, { resetPage });
   setIssuesList("warnings", warnings, { resetPage });
   // Issues panel labeled Unknown — include Disabled rows there until a separate panel exists
-  setIssuesList("disabled", [...(unknown || []), ...(disabled || [])], { resetPage });
+  setIssuesList("disabled", [...(unknown || []), ...(disabled || [])], {
+    resetPage,
+  });
+}
+
+function applyIssuesCertificatesFilter({ resetPage = false } = {}) {
+  const site = getIssuesSiteFilter();
+  setIssuesList(
+    "certificates",
+    filterIssueEntriesBySite(issuesCertAllRows, site),
+    { resetPage }
+  );
+}
+
+function onIssuesSiteFilterChange() {
+  applyIssuesPageFromRows(issuesNavRows, { resetPage: true });
+  applyIssuesCertificatesFilter({ resetPage: true });
 }
 
 async function loadIssuesPage() {
@@ -760,6 +910,7 @@ async function loadIssuesCertificates({ resetPage = false } = {}) {
   try {
     const ok = await ensureIwaSession({ force: false });
     if (!ok || !getStoredToken()) {
+      issuesCertAllRows = [];
       setIssuesList("certificates", [], { resetPage });
       if (note) {
         note.textContent =
@@ -771,7 +922,9 @@ async function loadIssuesCertificates({ resetPage = false } = {}) {
       note.textContent = "Loading certificates from Health Monitor Report…";
     }
     const { issues, raw } = await fetchExpiringCertificateIssues();
-    setIssuesList("certificates", issues, { resetPage });
+    issuesCertAllRows = issues;
+    syncIssuesSiteOptions(issuesNavRows, issuesCertAllRows);
+    applyIssuesCertificatesFilter({ resetPage });
     if (note) {
       const hidden = Math.max(0, (raw?.length || 0) - issues.length);
       note.textContent = hidden
@@ -780,6 +933,7 @@ async function loadIssuesCertificates({ resetPage = false } = {}) {
     }
   } catch (err) {
     console.warn("[issues] certificates", err);
+    issuesCertAllRows = [];
     setIssuesList("certificates", [], { resetPage });
     if (note) {
       note.textContent = `Could not load certificates: ${err.message || err}`;
@@ -795,13 +949,21 @@ function fillIssuesPage() {
 }
 
 function wireIssuesPagers() {
+  document
+    .getElementById("issues-site-filter")
+    ?.addEventListener("change", () => onIssuesSiteFilterChange());
+
+  document.querySelectorAll("[data-issues-first]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      goToIssuesPage(btn.getAttribute("data-issues-first"), 1);
+    });
+  });
   document.querySelectorAll("[data-issues-prev]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const kind = btn.getAttribute("data-issues-prev");
       const list = issuesLists[kind];
-      if (!list || list.page <= 1) return;
-      list.page -= 1;
-      renderIssuesList(kind);
+      if (!list) return;
+      goToIssuesPage(kind, list.page - 1);
     });
   });
   document.querySelectorAll("[data-issues-next]").forEach((btn) => {
@@ -809,10 +971,25 @@ function wireIssuesPagers() {
       const kind = btn.getAttribute("data-issues-next");
       const list = issuesLists[kind];
       if (!list) return;
-      const pages = issuesPageCount(list.rows.length);
-      if (list.page >= pages) return;
-      list.page += 1;
-      renderIssuesList(kind);
+      goToIssuesPage(kind, list.page + 1);
+    });
+  });
+  document.querySelectorAll("[data-issues-last]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const kind = btn.getAttribute("data-issues-last");
+      const list = issuesLists[kind];
+      if (!list) return;
+      goToIssuesPage(kind, issuesPageCount(list.rows.length));
+    });
+  });
+  document.querySelectorAll("[data-issues-page-input]").forEach((input) => {
+    const kind = input.getAttribute("data-issues-page-input");
+    input.addEventListener("change", () => commitIssuesPageInput(kind));
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitIssuesPageInput(kind);
+      }
     });
   });
 
@@ -849,6 +1026,7 @@ function wireNav() {
   const title = document.getElementById("other-title");
 
   function show(page) {
+    if (page !== "drilldown") closeDrillLogModal();
     overview.classList.toggle("visible", page === "overview");
     health.classList.toggle("visible", page === "health-monitor");
     issues.classList.toggle("visible", page === "issues");
@@ -927,26 +1105,12 @@ function safeChart(name, fn) {
   }
 }
 
-function initCharts() {
-  // Overview live charts: components / timeline / top-types via applyOverviewFromRows
-
-  safeChart("alerts", () => {
-    renderPie(document.getElementById("chart-alerts"), mock.alertsBySeverity);
-    fillLegend(
-      document.getElementById("legend-alerts"),
-      mock.alertsBySeverity.labels,
-      mock.alertsBySeverity.values,
-      mock.alertsBySeverity.colors
-    );
-  });
-}
-
 fillKpisFromMock();
-fillAlertsTable();
 fillIssuesPage();
 wireNav();
 wireOverviewFilters();
 wireIssuesPagers();
+initUserGuide();
 tickClock();
 setInterval(tickClock, 1000);
 
@@ -967,7 +1131,6 @@ document.querySelector(".topbar-logout")?.addEventListener("click", () => {
 // Defer charts until layout has real sizes (fixes blank Chart.js canvases)
 requestAnimationFrame(() => {
   requestAnimationFrame(() => {
-    initCharts();
     fillKpisFromMock();
     loadOverviewKpis();
   });

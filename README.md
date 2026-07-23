@@ -4,6 +4,8 @@ Custom **Bayer Health Monitor** (**Smart Sentinel**) for AspenTech inmation — 
 
 The active UI is a **Vite + plain HTML/CSS/JS** app under [`web/`](./web/). It talks to the inmation **Web API** on the plant host (IWA + Bearer token) and reuses the same Health Monitor libraries as the default WebStudio app (`syslib.app-webstudio-healthmonitor`, `inmation.app-reportviewer`, etc.).
 
+**How to use the app:** see [`docs/USER_GUIDE.md`](./docs/USER_GUIDE.md) (same content as the in-app **User Guide** button in the top bar).
+
 There is also an earlier **WebStudio compilation** track (JSON under `compilations/`) aimed at UI parity with the stock Health Monitor.
 
 **Task planning** lives on an Obsidian Canvas board via Kanvas (`Project.canvas`).
@@ -18,7 +20,7 @@ There is also an earlier **WebStudio compilation** track (JSON under `compilatio
 2. On load, the app **auto-connects with Windows IWA** (`/api/security/windows/authorize` against the real host so the browser can send credentials). The top bar shows **CONNECTED** / **DISCONNECTED**.
 3. Further calls use the **Bearer** token via `POST /api/v2/execfunction/...` (through the Vite proxy).
 4. **Health / severity** always come from source fields on navigation rows (WorstState, CommState, ObjectState, …) via `classifyNavHealth` — the UI does not invent Good/Bad/Warning.
-5. **Sites** are inferred from Bayer naming (`Area-Country-Site-…`) when filtering Overview / Reports / Issues.
+5. **Sites** are inferred from Bayer naming (`Area-Country-Site-…`) when filtering Dashboard / Reports / Health Overview.
 
 ```powershell
 cd web
@@ -33,13 +35,16 @@ Main code:
 | Path | Role |
 |------|------|
 | `web/index.html` | Shell + all page markup |
-| `web/src/main.js` | Nav, Overview, Issues |
+| `web/src/main.js` | Nav, Dashboard, Health Overview |
 | `web/src/health-monitor.js` | Health Monitor page |
+| `web/src/drill-down.js` | Diagnostics (hierarchy + logs) |
+| `web/src/user-guide.js` | In-app User Guide popup |
 | `web/src/reports.js` | Reports (loaded on demand) |
 | `web/src/api/inmation.js` | IWA + `execfunction` + reportviewer |
 | `web/src/api/hm-live.js` | Tree / nav table / health helpers |
 | `web/src/api/hm-certificates.js` | Certificates from HM Report XML |
 | `web/vite.config.js` | Proxy to Web API |
+| [`docs/USER_GUIDE.md`](./docs/USER_GUIDE.md) | End-user guide (GitHub + in-app mirror) |
 
 ---
 
@@ -47,13 +52,13 @@ Main code:
 
 | Tab | What it does |
 |-----|----------------|
-| **Overview** | Fleet snapshot from the live navigation table: health score doughnut, KPI cards (total / problems / warnings / disabled / sites), components-by-site chart, issues-over-time, top issue types, site summary and critical issues tables. **Site** and **time range** filters; optional auto-refresh. |
+| **Dashboard** | Fleet snapshot from the live navigation table: health score doughnut, KPI cards (total / problems / warnings / disabled / sites), components-by-site chart, issues-over-time, site summary and critical issues tables. **Site** and **time range** filters; optional auto-refresh. |
 | **Health Monitor** | Operator console closest to stock HM: **tree** or **list** navigation, object properties, performance counters, multi-pen chart with time-period settings, and values table. Live `fetchNavigationTree` / `fetchNavigationTable` / props / counters / chart APIs. |
-| **Issues & Alerts** | Three live lists from nav health — **Problems** (Bad), **Warnings**, **Disabled** — with sort and paging. Fourth panel **Certificates**: expired or expiring within 30 days from the Health Monitor Report (red / yellow / yellow→red under 15 days). |
-| **Trends** | Pick an object and inspect saved historical trend pens over a selectable time range (1d–…). |
-| **Drill-down** | Filter the live object set by **site / type / severity**, open a row for detail and related issues, jump toward Trends where useful. |
-| **Reports** | Live **Health Monitor Report** via `inmation.app-reportviewer` (`reports` + `reportdata` with `objspec`). Renders ADO.NET XML as Smart Sentinel HTML (doughnuts, inventory, datasources, certificates) — **not** Stimulsoft. **Site** filter, sortable columns, design selector, link to open HM WebStudio on the host. |
-| **Configuration** | Manage alert emails for **EAM Critical Objects** (mock/local list UI for now). |
+| **Health Overview** | Three live lists from nav health — **Problems** (Bad), **Warnings**, **Unknown & Disabled** — with sort and paging. Fourth panel **Connector Certificates**: expired or expiring within 30 days from the Health Monitor Report (red / yellow / yellow→red under 15 days). |
+| **Trends** | Pick an object and inspect saved historical trend pens over a selectable time range (1d–…). Page marked under development. |
+| **Diagnostics** | Filter by **site / type / severity**, inspect hierarchy health, open **Recent Logs (24h)**, double-click for Log Details, maximize logs panel. |
+| **Reports** | Live **Health Monitor Report** via `inmation.app-reportviewer` (`reports` + `reportdata` with `objspec`). Renders ADO.NET XML as Smart Sentinel HTML (doughnuts, inventory, datasources, certificates) — **not** Stimulsoft. **Site** + **State** filters; link to open HM WebStudio on the host. |
+| **Configuration** | Manage **EAM Critical Objects** (Add / Edit / Delete / Browse path / Apply to host). |
 
 ---
 

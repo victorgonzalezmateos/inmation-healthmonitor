@@ -34,8 +34,8 @@
           <ul class="nav-list">
             <li>
               <button type="button" class="active" data-page="overview">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 4 9v12h5v-7h6v7h5V9z"/></svg>
-                Overview
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v5h-8V3zM3 13h5v8H3v-8zm7 0h11v8H10v-8z"/></svg>
+                Dashboard
               </button>
             </li>
             <li>
@@ -47,7 +47,7 @@
             <li>
               <button type="button" data-page="issues">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 1 21h22L12 2zm1 14h-2v2h2v-2zm0-6h-2v4h2V10z"/></svg>
-                Issues &amp; Alerts
+                Health Overview
               </button>
             </li>
             <li>
@@ -59,7 +59,7 @@
             <li>
               <button type="button" data-page="drilldown">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 1 0 14 15.5l.27.28v.79L20 21.5 21.5 20l-6-6zM10 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
-                Drill-down
+                Diagnostics
               </button>
             </li>
             <li>
@@ -88,8 +88,8 @@
         <section id="page-overview" class="page-panel visible">
           <div class="page-head">
             <div>
-              <h1>Overview</h1>
-              <p>Global view of inmation Health</p>
+              <h1>Dashboard</h1>
+              <p>Fleet health score, KPIs, and site summary</p>
             </div>
             <div class="filters">
               <label class="filter"
@@ -102,7 +102,7 @@
               </label>
               <label class="filter"
                 >Site
-                <select id="overview-site-filter" title="Filter Overview by site">
+                <select id="overview-site-filter" title="Filter Dashboard by site">
                   <option value="All" selected>All</option>
                 </select>
               </label>
@@ -260,11 +260,22 @@
                   <tbody></tbody>
                 </table>
               </div>
+              <div class="hm-values-pager" id="overview-critical-pager" hidden>
+                <button type="button" class="hm-pager-btn" id="overview-critical-first" title="First page">First</button>
+                <button type="button" class="hm-pager-btn" id="overview-critical-prev">Previous</button>
+                <label class="hm-values-page-jump">
+                  Page
+                  <input id="overview-critical-page-input" class="hm-values-page-input" type="number" min="1" value="1" title="Go to page" aria-label="Critical issues page" />
+                  <span id="overview-critical-page-of" class="hm-values-page-of">of 1</span>
+                </label>
+                <button type="button" class="hm-pager-btn" id="overview-critical-next">Next</button>
+                <button type="button" class="hm-pager-btn" id="overview-critical-last" title="Last page">Last</button>
+              </div>
             </article>
           </div>
 
           <!-- Row 3 -->
-          <div class="grid-3">
+          <div class="grid-2">
             <article class="card">
               <h2>Site Summary</h2>
               <div class="hm-table-wrap overview-sites-wrap">
@@ -284,47 +295,23 @@
                   <tbody></tbody>
                 </table>
               </div>
+              <div class="hm-values-pager" id="overview-sites-pager" hidden>
+                <button type="button" class="hm-pager-btn" id="overview-sites-first" title="First page">First</button>
+                <button type="button" class="hm-pager-btn" id="overview-sites-prev">Previous</button>
+                <label class="hm-values-page-jump">
+                  Page
+                  <input id="overview-sites-page-input" class="hm-values-page-input" type="number" min="1" value="1" title="Go to page" aria-label="Site summary page" />
+                  <span id="overview-sites-page-of" class="hm-values-page-of">of 1</span>
+                </label>
+                <button type="button" class="hm-pager-btn" id="overview-sites-next">Next</button>
+                <button type="button" class="hm-pager-btn" id="overview-sites-last" title="Last page">Last</button>
+              </div>
             </article>
             <article class="card">
               <h2>Issues Over Time <span class="chart-hint" id="timeline-hint">(last 24h)</span></h2>
               <div class="chart-box">
                 <canvas id="chart-timeline"></canvas>
               </div>
-            </article>
-            <article class="card">
-              <h2>Top Issue Types <span class="chart-hint">(live Bad + Warning)</span></h2>
-              <div class="chart-box">
-                <canvas id="chart-top-types"></canvas>
-              </div>
-            </article>
-          </div>
-
-          <!-- Row 4 -->
-          <div class="grid-2">
-            <article class="card">
-              <h2>Recent Alerts</h2>
-              <table class="data" id="table-alerts">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Severity</th>
-                    <th>Site</th>
-                    <th>Component</th>
-                    <th>Message</th>
-                    <th>Status</th>
-                    <th>Duration</th>
-                    <th>Ack</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </article>
-            <article class="card">
-              <h2>Alerts by Severity</h2>
-              <div class="chart-box sm">
-                <canvas id="chart-alerts"></canvas>
-              </div>
-              <div class="legend" id="legend-alerts"></div>
             </article>
           </div>
         </section>
@@ -333,7 +320,7 @@
           <div class="page-head">
             <div>
               <h1>Health Monitor</h1>
-              <p>Object tree, properties, and performance counters</p>
+              <p>Live object tree, properties, counters, and charts</p>
             </div>
           </div>
           <div class="hm-layout">
@@ -382,6 +369,17 @@
                       </thead>
                       <tbody></tbody>
                     </table>
+                  </div>
+                  <div class="hm-values-pager" id="hm-nav-list-pager" hidden>
+                    <button type="button" class="hm-pager-btn" id="hm-nav-list-first" title="First page">First</button>
+                    <button type="button" class="hm-pager-btn" id="hm-nav-list-prev">Previous</button>
+                    <label class="hm-values-page-jump">
+                      Page
+                      <input id="hm-nav-list-page-input" class="hm-values-page-input" type="number" min="1" value="1" title="Go to page" aria-label="Navigation list page" />
+                      <span id="hm-nav-list-page-of" class="hm-values-page-of">of 1</span>
+                    </label>
+                    <button type="button" class="hm-pager-btn" id="hm-nav-list-next">Next</button>
+                    <button type="button" class="hm-pager-btn" id="hm-nav-list-last" title="Last page">Last</button>
                   </div>
                 </div>
               </div>
@@ -471,6 +469,17 @@
                       <tbody></tbody>
                     </table>
                   </div>
+                  <div class="hm-values-pager" id="hm-counters-pager" hidden>
+                    <button type="button" class="hm-pager-btn" id="hm-counters-first" title="First page">First</button>
+                    <button type="button" class="hm-pager-btn" id="hm-counters-prev">Previous</button>
+                    <label class="hm-values-page-jump">
+                      Page
+                      <input id="hm-counters-page-input" class="hm-values-page-input" type="number" min="1" value="1" title="Go to page" aria-label="Counters page" />
+                      <span id="hm-counters-page-of" class="hm-values-page-of">of 1</span>
+                    </label>
+                    <button type="button" class="hm-pager-btn" id="hm-counters-next">Next</button>
+                    <button type="button" class="hm-pager-btn" id="hm-counters-last" title="Last page">Last</button>
+                  </div>
                   <div class="hm-counters-footer">
                     <span id="hm-selection-hint" class="hm-selection-hint"></span>
                     <button type="button" class="btn-submit" id="hm-submit" disabled>Submit</button>
@@ -479,9 +488,17 @@
                 <div id="hm-chart-view" class="hm-chart-view" hidden>
                   <div class="hm-chart-toolbar">
                     <div id="hm-chart-status" class="hm-chart-status">Select counters and click Submit.</div>
-                    <button type="button" class="hm-period-btn" id="hm-period-open" title="Time Period Settings">
-                      <span class="hm-period-btn-label">Time period</span>
-                      <span id="hm-period-summary" class="hm-period-summary">*-1h → *</span>
+                    <button
+                      type="button"
+                      class="hm-period-btn"
+                      id="hm-period-open"
+                      title="Time Period Settings · *-1h → *"
+                      aria-label="Time Period Settings"
+                    >
+                      <svg class="hm-period-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v5l3 2" />
+                      </svg>
                     </button>
                   </div>
                   <p id="hm-chart-empty" class="hm-props-empty" hidden>
@@ -505,9 +522,17 @@
                           <option value="100">100</option>
                         </select>
                       </label>
-                      <button type="button" class="hm-period-btn" id="hm-period-open-values" title="Time Period Settings">
-                        <span class="hm-period-btn-label">Time period</span>
-                        <span id="hm-period-summary-values" class="hm-period-summary">*-1h → *</span>
+                      <button
+                        type="button"
+                        class="hm-period-btn"
+                        id="hm-period-open-values"
+                        title="Time Period Settings · *-1h → *"
+                        aria-label="Time Period Settings"
+                      >
+                        <svg class="hm-period-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="9" />
+                          <path d="M12 7v5l3 2" />
+                        </svg>
                       </button>
                     </div>
                   </div>
@@ -522,9 +547,27 @@
                       </table>
                     </div>
                     <div class="hm-values-pager" id="hm-values-pager" hidden>
+                      <button type="button" class="hm-pager-btn" id="hm-values-first" title="First page">
+                        First
+                      </button>
                       <button type="button" class="hm-pager-btn" id="hm-values-prev">Previous</button>
-                      <span id="hm-values-page-label" class="hm-values-page-label">Page 1 of 1</span>
+                      <label class="hm-values-page-jump">
+                        Page
+                        <input
+                          id="hm-values-page-input"
+                          class="hm-values-page-input"
+                          type="number"
+                          min="1"
+                          value="1"
+                          title="Go to page"
+                          aria-label="Current page"
+                        />
+                        <span id="hm-values-page-of" class="hm-values-page-of">of 1</span>
+                      </label>
                       <button type="button" class="hm-pager-btn" id="hm-values-next">Next</button>
+                      <button type="button" class="hm-pager-btn" id="hm-values-last" title="Last page">
+                        Last
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -536,36 +579,57 @@
         <section id="page-issues" class="page-panel">
           <div class="page-head">
             <div>
-              <h1>Issues &amp; Alerts</h1>
-              <p>Problems, warnings, unknown state, and expiring certificates</p>
+              <h1>Health Overview</h1>
+              <p>Problems, warnings, disabled objects, and connector certificates</p>
+            </div>
+            <div class="filters">
+              <label class="filter"
+                >Site
+                <select id="issues-site-filter" title="Filter Health Overview by site">
+                  <option value="All" selected>All</option>
+                </select>
+              </label>
             </div>
           </div>
           <div class="issues-split">
             <article class="card issues-panel">
               <div class="hm-panel-head issues-panel-head issues">
-                <span>Issues (Problems)</span>
+                <span>Issues &amp; Problems</span>
                 <span class="issues-count" id="issues-count">0</span>
               </div>
               <div class="hm-table-wrap">
                 <table class="data" id="table-system-issues">
                   <thead>
                     <tr>
-                      <th data-issues-sort="time" scope="col"><button type="button" class="hm-sort-btn" data-label="Time">Time</button></th>
                       <th data-issues-sort="severity" scope="col"><button type="button" class="hm-sort-btn" data-label="Severity">Severity</button></th>
                       <th data-issues-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
                       <th data-issues-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
                       <th data-issues-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
                       <th data-issues-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
-                      <th data-issues-sort="duration" scope="col"><button type="button" class="hm-sort-btn" data-label="Duration">Duration</button></th>
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
               </div>
               <div class="hm-values-pager issues-pager" id="issues-pager-problems">
+                <button type="button" class="hm-pager-btn" data-issues-first="problems" title="First page">First</button>
                 <button type="button" class="hm-pager-btn" data-issues-prev="problems">Previous</button>
-                <span class="hm-values-page-label" id="issues-page-label-problems">Page 1 of 1</span>
+                <label class="hm-values-page-jump">
+                  Page
+                  <input
+                    id="issues-page-input-problems"
+                    class="hm-values-page-input"
+                    type="number"
+                    min="1"
+                    value="1"
+                    title="Go to page"
+                    aria-label="Problems page"
+                    data-issues-page-input="problems"
+                  />
+                  <span id="issues-page-of-problems" class="hm-values-page-of">of 1</span>
+                </label>
                 <button type="button" class="hm-pager-btn" data-issues-next="problems">Next</button>
+                <button type="button" class="hm-pager-btn" data-issues-last="problems" title="Last page">Last</button>
               </div>
             </article>
             <article class="card issues-panel">
@@ -577,8 +641,10 @@
                 <table class="data" id="table-system-warnings">
                   <thead>
                     <tr>
+                      <th data-issues-sort="severity" scope="col"><button type="button" class="hm-sort-btn" data-label="Severity">Severity</button></th>
                       <th data-issues-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
                       <th data-issues-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
+                      <th data-issues-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
                       <th data-issues-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
                     </tr>
                   </thead>
@@ -586,22 +652,39 @@
                 </table>
               </div>
               <div class="hm-values-pager issues-pager" id="issues-pager-warnings">
+                <button type="button" class="hm-pager-btn" data-issues-first="warnings" title="First page">First</button>
                 <button type="button" class="hm-pager-btn" data-issues-prev="warnings">Previous</button>
-                <span class="hm-values-page-label" id="issues-page-label-warnings">Page 1 of 1</span>
+                <label class="hm-values-page-jump">
+                  Page
+                  <input
+                    id="issues-page-input-warnings"
+                    class="hm-values-page-input"
+                    type="number"
+                    min="1"
+                    value="1"
+                    title="Go to page"
+                    aria-label="Warnings page"
+                    data-issues-page-input="warnings"
+                  />
+                  <span id="issues-page-of-warnings" class="hm-values-page-of">of 1</span>
+                </label>
                 <button type="button" class="hm-pager-btn" data-issues-next="warnings">Next</button>
+                <button type="button" class="hm-pager-btn" data-issues-last="warnings" title="Last page">Last</button>
               </div>
             </article>
             <article class="card issues-panel">
               <div class="hm-panel-head issues-panel-head disabled">
-                <span>Unknown</span>
+                <span>Unknown &amp; Disabled</span>
                 <span class="issues-count" id="disabled-count">0</span>
               </div>
               <div class="hm-table-wrap">
                 <table class="data" id="table-system-disabled">
                   <thead>
                     <tr>
+                      <th data-issues-sort="severity" scope="col"><button type="button" class="hm-sort-btn" data-label="Severity">Severity</button></th>
                       <th data-issues-sort="site" scope="col"><button type="button" class="hm-sort-btn" data-label="Site">Site</button></th>
                       <th data-issues-sort="component" scope="col"><button type="button" class="hm-sort-btn" data-label="Component">Component</button></th>
+                      <th data-issues-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
                       <th data-issues-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
                     </tr>
                   </thead>
@@ -609,14 +692,29 @@
                 </table>
               </div>
               <div class="hm-values-pager issues-pager" id="issues-pager-disabled">
+                <button type="button" class="hm-pager-btn" data-issues-first="disabled" title="First page">First</button>
                 <button type="button" class="hm-pager-btn" data-issues-prev="disabled">Previous</button>
-                <span class="hm-values-page-label" id="issues-page-label-disabled">Page 1 of 1</span>
+                <label class="hm-values-page-jump">
+                  Page
+                  <input
+                    id="issues-page-input-disabled"
+                    class="hm-values-page-input"
+                    type="number"
+                    min="1"
+                    value="1"
+                    title="Go to page"
+                    aria-label="Unknown and Disabled page"
+                    data-issues-page-input="disabled"
+                  />
+                  <span id="issues-page-of-disabled" class="hm-values-page-of">of 1</span>
+                </label>
                 <button type="button" class="hm-pager-btn" data-issues-next="disabled">Next</button>
+                <button type="button" class="hm-pager-btn" data-issues-last="disabled" title="Last page">Last</button>
               </div>
             </article>
             <article class="card issues-panel">
               <div class="hm-panel-head issues-panel-head certificates">
-                <span>Certificates</span>
+                <span>Connector Certificates</span>
                 <span class="issues-count" id="certificates-count">0</span>
               </div>
               <p class="issues-cert-note muted" id="certificates-note">
@@ -642,9 +740,24 @@
                 </table>
               </div>
               <div class="hm-values-pager issues-pager" id="issues-pager-certificates">
+                <button type="button" class="hm-pager-btn" data-issues-first="certificates" title="First page">First</button>
                 <button type="button" class="hm-pager-btn" data-issues-prev="certificates">Previous</button>
-                <span class="hm-values-page-label" id="issues-page-label-certificates">Page 1 of 1</span>
+                <label class="hm-values-page-jump">
+                  Page
+                  <input
+                    id="issues-page-input-certificates"
+                    class="hm-values-page-input"
+                    type="number"
+                    min="1"
+                    value="1"
+                    title="Go to page"
+                    aria-label="Connector Certificates page"
+                    data-issues-page-input="certificates"
+                  />
+                  <span id="issues-page-of-certificates" class="hm-values-page-of">of 1</span>
+                </label>
                 <button type="button" class="hm-pager-btn" data-issues-next="certificates">Next</button>
+                <button type="button" class="hm-pager-btn" data-issues-last="certificates" title="Last page">Last</button>
               </div>
             </article>
           </div>
@@ -654,7 +767,7 @@
           <div class="page-head">
             <div>
               <h1>Trends</h1>
-              <p>Select an object to view its saved historical trend data</p>
+              <p>Historical trend pens for a selected object</p>
             </div>
             <div class="filters">
               <label class="filter"
@@ -667,6 +780,9 @@
                 </select>
               </label>
             </div>
+          </div>
+          <div class="page-dev-alert" role="status">
+            This page is under development.
           </div>
           <div class="trends-layout">
             <div class="card hm-tree-card trends-tree-card">
@@ -689,8 +805,8 @@
         <section id="page-drilldown" class="page-panel">
           <div class="page-head">
             <div>
-              <h1>Drill-down</h1>
-              <p>Investigate from site / type / severity down to a specific object</p>
+              <h1>Diagnostics</h1>
+              <p>Filter by site and severity, then inspect recent Error/Warning logs</p>
             </div>
             <div class="filters">
               <label class="filter"
@@ -725,8 +841,6 @@
                       <th data-dd-sort="type" scope="col"><button type="button" class="hm-sort-btn" data-label="Type">Type</button></th>
                       <th data-dd-sort="worstState" scope="col"><button type="button" class="hm-sort-btn" data-label="Worst State">Worst State</button></th>
                       <th data-dd-sort="score" scope="col"><button type="button" class="hm-sort-btn" data-label="Score">Score</button></th>
-                      <th data-dd-sort="problems" scope="col"><button type="button" class="hm-sort-btn" data-label="Problems">Problems</button></th>
-                      <th data-dd-sort="warnings" scope="col"><button type="button" class="hm-sort-btn" data-label="Warnings">Warnings</button></th>
                       <th data-dd-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
                     </tr>
                   </thead>
@@ -734,58 +848,151 @@
                 </table>
               </div>
               <div class="hm-values-pager issues-pager" id="dd-pager" hidden>
+                <button type="button" class="hm-pager-btn" id="dd-page-first" title="First page">First</button>
                 <button type="button" class="hm-pager-btn" id="dd-page-prev">Previous</button>
-                <span class="hm-values-page-label" id="dd-page-label">Page 1 of 1</span>
+                <label class="hm-values-page-jump">
+                  Page
+                  <input id="dd-page-input" class="hm-values-page-input" type="number" min="1" value="1" title="Go to page" aria-label="Diagnostics page" />
+                  <span id="dd-page-of" class="hm-values-page-of">of 1</span>
+                </label>
                 <button type="button" class="hm-pager-btn" id="dd-page-next">Next</button>
+                <button type="button" class="hm-pager-btn" id="dd-page-last" title="Last page">Last</button>
               </div>
             </article>
             <aside class="card dd-detail-card">
-              <div class="hm-panel-head" id="dd-detail-title">Object detail</div>
+              <div class="hm-panel-head dd-logs-head">
+                <span id="dd-detail-title">Recent Logs (Last 24h)</span>
+                <div class="hm-head-actions">
+                  <button
+                    type="button"
+                    class="hm-view-btn hm-maximize-btn"
+                    id="dd-logs-maximize"
+                    title="Maximize panel"
+                    aria-label="Maximize panel"
+                  >
+                    <svg class="hm-ico-expand" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M8 3H3v5" />
+                      <path d="M16 3h5v5" />
+                      <path d="M8 21H3v-5" />
+                      <path d="M16 21h5v-5" />
+                    </svg>
+                    <svg class="hm-ico-compress" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" hidden fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 3v6H3" />
+                      <path d="M15 3v6h6" />
+                      <path d="M9 21v-6H3" />
+                      <path d="M15 21v-6h6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
               <p id="dd-detail-empty" class="hm-props-empty">
-                Select a row to inspect properties and related issues.
+                Select a row to load recent Error / Warning logs.
               </p>
               <div id="dd-detail-body" hidden>
-                <div id="dd-props" class="hm-props dd-props"></div>
-                <div class="dd-related-block">
-                  <div class="dd-related-head">Related issues &amp; alerts</div>
-                  <p id="dd-related-empty" class="hm-props-empty" hidden>No related items.</p>
-                  <div class="hm-table-wrap dd-related-wrap">
-                    <table class="data" id="dd-related">
+                <div class="dd-related-block dd-logs-block">
+                  <p id="dd-logs-empty" class="hm-props-empty" hidden>No Error / Warning logs in the last 24 hours.</p>
+                  <div class="hm-table-wrap dd-related-wrap" id="dd-logs-wrap">
+                    <table class="data" id="dd-logs">
                       <thead>
                         <tr>
-                          <th>Time</th>
-                          <th>Severity</th>
-                          <th>Type</th>
-                          <th>Message</th>
-                          <th>Status</th>
-                          <th>Duration</th>
+                          <th data-dd-log-sort="timestampUtc" scope="col"><button type="button" class="hm-sort-btn" data-label="Timestamp (UTC)">Timestamp (UTC)</button></th>
+                          <th data-dd-log-sort="severity" scope="col"><button type="button" class="hm-sort-btn" data-label="Severity">Severity</button></th>
+                          <th data-dd-log-sort="message" scope="col"><button type="button" class="hm-sort-btn" data-label="Message">Message</button></th>
                         </tr>
                       </thead>
                       <tbody></tbody>
                     </table>
                   </div>
-                </div>
-                <div class="dd-detail-actions">
-                  <button type="button" class="btn-submit" id="dd-open-trends">
-                    Open in Trends
-                  </button>
+                  <div class="hm-values-pager issues-pager" id="dd-logs-pager" hidden>
+                    <button type="button" class="hm-pager-btn" id="dd-logs-first" title="First page">First</button>
+                    <button type="button" class="hm-pager-btn" id="dd-logs-prev">Previous</button>
+                    <label class="hm-values-page-jump">
+                      Page
+                      <input id="dd-logs-page-input" class="hm-values-page-input" type="number" min="1" value="1" title="Go to page" aria-label="Logs page" />
+                      <span id="dd-logs-page-of" class="hm-values-page-of">of 1</span>
+                    </label>
+                    <button type="button" class="hm-pager-btn" id="dd-logs-next">Next</button>
+                    <button type="button" class="hm-pager-btn" id="dd-logs-last" title="Last page">Last</button>
+                  </div>
                 </div>
               </div>
             </aside>
           </div>
         </section>
 
+        <!-- Log Details (DataStudio-style) -->
+        <div id="dd-log-modal" class="dd-log-modal" hidden>
+          <div class="dd-log-modal-backdrop" data-dd-log-close></div>
+          <div
+            class="dd-log-modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dd-log-modal-title"
+          >
+            <header class="dd-log-modal-head">
+              <h2 id="dd-log-modal-title">Log Details</h2>
+              <button type="button" class="dd-log-modal-x" data-dd-log-close aria-label="Close">×</button>
+            </header>
+            <div class="dd-log-modal-body">
+              <div class="dd-log-modal-main">
+                <table class="dd-log-detail-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Name</th>
+                      <th scope="col">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dd-log-detail-body"></tbody>
+                </table>
+              </div>
+              <aside class="dd-log-nav" aria-label="Log navigation">
+                <button type="button" class="dd-log-nav-btn" id="dd-log-nav-first" title="First log" aria-label="First log">⤒</button>
+                <button type="button" class="dd-log-nav-btn" id="dd-log-nav-page-up" title="Jump up" aria-label="Jump up">⇞</button>
+                <button type="button" class="dd-log-nav-btn" id="dd-log-nav-prev" title="Previous log" aria-label="Previous log">▲</button>
+                <button type="button" class="dd-log-nav-btn" id="dd-log-nav-next" title="Next log" aria-label="Next log">▼</button>
+                <button type="button" class="dd-log-nav-btn" id="dd-log-nav-page-down" title="Jump down" aria-label="Jump down">⇟</button>
+                <button type="button" class="dd-log-nav-btn" id="dd-log-nav-last" title="Last log" aria-label="Last log">⤓</button>
+              </aside>
+            </div>
+            <footer class="dd-log-modal-foot">
+              <button type="button" class="hm-period-btn-secondary" id="dd-log-copy">Copy</button>
+              <button type="button" class="hm-period-btn-primary" data-dd-log-close>Close</button>
+            </footer>
+          </div>
+        </div>
+
         <section id="page-config" class="page-panel">
           <div class="page-head">
             <div>
               <h1>Configuration</h1>
-              <p>Manage alert emails for EAM Critical Objects</p>
+              <p>EAM critical objects and local contact alerts</p>
             </div>
             <div class="filters">
+              <label class="filter"
+                >Site
+                <select id="cfg-filter-site" title="Filter by site code in Path"></select>
+              </label>
               <label class="filter"
                 >Type
                 <select id="cfg-filter-type"></select>
               </label>
+              <button
+                type="button"
+                class="hm-pager-btn cfg-toolbar-btn"
+                id="cfg-reload"
+                title="Reload from host"
+              >
+                Reload
+              </button>
+              <button
+                type="button"
+                class="btn-submit cfg-toolbar-btn"
+                id="cfg-apply"
+                title="Apply local changes to inmation"
+                disabled
+              >
+                Apply
+              </button>
             </div>
           </div>
           <p class="cfg-source" id="cfg-source"></p>
@@ -793,60 +1000,225 @@
             <article class="card cfg-table-card">
               <div class="hm-panel-head dd-table-head">
                 <span>EAM Critical Objects</span>
-                <span class="issues-count" id="cfg-count">0</span>
+                <div class="cfg-table-actions">
+                  <button type="button" class="hm-pager-btn" id="cfg-add-row" title="Add a new row">
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    class="hm-pager-btn"
+                    id="cfg-edit-row"
+                    title="Edit selected row emails"
+                    disabled
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    class="hm-pager-btn cfg-btn-danger"
+                    id="cfg-delete-row"
+                    title="Delete selected row"
+                    disabled
+                  >
+                    Delete
+                  </button>
+                  <span class="issues-count" id="cfg-count">0</span>
+                </div>
               </div>
               <div class="hm-table-wrap">
                 <table class="data" id="cfg-eam-table">
                   <thead>
                     <tr>
-                      <th>Path</th>
-                      <th>Type</th>
-                      <th>Alert emails</th>
+                      <th class="cfg-col-check" scope="col" title="Select one row">
+                        <span class="cfg-check-head" aria-hidden="true"></span>
+                      </th>
+                      <th data-cfg-sort="path" scope="col">
+                        <button type="button" class="hm-sort-btn" data-label="Path">Path</button>
+                      </th>
+                      <th data-cfg-sort="objectType" scope="col">
+                        <button type="button" class="hm-sort-btn" data-label="Object Type">Object Type</button>
+                      </th>
+                      <th data-cfg-sort="standby" scope="col">
+                        <button type="button" class="hm-sort-btn" data-label="Standby">Standby</button>
+                      </th>
+                      <th data-cfg-sort="localContact" scope="col">
+                        <button type="button" class="hm-sort-btn" data-label="Local Contact">Local Contact</button>
+                      </th>
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
               </div>
-            </article>
-            <aside class="card cfg-editor-card">
-              <div class="hm-panel-head" id="cfg-editor-title">Alert recipients</div>
-              <p id="cfg-editor-empty" class="hm-props-empty">
-                Select an object to manage its alert emails.
-              </p>
-              <div id="cfg-editor-body" class="cfg-editor-body" hidden>
-                <div class="cfg-editor-meta">
-                  <div class="cfg-meta-label">Path</div>
-                  <div class="cfg-meta-path" id="cfg-editor-path"></div>
-                  <div class="cfg-meta-label">Type</div>
-                  <div class="cfg-meta-type" id="cfg-editor-type"></div>
-                </div>
-                <div class="cfg-related-head">Emails</div>
-                <ul id="cfg-email-list" class="cfg-email-list"></ul>
-                <form id="cfg-email-form" class="cfg-email-form">
-                  <input
-                    type="email"
-                    id="cfg-email-input"
-                    class="cfg-email-input"
-                    placeholder="name@bayer.com"
-                    autocomplete="off"
-                    required
-                  />
-                  <button type="submit" class="btn-submit">Add email</button>
-                </form>
-                <p class="cfg-email-error" id="cfg-email-error" role="status"></p>
+              <div class="hm-values-pager" id="cfg-pager" hidden>
+                <button type="button" class="hm-pager-btn" id="cfg-page-first" title="First page">First</button>
+                <button type="button" class="hm-pager-btn" id="cfg-page-prev">Previous</button>
+                <label class="hm-values-page-jump">
+                  Page
+                  <input id="cfg-page-input" class="hm-values-page-input" type="number" min="1" value="1" title="Go to page" aria-label="Configuration page" />
+                  <span id="cfg-page-of" class="hm-values-page-of">of 1</span>
+                </label>
+                <button type="button" class="hm-pager-btn" id="cfg-page-next">Next</button>
+                <button type="button" class="hm-pager-btn" id="cfg-page-last" title="Last page">Last</button>
               </div>
-            </aside>
+              <form id="cfg-add-form" class="cfg-add-form" hidden>
+                <div class="cfg-add-form-title">New row</div>
+                <div class="cfg-add-grid">
+                  <label class="cfg-add-path-label">Path
+                    <div class="cfg-add-path-row">
+                      <input id="cfg-add-path" class="cfg-add-input mono" type="text" placeholder="/System/Core/…" required />
+                      <button type="button" class="hm-pager-btn" id="cfg-browse-path" title="Browse I/O Model tree">
+                        Browse…
+                      </button>
+                    </div>
+                  </label>
+                  <label>Object Type
+                    <input id="cfg-add-type" class="cfg-add-input" type="text" list="cfg-type-list" placeholder="Local Core" required />
+                    <datalist id="cfg-type-list"></datalist>
+                  </label>
+                  <label>Standby
+                    <input id="cfg-add-standby" class="cfg-add-input" type="text" placeholder="optional" />
+                  </label>
+                  <label>Local Contact
+                    <input id="cfg-add-contact" class="cfg-add-input" type="text" placeholder="a@bayer.com, b@bayer.com" />
+                  </label>
+                </div>
+                <div class="cfg-add-actions">
+                  <button type="submit" class="btn-submit">Add to table</button>
+                  <button type="button" class="btn-ghost" id="cfg-add-cancel">Cancel</button>
+                  <p class="cfg-email-error" id="cfg-add-error" role="status"></p>
+                </div>
+                <p class="muted cfg-readonly-note">
+                  Local until you click <strong>Apply</strong> (writes TableData to DataStudio).
+                </p>
+              </form>
+            </article>
           </div>
         </section>
+
+        <!-- Path picker: manual entry + I/O Model tree -->
+        <div id="cfg-path-modal" class="cfg-modal" hidden>
+          <div class="cfg-modal-backdrop" data-cfg-path-close></div>
+          <div
+            class="cfg-modal-dialog cfg-modal-dialog-lg"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cfg-path-title"
+          >
+            <header class="cfg-modal-head">
+              <h2 id="cfg-path-title">Select object path</h2>
+              <button type="button" class="cfg-modal-x" data-cfg-path-close aria-label="Close">×</button>
+            </header>
+            <div class="cfg-modal-body cfg-path-modal-body">
+              <p class="muted cfg-path-hint">
+                Type a path manually (above or below), or pick an object from the I/O Model tree.
+              </p>
+              <label class="cfg-path-manual-label">Path
+                <input
+                  id="cfg-path-manual"
+                  class="cfg-add-input mono"
+                  type="text"
+                  placeholder="/System/Core/…"
+                  spellcheck="false"
+                />
+              </label>
+              <div class="cfg-path-tree-wrap">
+                <div class="cfg-path-tree-caption">I/O Model</div>
+                <p id="cfg-path-tree-status" class="muted cfg-path-tree-status">Loading tree…</p>
+                <ul id="cfg-path-tree" class="hm-tree cfg-path-tree" hidden></ul>
+              </div>
+              <label class="cfg-path-manual-label cfg-path-manual-bottom-label">Path
+                <input
+                  id="cfg-path-manual-bottom"
+                  class="cfg-add-input mono"
+                  type="text"
+                  placeholder="/System/Core/…"
+                  spellcheck="false"
+                  aria-label="Path (manual, below tree)"
+                />
+              </label>
+              <p class="muted" id="cfg-path-selected-meta"></p>
+            </div>
+            <footer class="cfg-modal-foot">
+              <button type="button" class="btn-ghost" data-cfg-path-close>Cancel</button>
+              <button type="button" class="btn-submit" id="cfg-path-ok">OK</button>
+            </footer>
+          </div>
+        </div>
+
+        <!-- EAM Edit emails modal -->
+        <div id="cfg-edit-modal" class="cfg-modal" hidden>
+          <div class="cfg-modal-backdrop" data-cfg-edit-close></div>
+          <div
+            class="cfg-modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cfg-edit-title"
+          >
+            <header class="cfg-modal-head">
+              <h2 id="cfg-edit-title">Edit alert recipients</h2>
+              <button type="button" class="cfg-modal-x" data-cfg-edit-close aria-label="Close">×</button>
+            </header>
+            <div class="cfg-modal-body">
+              <div class="cfg-editor-meta">
+                <div class="cfg-meta-label">Path</div>
+                <div class="cfg-meta-path" id="cfg-edit-path"></div>
+                <div class="cfg-meta-label">Object Type</div>
+                <div class="cfg-meta-type" id="cfg-edit-type"></div>
+                <div class="cfg-meta-label">Standby</div>
+                <div class="cfg-meta-type" id="cfg-edit-standby"></div>
+              </div>
+              <div class="cfg-related-head">Emails</div>
+              <ul id="cfg-edit-email-list" class="cfg-email-list"></ul>
+              <form id="cfg-edit-email-form" class="cfg-email-form">
+                <input
+                  type="email"
+                  id="cfg-edit-email-input"
+                  class="cfg-email-input"
+                  placeholder="name@bayer.com"
+                  autocomplete="off"
+                />
+                <button type="submit" class="btn-submit">Add email</button>
+              </form>
+              <p class="cfg-email-error" id="cfg-edit-email-error" role="status"></p>
+            </div>
+            <footer class="cfg-modal-foot">
+              <button type="button" class="btn-ghost" data-cfg-edit-close>Cancel</button>
+              <button type="button" class="btn-submit" id="cfg-edit-save">Save</button>
+            </footer>
+          </div>
+        </div>
+
+        <!-- Confirm Apply to DataStudio -->
+        <div id="cfg-apply-modal" class="cfg-modal" hidden>
+          <div class="cfg-modal-backdrop" data-cfg-apply-close></div>
+          <div
+            class="cfg-modal-dialog cfg-modal-dialog-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cfg-apply-title"
+          >
+            <header class="cfg-modal-head">
+              <h2 id="cfg-apply-title">Apply changes</h2>
+              <button type="button" class="cfg-modal-x" data-cfg-apply-close aria-label="Close">×</button>
+            </header>
+            <div class="cfg-modal-body">
+              <p id="cfg-apply-message">
+                These changes will be applied in DataStudio. Do you want to apply the changes?
+              </p>
+              <p class="cfg-email-error" id="cfg-apply-error" role="status"></p>
+            </div>
+            <footer class="cfg-modal-foot">
+              <button type="button" class="btn-ghost" data-cfg-apply-close>Cancel</button>
+              <button type="button" class="btn-submit" id="cfg-apply-confirm">Apply</button>
+            </footer>
+          </div>
+        </div>
 
         <section id="page-reports" class="page-panel">
           <div class="page-head">
             <div>
               <h1>Reports</h1>
-              <p>
-                Same Report Items as Health Monitor — live data via
-                <code>inmation.app-reportviewer</code>
-              </p>
+              <p>Live Health Monitor Report: inventory, datasources, and certificates</p>
             </div>
             <div class="filters reports-toolbar">
               <label class="filter reports-site-label">
@@ -874,24 +1246,24 @@
                   <option value="good">Good</option>
                 </select>
               </label>
-              <label class="reports-design-label">
-                Design
-                <select id="reports-design" class="hm-select" aria-label="Report design"></select>
-              </label>
-              <button type="button" class="hm-pager-btn" id="reports-reload" title="Reload report">
+              <button
+                type="button"
+                class="hm-pager-btn reports-toolbar-btn"
+                id="reports-reload"
+                title="Reload report"
+              >
                 Reload
               </button>
               <a
-                class="hm-pager-btn reports-open-link"
+                class="hm-pager-btn reports-open-link reports-toolbar-btn"
                 id="reports-open"
                 href="#"
                 target="_blank"
                 rel="noopener noreferrer"
-                >Open in Health Monitor</a
+                >Open Report</a
               >
             </div>
           </div>
-          <p class="reports-path muted" id="reports-path"></p>
           <p class="reports-status muted" id="reports-status" aria-live="polite"></p>
           <article class="card reports-body-card">
             <div id="reports-body" class="reports-body">
@@ -924,19 +1296,6 @@
           <button type="button" class="hm-period-x" data-period-close aria-label="Close">×</button>
         </header>
 
-        <div class="hm-period-shorthand-bar">
-          <input id="hm-period-bar-start" class="hm-period-input mono" spellcheck="false" />
-          <input id="hm-period-bar-end" class="hm-period-input mono" spellcheck="false" />
-          <input id="hm-period-bar-intervals" class="hm-period-input mono narrow" type="number" min="2" max="2000" />
-        </div>
-
-        <div class="hm-period-presets">
-          <button type="button" data-period-preset="1h">*-1h</button>
-          <button type="button" data-period-preset="8h">*-8h</button>
-          <button type="button" data-period-preset="1d">*-1d</button>
-          <button type="button" data-period-preset="7d">*-7d</button>
-        </div>
-
         <div class="hm-period-columns">
           <section class="hm-period-col">
             <h3>Start</h3>
@@ -958,8 +1317,15 @@
 
         <div class="hm-period-bottom">
           <label class="hm-period-field inline"
-            >Intervals
-            <input id="hm-period-intervals" class="hm-period-input mono narrow" type="number" min="2" max="2000" />
+            >Max. rows
+            <input
+              id="hm-period-intervals"
+              class="hm-period-input mono narrow"
+              type="number"
+              min="2"
+              max="99999"
+              title="Maximum data points / rows (2–99999)"
+            />
           </label>
           <div class="hm-period-length">
             <span>Length</span>
@@ -974,6 +1340,32 @@
         <footer class="hm-period-actions">
           <button type="button" class="hm-period-btn-secondary" id="hm-period-apply">Apply</button>
           <button type="button" class="hm-period-btn-primary" id="hm-period-ok">OK</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- User Guide (almost full-screen) -->
+    <div id="ug-modal" class="ug-modal" hidden>
+      <div class="ug-backdrop" data-ug-close></div>
+      <div
+        class="ug-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ug-title"
+      >
+        <header class="ug-head">
+          <div>
+            <h2 id="ug-title">Smart Sentinel · User Guide</h2>
+            <p class="ug-head-sub">How to use each menu section</p>
+          </div>
+          <button type="button" class="ug-x" data-ug-close aria-label="Close">×</button>
+        </header>
+        <div class="ug-body">
+          <nav id="ug-nav" class="ug-nav" aria-label="User Guide sections"></nav>
+          <div id="ug-content" class="ug-content" tabindex="0"></div>
+        </div>
+        <footer class="ug-foot">
+          <button type="button" class="hm-period-btn-primary" data-ug-close>Close</button>
         </footer>
       </div>
     </div>

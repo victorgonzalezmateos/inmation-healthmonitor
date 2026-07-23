@@ -11,19 +11,33 @@ import {
   fetchReportDesigns,
   formatApiError,
 } from "./api/inmation.js";
-import { extractKnownSites, siteFromRow } from "./api/hm-live.js";
+import { siteLabelFromRow, buildSiteFilterOptions } from "./api/hm-live.js";
 import { renderHealthDoughnut } from "./charts.js";
 import { ensureIwaSession } from "./session.js";
+import {
+  clampPage,
+  fullPagerHtml,
+  pageCount,
+  sliceRows,
+  updateFullPager,
+} from "./table-pager.js";
 
 const REPORT_ITEM = {
   label: "System Monitor / Health Monitor Report",
   path: "/System/Core/_Global Core Logic/System Monitoring/Report/Health Monitor/Health Monitor Report",
 };
 
-/** Absolute HM WebStudio URL (relative /apps on localhost often fails auth/load). */
-const HM_STUDIO_URL = `${WEBAPI_HOST}/apps/webstudio?name=${encodeURIComponent(
-  "Health Monitor - WebStudio - Compilation"
-)}&c=Compilation&i=281920728793088`;
+/**
+ * Native Stimulsoft Report Viewer for the Health Monitor Report
+ * ("Report: System Monitor Checkup" — same item as this page loads via API).
+ */
+function reportViewerUrl() {
+  const u = new URL(`${WEBAPI_HOST}/apps/reportviewer/`);
+  u.searchParams.set("path", REPORT_ITEM.path);
+  u.searchParams.set("secp", "iwa");
+  u.searchParams.set("ssl", "true");
+  return u.toString();
+}
 
 const DOUGHNUT_SPECS = [
   { key: "overall", title: "Overall", tag: "stateOverallDoughnut" },
@@ -114,16 +128,18 @@ const CERT_COLS = [
 ];
 
 const DATASOURCE_PAGE = 25;
+const REPORT_TABLE_PAGE = 25;
 const REPORT_LOAD_TIMEOUT_MS = 180_000;
 const SKIP_XML_TAGS = new Set(["schema", "xs:schema", "xsd:schema"]);
 
 const chartIds = new Set();
 let bound = false;
-let designs = [];
+/** Prefer Stimulsoft design named "Report"; fall back to host default. */
 let selectedDesign = "Report";
 let lastParsed = null;
 let lastMeta = null;
-let dsPage = 0;
+/** @type {Record<string, number>} 1-based page per report table id */
+const tablePage = {};
 /** Inventory/datasource state filter: issues | all | good | bad | warning | disabled */
 let stateFilter = "issues";
 let siteFilter = "All";
@@ -141,7 +157,7 @@ function esc(s) {
 }
 
 function hmStudioUrl() {
-  return HM_STUDIO_URL;
+  return reportViewerUrl();
 }
 
 function destroyReportCharts() {
@@ -154,7 +170,7 @@ function destroyReportCharts() {
 
 /** Site code from a report inventory / cert / generic row. */
 function reportRowSite(row) {
-  return siteFromRow({
+  return siteLabelFromRow({
     name: row?.name,
     path: row?.path,
     ObjectName: row?.name || row?.SystemName,
@@ -176,7 +192,7 @@ function collectReportSites(parsed) {
   for (const rows of Object.values(parsed?.allTables || {})) {
     bag.push(...(rows || []));
   }
-  return extractKnownSites(
+  return buildSiteFilterOptions(
     bag.map((r) => ({
       name: r.name || r.SystemName,
       path: r.path || r.SystemName,
@@ -302,7 +318,6 @@ export function parseReportXml(xmlStr) {
   return {
     header: rows("Header")[0] || {},
     global: rows("Global")[0] || {},
-    environment: rows("Environment"),
     doughnuts,
     inventory: {
       cores: rows("IO-CORE"),
@@ -403,33 +418,65 @@ function stateFilterNote(shown, siteTotal) {
   return `<p class="muted report-filter-note">Showing ${shown} of ${siteTotal} for state filter.</p>`;
 }
 
+function getTablePage(tableId) {
+  return tablePage[tableId] || 1;
+}
+
+function setTablePage(tableId, page) {
+  tablePage[tableId] = Math.max(1, Number(page) || 1);
+}
+
+function resetReportPages() {
+  Object.keys(tablePage).forEach((k) => delete tablePage[k]);
+}
+
+function reportPagerMarkup(tableId, ariaLabel) {
+  const id = String(tableId);
+  return fullPagerHtml({
+    pagerId: `report-pager-${id}`,
+    firstAttr: `data-report-page="first" data-report-pager="${id}"`,
+    prevAttr: `data-report-page="prev" data-report-pager="${id}"`,
+    nextAttr: `data-report-page="next" data-report-pager="${id}"`,
+    lastAttr: `data-report-page="last" data-report-pager="${id}"`,
+    inputId: `report-page-input-${id}`,
+    inputAttr: `data-report-page-input="${id}"`,
+    ofId: `report-page-of-${id}`,
+    ariaLabel,
+  }).replace(
+    `id="report-pager-${id}"`,
+    `id="report-pager-${id}" data-report-pager="${id}"`
+  );
+}
+
+function syncReportPagerDom(tableId, page, pages, total, pageSize) {
+  const id = String(tableId);
+  updateFullPager(
+    {
+      pager: document.getElementById(`report-pager-${id}`),
+      first: document.querySelector(
+        `button[data-report-pager="${id}"][data-report-page="first"]`
+      ),
+      prev: document.querySelector(
+        `button[data-report-pager="${id}"][data-report-page="prev"]`
+      ),
+      next: document.querySelector(
+        `button[data-report-pager="${id}"][data-report-page="next"]`
+      ),
+      last: document.querySelector(
+        `button[data-report-pager="${id}"][data-report-page="last"]`
+      ),
+      pageInput: document.querySelector(`input[data-report-page-input="${id}"]`),
+      pageOf: document.getElementById(`report-page-of-${id}`),
+    },
+    { page, pages, total, pageSize }
+  );
+}
+
 function formatWhen(iso) {
   if (!iso) return "—";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return esc(iso);
   return esc(d.toISOString().replace(/\.\d{3}Z$/, "Z"));
-}
-
-function renderEnv(rows) {
-  const tableId = "env";
-  const list = sortRows(rows || [], tableId, "name");
-  if (!list.length) return "";
-  const body = list
-    .map(
-      (r) =>
-        `<tr><td>${esc(r.name)}</td><td class="mono">${esc(r.value)}</td></tr>`
-    )
-    .join("");
-  return `
-    <section class="report-section">
-      <h3 class="report-section-title">Environment</h3>
-      <div class="report-table-wrap">
-        <table class="report-table" data-report-table="${tableId}">
-          <thead><tr>${sortTh(tableId, "name", "Name")}${sortTh(tableId, "value", "Value")}</tr></thead>
-          <tbody>${body}</tbody>
-        </table>
-      </div>
-    </section>`;
 }
 
 function renderInventoryTable(cfg, rows) {
@@ -459,10 +506,12 @@ function renderInventoryTable(cfg, rows) {
       </section>`;
   }
   const list = sortInventoryRows(filtered, tableId, cfg.cols[0][0]);
+  const paged = sliceRows(list, getTablePage(tableId), REPORT_TABLE_PAGE);
+  setTablePage(tableId, paged.page);
   const head = cfg.cols
     .map(([key, label]) => sortTh(tableId, key, label))
     .join("");
-  const body = list
+  const body = paged.slice
     .map((r) => {
       const cells = cfg.cols
         .map(([key]) => {
@@ -487,6 +536,7 @@ function renderInventoryTable(cfg, rows) {
           <tbody>${body}</tbody>
         </table>
       </div>
+      ${reportPagerMarkup(tableId, `${cfg.title} page`)}
     </section>`;
 }
 
@@ -499,13 +549,10 @@ function renderDatasources(rows) {
   const siteRows = filterRowsBySite(rows);
   const filtered = filterDatasources(rows);
   const total = filtered.length;
-  const pages = Math.max(1, Math.ceil(total / DATASOURCE_PAGE) || 1);
-  if (dsPage >= pages) dsPage = Math.max(0, pages - 1);
   const sorted = sortInventoryRows(filtered, tableId, "name");
-  const slice = sorted.slice(
-    dsPage * DATASOURCE_PAGE,
-    dsPage * DATASOURCE_PAGE + DATASOURCE_PAGE
-  );
+  const paged = sliceRows(sorted, getTablePage(tableId), DATASOURCE_PAGE);
+  setTablePage(tableId, paged.page);
+  const slice = paged.slice;
 
   const head = DATASOURCE_COLS.map(([key, label]) =>
     sortTh(tableId, key, label)
@@ -538,11 +585,6 @@ function renderDatasources(rows) {
     <section class="report-section" id="report-inv-datasources">
       <div class="report-section-head">
         <h3 class="report-section-title">Datasources <span class="muted">(${total})</span></h3>
-        <div class="report-ds-toolbar">
-          <span class="muted">${total} shown · page ${dsPage + 1}/${pages}</span>
-          <button type="button" class="btn-ghost" id="report-ds-prev" ${dsPage <= 0 ? "disabled" : ""}>Prev</button>
-          <button type="button" class="btn-ghost" id="report-ds-next" ${dsPage >= pages - 1 || total === 0 ? "disabled" : ""}>Next</button>
-        </div>
       </div>
       ${stateFilterNote(total, siteRows.length)}
       <div class="report-table-wrap">
@@ -551,6 +593,7 @@ function renderDatasources(rows) {
           <tbody>${body || `<tr><td colspan="4"><span class="${emptyCls}">${esc(emptyMsg)}</span></td></tr>`}</tbody>
         </table>
       </div>
+      ${reportPagerMarkup(tableId, "Datasources page")}
     </section>`;
 }
 
@@ -612,10 +655,12 @@ function renderCertificates(rows) {
     tableSort[tableId] = { key: "expiresIn", dir: 1 };
   }
   const list = sortRows(filtered, tableId, "expiresIn");
+  const paged = sliceRows(list, getTablePage(tableId), REPORT_TABLE_PAGE);
+  setTablePage(tableId, paged.page);
   const head = CERT_COLS.map(([key, label]) => sortTh(tableId, key, label)).join(
     ""
   );
-  const body = list
+  const body = paged.slice
     .map((r) => {
       const days = certExpiryDays(r);
       const { cls, style } = certRowAppearance(days);
@@ -645,6 +690,7 @@ function renderCertificates(rows) {
           <tbody>${body}</tbody>
         </table>
       </div>
+      ${reportPagerMarkup(tableId, "Certificates page")}
     </section>`;
 }
 
@@ -665,9 +711,11 @@ function renderGenericTables(allTables) {
       const filtered = filterRowsBySite(rows);
       const cols = [...new Set(rows.flatMap((r) => Object.keys(r)))];
       const defaultKey = cols[0] || "name";
-      const list = sortRows(filtered, tableId, defaultKey).slice(0, 500);
+      const sorted = sortRows(filtered, tableId, defaultKey);
+      const paged = sliceRows(sorted, getTablePage(tableId), REPORT_TABLE_PAGE);
+      setTablePage(tableId, paged.page);
       const head = cols.map((c) => sortTh(tableId, c, c)).join("");
-      const body = list
+      const body = paged.slice
         .map(
           (r) =>
             `<tr>${cols
@@ -675,10 +723,6 @@ function renderGenericTables(allTables) {
               .join("")}</tr>`
         )
         .join("");
-      const more =
-        filtered.length > 500
-          ? `<p class="muted">Showing 500 of ${filtered.length} rows.</p>`
-          : "";
       return `
         <section class="report-section">
           <h3 class="report-section-title">${esc(name)} <span class="muted">(${filtered.length})</span></h3>
@@ -690,7 +734,7 @@ function renderGenericTables(allTables) {
               <tbody>${body}</tbody>
             </table>
           </div>
-          ${more}`
+          ${reportPagerMarkup(tableId, `${name} page`)}`
               : `<p class="muted">No rows for site ${esc(siteFilter)}.</p>`
           }
         </section>`;
@@ -738,13 +782,11 @@ function renderReportHtml(parsed, meta) {
           <h2 class="report-title">${esc(testName)}</h2>
           <p class="report-meta muted">
             ${when ? `Executed ${formatWhen(when)} · ` : ""}
-            ${meta.design ? `Design “${esc(meta.design)}” · ` : ""}
             Custom schema — sortable tables
           </p>
         </div>
       </header>
       ${siteNote}
-      ${renderEnv(parsed.environment)}
       ${renderGenericTables(parsed.allTables)}
     `;
   }
@@ -771,7 +813,6 @@ function renderReportHtml(parsed, meta) {
         <p class="report-meta muted">
           Executed ${formatWhen(when)}
           ${version ? ` · Core ${esc(version)}` : ""}
-          ${meta.design ? ` · Design “${esc(meta.design)}”` : ""}
         </p>
       </div>
     </header>
@@ -780,7 +821,6 @@ function renderReportHtml(parsed, meta) {
       <h3 class="report-section-title">Component health</h3>
       <div class="report-donut-grid">${donutCards}</div>
     </section>
-    ${renderEnv(parsed.environment)}
     ${inv}
     ${renderDatasources(parsed.inventory.datasources)}
     ${renderCertificates(parsed.certificates)}
@@ -797,33 +837,19 @@ function setStatus(msg, isError = false) {
 function syncOpenLink() {
   const a = document.getElementById("reports-open");
   if (a) {
-    a.href = hmStudioUrl();
-    a.title = `Open ${REPORT_ITEM.label} in Health Monitor WebStudio`;
+    a.href = reportViewerUrl();
+    a.title = `Open “System Monitor Checkup” in Report Viewer (${REPORT_ITEM.path})`;
   }
-  const pathEl = document.getElementById("reports-path");
-  if (pathEl) pathEl.textContent = REPORT_ITEM.path;
 }
 
-function fillDesignSelect(list) {
-  const sel = document.getElementById("reports-design");
-  if (!sel) return;
-  designs = Array.isArray(list) ? list : [];
-  if (!designs.length) {
-    designs = [{ name: "Report", default: true, order: 1 }];
-  }
+function preferReportDesign(list) {
+  const designs = Array.isArray(list) ? list : [];
+  if (!designs.length) return "Report";
   const preferred =
     designs.find((d) => d.name === "Report") ||
     designs.find((d) => d.default) ||
     designs[0];
-  selectedDesign = preferred?.name || "Report";
-  sel.innerHTML = designs
-    .slice()
-    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    .map(
-      (d) =>
-        `<option value="${esc(d.name)}"${d.name === selectedDesign ? " selected" : ""}>${esc(d.name)}${d.default ? " (default)" : ""}</option>`
-    )
-    .join("");
+  return preferred?.name || "Report";
 }
 
 function paintDoughnuts(parsed) {
@@ -846,24 +872,67 @@ function paintDoughnuts(parsed) {
   }
 }
 
-function bindDatasourceToolbar() {
-  const prev = document.getElementById("report-ds-prev");
-  const next = document.getElementById("report-ds-next");
-  prev?.addEventListener("click", () => {
-    if (dsPage > 0) {
-      dsPage -= 1;
-      paintReportBody({ keepCharts: true });
-    }
-  });
-  next?.addEventListener("click", () => {
-    dsPage += 1;
-    paintReportBody({ keepCharts: true });
-  });
+function syncReportPagersAfterPaint() {
+  if (!lastParsed) return;
+  document
+    .querySelectorAll("#reports-body .hm-values-pager[id^='report-pager-']")
+    .forEach((pager) => {
+      const tableId =
+        pager.getAttribute("data-report-pager") ||
+        String(pager.id || "").replace(/^report-pager-/, "");
+      if (!tableId) return;
+      const pageSize =
+        tableId === "datasources" ? DATASOURCE_PAGE : REPORT_TABLE_PAGE;
+      let rowTotal = 0;
+      if (tableId === "datasources") {
+        rowTotal = filterDatasources(
+          lastParsed.inventory?.datasources || []
+        ).length;
+      } else if (tableId === "certificates") {
+        rowTotal = filterExpiringCerts(
+          filterRowsBySite(lastParsed.certificates || [])
+        ).length;
+      } else if (tableId.startsWith("inv-")) {
+        const key = tableId.slice(4);
+        rowTotal = filterInventoryRows(
+          lastParsed.inventory?.[key] || []
+        ).length;
+      } else if (tableId.startsWith("gen-")) {
+        const name = tableId.slice(4);
+        rowTotal = filterRowsBySite(lastParsed.allTables?.[name] || []).length;
+      }
+      const page = clampPage(getTablePage(tableId), rowTotal, pageSize);
+      setTablePage(tableId, page);
+      syncReportPagerDom(
+        tableId,
+        page,
+        pageCount(rowTotal, pageSize),
+        rowTotal,
+        pageSize
+      );
+    });
 }
 
-function syncStateFilterSelect() {
-  const sel = document.getElementById("reports-state-filter");
-  if (sel && sel.value !== stateFilter) sel.value = stateFilter;
+function goToReportTablePage(tableId, page1Based) {
+  if (!tableId || !lastParsed) return;
+  const pageSize =
+    tableId === "datasources" ? DATASOURCE_PAGE : REPORT_TABLE_PAGE;
+  let total = 0;
+  if (tableId === "datasources") {
+    total = filterDatasources(lastParsed.inventory?.datasources || []).length;
+  } else if (tableId === "certificates") {
+    total = filterExpiringCerts(
+      filterRowsBySite(lastParsed.certificates || [])
+    ).length;
+  } else if (tableId.startsWith("inv-")) {
+    const key = tableId.slice(4);
+    total = filterInventoryRows(lastParsed.inventory?.[key] || []).length;
+  } else if (tableId.startsWith("gen-")) {
+    const name = tableId.slice(4);
+    total = filterRowsBySite(lastParsed.allTables?.[name] || []).length;
+  }
+  setTablePage(tableId, clampPage(page1Based, total, pageSize));
+  paintReportBody({ keepCharts: true });
 }
 
 function paintReportBody({ keepCharts = false } = {}) {
@@ -875,12 +944,16 @@ function paintReportBody({ keepCharts = false } = {}) {
     if (isHmShaped(lastParsed)) {
       if (!keepCharts) paintDoughnuts(lastParsed);
       else {
-        // Re-created canvases need paint even when "keeping" logical charts
         paintDoughnuts(lastParsed);
       }
-      bindDatasourceToolbar();
     }
+    syncReportPagersAfterPaint();
   });
+}
+
+function syncStateFilterSelect() {
+  const sel = document.getElementById("reports-state-filter");
+  if (sel && sel.value !== stateFilter) sel.value = stateFilter;
 }
 
 async function loadReport() {
@@ -898,7 +971,7 @@ async function loadReport() {
   const signal = ac.signal;
   const stillCurrent = () => seq === loadSeq && !signal.aborted;
 
-  setStatus("Fetching report designs…");
+  setStatus("Connecting…");
 
   try {
     const ok = await ensureIwaSession();
@@ -915,14 +988,9 @@ async function loadReport() {
       console.warn("[reports] designs list failed, using Report", err);
     }
     if (!stillCurrent()) return;
-    fillDesignSelect(designList);
+    selectedDesign = preferReportDesign(designList);
 
-    const designSel = document.getElementById("reports-design");
-    if (designSel?.value) selectedDesign = designSel.value;
-
-    setStatus(
-      `Loading “${selectedDesign}” from Web API (XML only; may take a while)…`
-    );
+    setStatus("Loading report from Web API (may take a while)…");
     let report;
     try {
       report = await fetchReportData(REPORT_ITEM.path, selectedDesign, {
@@ -946,7 +1014,7 @@ async function loadReport() {
     }
 
     setStatus("Parsing report XML…");
-    dsPage = 0;
+    resetReportPages();
     stateFilter = "issues";
     syncStateFilterSelect();
     Object.keys(tableSort).forEach((k) => delete tableSort[k]);
@@ -976,7 +1044,7 @@ async function loadReport() {
     lastMeta = null;
     if (body) {
       body.innerHTML = `<p class="report-error">Could not load report: ${esc(err.message || err)}</p>
-        <p class="muted">Use <strong>Open in Health Monitor</strong> as a fallback, or check IWA / Web API access to <code>inmation.app-reportviewer</code>.</p>`;
+        <p class="muted">Use <strong>Open Report</strong> for the native Stimulsoft viewer, or check IWA / Web API access to <code>inmation.app-reportviewer</code>.</p>`;
     }
     setStatus(
       (err.body ? formatApiError(err.body) : null) ||
@@ -996,25 +1064,33 @@ export function initReportsPage() {
     document.getElementById("reports-reload")?.addEventListener("click", () => {
       loadReport();
     });
-    document.getElementById("reports-design")?.addEventListener("change", (e) => {
-      selectedDesign = e.target.value;
-      loadReport();
-    });
     document
       .getElementById("reports-site-filter")
       ?.addEventListener("change", (e) => {
         siteFilter = e.target.value || "All";
-        dsPage = 0;
+        resetReportPages();
         paintReportBody();
       });
     document
       .getElementById("reports-state-filter")
       ?.addEventListener("change", (e) => {
         stateFilter = e.target.value || "issues";
-        dsPage = 0;
+        resetReportPages();
         paintReportBody();
       });
-    document.getElementById("reports-body")?.addEventListener("click", (e) => {
+    const body = document.getElementById("reports-body");
+    body?.addEventListener("click", (e) => {
+      const pageBtn = e.target.closest("[data-report-page][data-report-pager]");
+      if (pageBtn) {
+        const tableId = pageBtn.getAttribute("data-report-pager");
+        const action = pageBtn.getAttribute("data-report-page");
+        const cur = getTablePage(tableId);
+        if (action === "first") goToReportTablePage(tableId, 1);
+        else if (action === "prev") goToReportTablePage(tableId, cur - 1);
+        else if (action === "next") goToReportTablePage(tableId, cur + 1);
+        else if (action === "last") goToReportTablePage(tableId, 99999);
+        return;
+      }
       const th = e.target.closest("th[data-report-sort]");
       if (!th) return;
       const tableId = th.getAttribute("data-report-sort");
@@ -1023,7 +1099,20 @@ export function initReportsPage() {
       const cur = tableSort[tableId];
       if (cur?.key === key) tableSort[tableId] = { key, dir: cur.dir * -1 };
       else tableSort[tableId] = { key, dir: 1 };
+      setTablePage(tableId, 1);
       paintReportBody({ keepCharts: true });
+    });
+    body?.addEventListener("change", (e) => {
+      const input = e.target.closest("[data-report-page-input]");
+      if (!input) return;
+      goToReportTablePage(input.getAttribute("data-report-page-input"), input.value);
+    });
+    body?.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      const input = e.target.closest("[data-report-page-input]");
+      if (!input) return;
+      e.preventDefault();
+      goToReportTablePage(input.getAttribute("data-report-page-input"), input.value);
     });
   }
   loadReport();

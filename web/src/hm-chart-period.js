@@ -8,6 +8,15 @@ export const DEFAULT_PERIOD = {
   intervals: 60,
 };
 
+/** Hard cap so chart/history requests cannot overwhelm the host. */
+export const MAX_PERIOD_INTERVALS = 99999;
+
+export function clampPeriodIntervals(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return DEFAULT_PERIOD.intervals;
+  return Math.min(MAX_PERIOD_INTERVALS, Math.max(2, Math.round(n)));
+}
+
 /** Parse inmation-style relative time like *-1h, *-1d, * into Date. */
 export function resolvePeriodInstant(token, now = Date.now()) {
   const raw = String(token ?? "*").trim();
@@ -59,8 +68,10 @@ export function msFromLengthParts({ d = 0, h = 0, m = 0, s = 0, ms = 0 }) {
 export function formatPeriodSummary(period) {
   const start = period?.start || DEFAULT_PERIOD.start;
   const end = period?.end || DEFAULT_PERIOD.end;
-  const intervals = period?.intervals ?? DEFAULT_PERIOD.intervals;
-  return `${start}  →  ${end}  ·  ${intervals} intervals`;
+  const intervals = clampPeriodIntervals(
+    period?.intervals ?? DEFAULT_PERIOD.intervals
+  );
+  return `${start}  →  ${end}  ·  max ${intervals} rows`;
 }
 
 export function toDatetimeLocalValue(date) {
@@ -78,14 +89,13 @@ export function fromDatetimeLocalValue(value) {
 
 /** Estimate series point count from duration + intervals. */
 export function estimatePointsForPeriod(period) {
-  const intervals = Math.max(2, Number(period.intervals) || 60);
-  return intervals;
+  return clampPeriodIntervals(period.intervals);
 }
 
 export function periodToApiTimes(period, now = Date.now()) {
   const startTok = String(period.start || "*").trim();
   const endTok = String(period.end || "*").trim();
-  const intervalsNo = Math.max(2, Number(period.intervals) || 60);
+  const intervalsNo = clampPeriodIntervals(period.intervals);
 
   const startIsRel = startTok === "*" || /^\*\s*-/.test(startTok);
   const endIsRel = endTok === "*" || /^\*\s*-/.test(endTok);

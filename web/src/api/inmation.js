@@ -249,6 +249,117 @@ export async function fetchReportData(reportItemPath, designName, options = {}) 
   return report;
 }
 
+/**
+ * POST /api/v2/read — object values / properties by path.
+ * @param {Array<{ p?: string, i?: string|number }>} items
+ * @param {{ token?: string, signal?: AbortSignal }} [options]
+ */
+export async function readItems(items, options = {}) {
+  const token = options.token || getStoredToken();
+  if (!token) {
+    throw new Error("No access token — connect with IWA first");
+  }
+  if (!Array.isArray(items) || !items.length) {
+    throw new Error("readItems: items required");
+  }
+
+  const res = await fetch("/api/v2/read?fields=ALL", {
+    method: "POST",
+    credentials: "omit",
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ items }),
+    signal: options.signal,
+  });
+
+  const text = await res.text();
+  let body = null;
+  try {
+    body = text ? parseJsonPreservingLargeInts(text) : null;
+  } catch {
+    body = { raw: text };
+  }
+
+  if (!res.ok) {
+    const err = new Error(
+      `read → ${res.status}: ${formatApiError(body)}`
+    );
+    err.status = res.status;
+    err.body = body;
+    throw err;
+  }
+
+  return body;
+}
+
+/**
+ * POST /api/v2/write — object / property values by path.
+ * @param {Array<{ p?: string, i?: string|number, v: unknown, q?: number, t?: string }>} items
+ * @param {{ token?: string, signal?: AbortSignal }} [options]
+ */
+export async function writeItems(items, options = {}) {
+  const token = options.token || getStoredToken();
+  if (!token) {
+    throw new Error("No access token — connect with IWA first");
+  }
+  if (!Array.isArray(items) || !items.length) {
+    throw new Error("writeItems: items required");
+  }
+
+  const res = await fetch("/api/v2/write", {
+    method: "POST",
+    credentials: "omit",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ items }),
+    signal: options.signal,
+  });
+
+  const text = await res.text();
+  let body = null;
+  try {
+    body = text ? parseJsonPreservingLargeInts(text) : null;
+  } catch {
+    body = { raw: text };
+  }
+
+  if (!res.ok) {
+    const err = new Error(
+      `write → ${res.status}: ${formatApiError(body)}`
+    );
+    err.status = res.status;
+    err.body = body;
+    throw err;
+  }
+
+  // Per-item errors can still return HTTP 200
+  const written =
+    body?.data?.items ||
+    body?.items ||
+    (Array.isArray(body?.data) ? body.data : null) ||
+    (Array.isArray(body) ? body : null);
+  if (Array.isArray(written)) {
+    const failed = written.filter((it) => it?.e || it?.error);
+    if (failed.length) {
+      const msg = failed
+        .map((it) => it.e?.msg || it.error?.msg || formatApiError(it.e || it.error))
+        .join("; ");
+      const err = new Error(msg || "Write failed for one or more items");
+      err.body = body;
+      throw err;
+    }
+  }
+
+  return body;
+}
+
 export function formatApiError(body) {
   if (!body) return "(empty body)";
   if (typeof body === "string") return body;

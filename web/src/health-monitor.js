@@ -31,16 +31,17 @@ import {
 } from "./hm-chart-paint.js";
 import {
   DEFAULT_PERIOD,
+  clampPeriodIntervals,
   formatPeriodSummary,
   fromDatetimeLocalValue,
   lengthPartsFromMs,
   msFromLengthParts,
   periodDurationMs,
-  PRESET_PERIODS,
   resolvePeriodInstant,
   toDatetimeLocalValue,
 } from "./hm-chart-period.js";
 import { formatHmTimestamp } from "./hm-time-format.js";
+import { clampPage, sliceRows, updateFullPager } from "./table-pager.js";
 
 let mode = "mock"; // "mock" | "live"
 let treeRoots = mockTreeRoots;
@@ -58,6 +59,8 @@ let counterRows = [];
 const selectedCounterKeys = new Set();
 let sortKey = "ObjectName";
 let sortDir = 1; // 1 asc, -1 desc
+let countersPage = 1;
+const COUNTERS_PAGE_SIZE = 25;
 let countersPanelView = "table"; // "table" | "chart" | "values"
 let hmChartInstance = null;
 /** @type {Array<Record<string, unknown>>} */
@@ -73,6 +76,8 @@ let chartReloadBusy = false;
 let periodDraft = { ...DEFAULT_PERIOD };
 let valuesPageSize = 50;
 let valuesPageIndex = 0; // 0-based
+/** Values table: sort by Time column only (1 = payload order, -1 = reverse). */
+let valuesTimeSortDir = 1;
 
 /** "tree" | "list" */
 let navView = "tree";
@@ -80,6 +85,8 @@ let navView = "tree";
 let navTableRows = [...mockNavTableRows];
 let navSortKey = "name";
 let navSortDir = 1;
+let navListPage = 1;
+const NAV_LIST_PAGE_SIZE = 25;
 let navTableLoaded = false;
 
 function findNode(nodes, id) {
@@ -511,10 +518,11 @@ function destroyHmChart() {
 
 function updatePeriodSummaryBtn() {
   const text = `${chartPeriod.start} → ${chartPeriod.end}`;
-  const el = document.getElementById("hm-period-summary");
-  const el2 = document.getElementById("hm-period-summary-values");
-  if (el) el.textContent = text;
-  if (el2) el2.textContent = text;
+  const title = `Time Period Settings · ${text}`;
+  for (const id of ["hm-period-open", "hm-period-open-values"]) {
+    const btn = document.getElementById(id);
+    if (btn) btn.title = title;
+  }
 }
 
 function setChartPanelStatus(text, kind = "info") {
@@ -558,9 +566,6 @@ function fillPeriodModal(period) {
     const el = document.getElementById(id);
     if (el) el.value = v;
   };
-  setVal("hm-period-bar-start", startTok);
-  setVal("hm-period-bar-end", endTok);
-  setVal("hm-period-bar-intervals", String(intervals));
   setVal("hm-period-start-token", startTok);
   setVal("hm-period-end-token", endTok);
   setVal("hm-period-intervals", String(intervals));
@@ -577,21 +582,16 @@ function fillPeriodModal(period) {
 
 function readPeriodFromModal() {
   const start =
-    document.getElementById("hm-period-start-token")?.value.trim() ||
-    document.getElementById("hm-period-bar-start")?.value.trim() ||
-    "*-1h";
+    document.getElementById("hm-period-start-token")?.value.trim() || "*-1h";
   const end =
-    document.getElementById("hm-period-end-token")?.value.trim() ||
-    document.getElementById("hm-period-bar-end")?.value.trim() ||
-    "*";
-  const intervals = Math.max(
-    2,
-    Number(
-      document.getElementById("hm-period-intervals")?.value ||
-        document.getElementById("hm-period-bar-intervals")?.value ||
-        60
-    ) || 60
+    document.getElementById("hm-period-end-token")?.value.trim() || "*";
+  const intervals = clampPeriodIntervals(
+    document.getElementById("hm-period-intervals")?.value || 60
   );
+  const input = document.getElementById("hm-period-intervals");
+  if (input && String(input.value) !== String(intervals)) {
+    input.value = String(intervals);
+  }
   return { start, end, intervals };
 }
 
@@ -606,34 +606,18 @@ function closePeriodModal() {
   if (modal) modal.hidden = true;
 }
 
-function applyPeriodPreset(key) {
-  const preset = PRESET_PERIODS[key];
-  if (!preset) return;
-  fillPeriodModal({
-    start: preset.start,
-    end: preset.end,
-    intervals: preset.intervals,
-  });
-}
-
 function onStartTokenChanged() {
   const tok = document.getElementById("hm-period-start-token")?.value.trim();
-  const bar = document.getElementById("hm-period-bar-start");
   const dt = document.getElementById("hm-period-start-dt");
-  if (bar && tok != null) bar.value = tok;
   if (dt && tok) dt.value = toDatetimeLocalValue(resolvePeriodInstant(tok));
-  const period = readPeriodFromModal();
-  syncLengthFieldsFromPeriod(period);
+  syncLengthFieldsFromPeriod(readPeriodFromModal());
 }
 
 function onEndTokenChanged() {
   const tok = document.getElementById("hm-period-end-token")?.value.trim();
-  const bar = document.getElementById("hm-period-bar-end");
   const dt = document.getElementById("hm-period-end-dt");
-  if (bar && tok != null) bar.value = tok;
   if (dt && tok) dt.value = toDatetimeLocalValue(resolvePeriodInstant(tok));
-  const period = readPeriodFromModal();
-  syncLengthFieldsFromPeriod(period);
+  syncLengthFieldsFromPeriod(readPeriodFromModal());
 }
 
 function onStartDtChanged() {
@@ -643,9 +627,7 @@ function onStartDtChanged() {
   if (!dt) return;
   const iso = dt.toISOString();
   const tok = document.getElementById("hm-period-start-token");
-  const bar = document.getElementById("hm-period-bar-start");
   if (tok) tok.value = iso;
-  if (bar) bar.value = iso;
   syncLengthFieldsFromPeriod(readPeriodFromModal());
 }
 
@@ -654,12 +636,9 @@ function onEndDtChanged() {
     document.getElementById("hm-period-end-dt")?.value
   );
   if (!dt) return;
-  // End "*" means now — if user picks calendar, use absolute
   const iso = dt.toISOString();
   const tok = document.getElementById("hm-period-end-token");
-  const bar = document.getElementById("hm-period-bar-end");
   if (tok) tok.value = iso;
-  if (bar) bar.value = iso;
   syncLengthFieldsFromPeriod(readPeriodFromModal());
 }
 
@@ -671,9 +650,7 @@ function onLengthChanged() {
   const start = new Date(end.getTime() - Math.max(60_000, ms));
   const startIso = start.toISOString();
   const tok = document.getElementById("hm-period-start-token");
-  const bar = document.getElementById("hm-period-bar-start");
   const dt = document.getElementById("hm-period-start-dt");
-  // Prefer relative if end is * and length matches a simple hour/day
   let startToken = startIso;
   if (endTok === "*") {
     const hours = ms / 3_600_000;
@@ -685,7 +662,6 @@ function onLengthChanged() {
     }
   }
   if (tok) tok.value = startToken;
-  if (bar) bar.value = startToken;
   if (dt) dt.value = toDatetimeLocalValue(start);
 }
 
@@ -706,47 +682,12 @@ function wirePeriodModal() {
   document.querySelectorAll("[data-period-close]").forEach((el) => {
     el.addEventListener("click", () => closePeriodModal());
   });
-  document.querySelectorAll("[data-period-preset]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      applyPeriodPreset(btn.getAttribute("data-period-preset"));
-    });
-  });
   document
     .getElementById("hm-period-start-token")
     ?.addEventListener("change", onStartTokenChanged);
   document
     .getElementById("hm-period-end-token")
     ?.addEventListener("change", onEndTokenChanged);
-  document
-    .getElementById("hm-period-bar-start")
-    ?.addEventListener("change", () => {
-      const v = document.getElementById("hm-period-bar-start")?.value;
-      const tok = document.getElementById("hm-period-start-token");
-      if (tok && v != null) tok.value = v;
-      onStartTokenChanged();
-    });
-  document
-    .getElementById("hm-period-bar-end")
-    ?.addEventListener("change", () => {
-      const v = document.getElementById("hm-period-bar-end")?.value;
-      const tok = document.getElementById("hm-period-end-token");
-      if (tok && v != null) tok.value = v;
-      onEndTokenChanged();
-    });
-  document
-    .getElementById("hm-period-bar-intervals")
-    ?.addEventListener("change", () => {
-      const v = document.getElementById("hm-period-bar-intervals")?.value;
-      const i = document.getElementById("hm-period-intervals");
-      if (i && v != null) i.value = v;
-    });
-  document
-    .getElementById("hm-period-intervals")
-    ?.addEventListener("change", () => {
-      const v = document.getElementById("hm-period-intervals")?.value;
-      const i = document.getElementById("hm-period-bar-intervals");
-      if (i && v != null) i.value = v;
-    });
   document
     .getElementById("hm-period-start-dt")
     ?.addEventListener("change", onStartDtChanged);
@@ -936,23 +877,97 @@ function formatValuesTimeCell(payload, index) {
   return formatHmTimestamp(label) || String(label);
 }
 
+function valuesPageCount(totalRows) {
+  const pageSize = getValuesPageSize();
+  return Math.max(1, Math.ceil(Math.max(0, totalRows) / pageSize));
+}
+
 function updateValuesPagerUi(totalRows) {
   const pager = document.getElementById("hm-values-pager");
-  const label = document.getElementById("hm-values-page-label");
+  const pageInput = document.getElementById("hm-values-page-input");
+  const pageOf = document.getElementById("hm-values-page-of");
+  const first = document.getElementById("hm-values-first");
   const prev = document.getElementById("hm-values-prev");
   const next = document.getElementById("hm-values-next");
+  const last = document.getElementById("hm-values-last");
   const pageSize = getValuesPageSize();
-  const pageCount = Math.max(1, Math.ceil(totalRows / pageSize));
+  const pageCount = valuesPageCount(totalRows);
   if (valuesPageIndex >= pageCount) valuesPageIndex = pageCount - 1;
   if (valuesPageIndex < 0) valuesPageIndex = 0;
 
   const showPager = totalRows > pageSize;
   if (pager) pager.hidden = !showPager;
-  if (label) {
-    label.textContent = `Page ${valuesPageIndex + 1} of ${pageCount} · ${totalRows} rows`;
+  if (pageInput) {
+    pageInput.max = String(pageCount);
+    pageInput.value = String(valuesPageIndex + 1);
   }
-  if (prev) prev.disabled = valuesPageIndex <= 0;
-  if (next) next.disabled = valuesPageIndex >= pageCount - 1;
+  if (pageOf) {
+    pageOf.textContent =
+      totalRows > 0
+        ? `of ${pageCount} · ${totalRows} rows`
+        : `of ${pageCount}`;
+  }
+  const atStart = valuesPageIndex <= 0;
+  const atEnd = valuesPageIndex >= pageCount - 1;
+  if (first) first.disabled = atStart;
+  if (prev) prev.disabled = atStart;
+  if (next) next.disabled = atEnd;
+  if (last) last.disabled = atEnd;
+}
+
+function goToValuesPage(page1Based) {
+  if (!lastChartPayload) return;
+  const totalRows = Math.max(
+    lastChartPayload.labels?.length || 0,
+    lastChartPayload.times?.length || 0
+  );
+  const pageCount = valuesPageCount(totalRows);
+  const page = Math.min(
+    pageCount,
+    Math.max(1, Math.round(Number(page1Based) || 1))
+  );
+  valuesPageIndex = page - 1;
+  renderValuesTableFromPayload(lastChartPayload);
+}
+
+function onValuesPageSizeChange() {
+  valuesPageIndex = 0;
+  getValuesPageSize();
+  if (lastChartPayload) renderValuesTableFromPayload(lastChartPayload);
+}
+
+function onValuesFirstPage() {
+  if (valuesPageIndex <= 0) return;
+  valuesPageIndex = 0;
+  if (lastChartPayload) renderValuesTableFromPayload(lastChartPayload);
+}
+
+function onValuesPrevPage() {
+  if (valuesPageIndex <= 0) return;
+  valuesPageIndex -= 1;
+  if (lastChartPayload) renderValuesTableFromPayload(lastChartPayload);
+}
+
+function onValuesNextPage() {
+  valuesPageIndex += 1;
+  if (lastChartPayload) renderValuesTableFromPayload(lastChartPayload);
+}
+
+function onValuesLastPage() {
+  if (!lastChartPayload) return;
+  const totalRows = Math.max(
+    lastChartPayload.labels?.length || 0,
+    lastChartPayload.times?.length || 0
+  );
+  const pageCount = valuesPageCount(totalRows);
+  if (valuesPageIndex >= pageCount - 1) return;
+  valuesPageIndex = pageCount - 1;
+  renderValuesTableFromPayload(lastChartPayload);
+}
+
+function onValuesPageInputCommit() {
+  const input = document.getElementById("hm-values-page-input");
+  goToValuesPage(input?.value);
 }
 
 function renderValuesTableFromPayload(payload) {
@@ -1000,14 +1015,10 @@ function renderValuesTableFromPayload(payload) {
     ...pens.map((p) => p.values?.length || 0)
   );
 
-  const pageSize = getValuesPageSize();
-  const pageCount = Math.max(1, Math.ceil(rowCount / pageSize));
-  if (valuesPageIndex >= pageCount) valuesPageIndex = pageCount - 1;
-  const start = valuesPageIndex * pageSize;
-  const end = Math.min(rowCount, start + pageSize);
-
   thead.innerHTML = `<tr>
-    <th scope="col">Time</th>
+    <th scope="col" data-values-sort="time" class="is-sorted">
+      <button type="button" class="hm-sort-btn" data-label="Time">Time ${valuesTimeSortDir === 1 ? "▲" : "▼"}</button>
+    </th>
     ${pens
       .map((p) => {
         const title = p.unit ? `${p.name} (${p.unit})` : p.name;
@@ -1016,8 +1027,18 @@ function renderValuesTableFromPayload(payload) {
       .join("")}
   </tr>`;
 
+  const indices = Array.from({ length: rowCount }, (_, i) => i);
+  if (valuesTimeSortDir === -1) indices.reverse();
+
+  const pageSize = getValuesPageSize();
+  const pageCount = Math.max(1, Math.ceil(rowCount / pageSize));
+  if (valuesPageIndex >= pageCount) valuesPageIndex = pageCount - 1;
+  const start = valuesPageIndex * pageSize;
+  const end = Math.min(rowCount, start + pageSize);
+  const pageIndices = indices.slice(start, end);
+
   const rows = [];
-  for (let i = start; i < end; i++) {
+  for (const i of pageIndices) {
     const time = formatValuesTimeCell(payload, i);
     const cells = pens
       .map((p) => {
@@ -1052,23 +1073,6 @@ function showValuesView() {
   }
 }
 
-function onValuesPageSizeChange() {
-  valuesPageIndex = 0;
-  getValuesPageSize();
-  if (lastChartPayload) renderValuesTableFromPayload(lastChartPayload);
-}
-
-function onValuesPrevPage() {
-  if (valuesPageIndex <= 0) return;
-  valuesPageIndex -= 1;
-  if (lastChartPayload) renderValuesTableFromPayload(lastChartPayload);
-}
-
-function onValuesNextPage() {
-  valuesPageIndex += 1;
-  if (lastChartPayload) renderValuesTableFromPayload(lastChartPayload);
-}
-
 function withTimeout(promiseOrFactory, ms, label = "Request") {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
@@ -1087,8 +1091,9 @@ function withTimeout(promiseOrFactory, ms, label = "Request") {
     .finally(() => clearTimeout(timer));
 }
 
-function renderCounterRows(rows) {
+function renderCounterRows(rows, { resetPage = false } = {}) {
   counterRows = Array.isArray(rows) ? rows : [];
+  if (resetPage) countersPage = 1;
   // Drop selections that no longer exist
   const valid = new Set(counterRows.map(counterRowKey).filter(Boolean));
   for (const k of [...selectedCounterKeys]) {
@@ -1108,6 +1113,19 @@ function renderCounterRows(rows) {
           ? "No counters for this object (or still loading)."
           : "Select an object in the tree.";
     }
+    countersPage = 1;
+    updateFullPager(
+      {
+        pager: document.getElementById("hm-counters-pager"),
+        first: document.getElementById("hm-counters-first"),
+        prev: document.getElementById("hm-counters-prev"),
+        next: document.getElementById("hm-counters-next"),
+        last: document.getElementById("hm-counters-last"),
+        pageInput: document.getElementById("hm-counters-page-input"),
+        pageOf: document.getElementById("hm-counters-page-of"),
+      },
+      { page: 1, pages: 1, total: 0, pageSize: COUNTERS_PAGE_SIZE }
+    );
     updateSortHeaderUi();
     updateSelectionUi();
     return;
@@ -1115,7 +1133,27 @@ function renderCounterRows(rows) {
   if (empty) empty.hidden = true;
 
   const sorted = sortedCounterRows(counterRows);
-  tbody.innerHTML = sorted
+  const paged = sliceRows(sorted, countersPage, COUNTERS_PAGE_SIZE);
+  countersPage = paged.page;
+  updateFullPager(
+    {
+      pager: document.getElementById("hm-counters-pager"),
+      first: document.getElementById("hm-counters-first"),
+      prev: document.getElementById("hm-counters-prev"),
+      next: document.getElementById("hm-counters-next"),
+      last: document.getElementById("hm-counters-last"),
+      pageInput: document.getElementById("hm-counters-page-input"),
+      pageOf: document.getElementById("hm-counters-page-of"),
+    },
+    {
+      page: paged.page,
+      pages: paged.pages,
+      total: paged.total,
+      pageSize: COUNTERS_PAGE_SIZE,
+    }
+  );
+
+  tbody.innerHTML = paged.slice
     .map((r) => {
       const key = counterRowKey(r);
       const selected = selectedCounterKeys.has(key);
@@ -1134,6 +1172,30 @@ function renderCounterRows(rows) {
 
   updateSortHeaderUi();
   updateSelectionUi();
+}
+
+function wireCountersPagerOnce() {
+  const root = document.getElementById("hm-counters-pager");
+  if (!root || root.dataset.wired === "1") return;
+  root.dataset.wired = "1";
+  const go = (p) => {
+    countersPage = clampPage(p, counterRows.length, COUNTERS_PAGE_SIZE);
+    renderCounterRows(counterRows);
+  };
+  document.getElementById("hm-counters-first")?.addEventListener("click", () => go(1));
+  document.getElementById("hm-counters-prev")?.addEventListener("click", () => go(countersPage - 1));
+  document.getElementById("hm-counters-next")?.addEventListener("click", () => go(countersPage + 1));
+  document.getElementById("hm-counters-last")?.addEventListener("click", () =>
+    go(sliceRows(counterRows, 99999, COUNTERS_PAGE_SIZE).pages)
+  );
+  const input = document.getElementById("hm-counters-page-input");
+  input?.addEventListener("change", () => go(input.value));
+  input?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      go(input.value);
+    }
+  });
 }
 
 function toggleCounterSelection(key, force) {
@@ -1156,6 +1218,7 @@ function onCountersTableClick(e) {
       sortKey = key;
       sortDir = 1;
     }
+    countersPage = 1;
     renderCounterRows(counterRows);
     return;
   }
@@ -1378,12 +1441,12 @@ async function loadLiveDetails(node) {
 
   try {
     liveCounters = await fetchLiveCounters(node, liveProps);
-    renderCounterRows(liveCounters);
+    renderCounterRows(liveCounters, { resetPage: true });
   } catch (err) {
     countersErr = err;
     console.error("[hm-live] counters", err);
     liveCounters = [];
-    renderCounterRows([]);
+    renderCounterRows([], { resetPage: true });
   }
 
   if (!propsErr && !countersErr) {
@@ -1495,7 +1558,27 @@ function renderNavList() {
     }
   });
 
-  tbody.innerHTML = rows
+  const paged = sliceRows(rows, navListPage, NAV_LIST_PAGE_SIZE);
+  navListPage = paged.page;
+  updateFullPager(
+    {
+      pager: document.getElementById("hm-nav-list-pager"),
+      first: document.getElementById("hm-nav-list-first"),
+      prev: document.getElementById("hm-nav-list-prev"),
+      next: document.getElementById("hm-nav-list-next"),
+      last: document.getElementById("hm-nav-list-last"),
+      pageInput: document.getElementById("hm-nav-list-page-input"),
+      pageOf: document.getElementById("hm-nav-list-page-of"),
+    },
+    {
+      page: paged.page,
+      pages: paged.pages,
+      total: paged.total,
+      pageSize: NAV_LIST_PAGE_SIZE,
+    }
+  );
+
+  tbody.innerHTML = paged.slice
     .map((r) => {
       const accent = classifyNavListAccent(r);
       const sel =
@@ -1524,6 +1607,30 @@ function renderNavList() {
     .join("");
 }
 
+function wireNavListPagerOnce() {
+  const root = document.getElementById("hm-nav-list-pager");
+  if (!root || root.dataset.wired === "1") return;
+  root.dataset.wired = "1";
+  const go = (p) => {
+    navListPage = clampPage(p, navTableRows.length, NAV_LIST_PAGE_SIZE);
+    renderNavList();
+  };
+  document.getElementById("hm-nav-list-first")?.addEventListener("click", () => go(1));
+  document.getElementById("hm-nav-list-prev")?.addEventListener("click", () => go(navListPage - 1));
+  document.getElementById("hm-nav-list-next")?.addEventListener("click", () => go(navListPage + 1));
+  document.getElementById("hm-nav-list-last")?.addEventListener("click", () =>
+    go(sliceRows(navTableRows, 99999, NAV_LIST_PAGE_SIZE).pages)
+  );
+  const input = document.getElementById("hm-nav-list-page-input");
+  input?.addEventListener("change", () => go(input.value));
+  input?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      go(input.value);
+    }
+  });
+}
+
 async function ensureNavTableLoaded({ force = false } = {}) {
   if (navTableLoaded && !force) return;
   if (mode === "live" && getStoredToken()) {
@@ -1532,6 +1639,7 @@ async function ensureNavTableLoaded({ force = false } = {}) {
       if (rows.length) {
         navTableRows = rows;
         navTableLoaded = true;
+        navListPage = 1;
         renderNavList();
         return;
       }
@@ -1541,6 +1649,7 @@ async function ensureNavTableLoaded({ force = false } = {}) {
   }
   navTableRows = [...mockNavTableRows];
   navTableLoaded = mode !== "live";
+  navListPage = 1;
   renderNavList();
 }
 
@@ -1562,6 +1671,7 @@ function onNavListClick(e) {
       navSortKey = key;
       navSortDir = 1;
     }
+    navListPage = 1;
     renderNavList();
     return;
   }
@@ -1615,7 +1725,7 @@ async function refresh() {
     if (node) await loadLiveDetails(node);
   } else {
     renderPropsFromObject(propsForNode(node), { live: false });
-    renderCounterRows(countersForNode(selectedId));
+    renderCounterRows(countersForNode(selectedId), { resetPage: true });
   }
   updateConnUi();
 }
@@ -1776,6 +1886,8 @@ export function initHealthMonitorPage() {
     document
       .getElementById("hm-nav-list-table")
       ?.addEventListener("click", onNavListClick);
+    wireNavListPagerOnce();
+    wireCountersPagerOnce();
 
     document.getElementById("hm-chart-pens")?.addEventListener("click", onChartPensClick);
 
@@ -1793,6 +1905,16 @@ export function initHealthMonitorPage() {
       .getElementById("hm-counters-table")
       ?.addEventListener("click", onCountersTableClick);
 
+    document
+      .getElementById("hm-values-table")
+      ?.addEventListener("click", (e) => {
+        const th = e.target.closest("th[data-values-sort='time']");
+        if (!th) return;
+        valuesTimeSortDir *= -1;
+        valuesPageIndex = 0;
+        if (lastChartPayload) renderValuesTableFromPayload(lastChartPayload);
+      });
+
     document.getElementById("hm-view-table")?.addEventListener("click", () => {
       setCountersPanelView("table");
     });
@@ -1806,11 +1928,28 @@ export function initHealthMonitorPage() {
       .getElementById("hm-values-pagesize")
       ?.addEventListener("change", onValuesPageSizeChange);
     document
+      .getElementById("hm-values-first")
+      ?.addEventListener("click", onValuesFirstPage);
+    document
       .getElementById("hm-values-prev")
       ?.addEventListener("click", onValuesPrevPage);
     document
       .getElementById("hm-values-next")
       ?.addEventListener("click", onValuesNextPage);
+    document
+      .getElementById("hm-values-last")
+      ?.addEventListener("click", onValuesLastPage);
+    document
+      .getElementById("hm-values-page-input")
+      ?.addEventListener("change", onValuesPageInputCommit);
+    document
+      .getElementById("hm-values-page-input")
+      ?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          onValuesPageInputCommit();
+        }
+      });
     document.getElementById("hm-chart-maximize")?.addEventListener("click", () => {
       if (countersPanelView !== "chart" && countersPanelView !== "values") {
         return;

@@ -21,7 +21,7 @@ Opens http://localhost:5173
 
 ## Layout
 
-- Left menu (Overview, Infrastructure, Issues & Alerts, Trends, …)
+- Left menu (Dashboard, Health Monitor, Health Overview, Trends, Diagnostics, …)
 - Overview: KPI row, donuts, tables, charts (mock data in `src/mock-data.js`)
 
 ## Next

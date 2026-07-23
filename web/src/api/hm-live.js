@@ -9,12 +9,37 @@ import {
   parseJsonPreservingLargeInts,
 } from "./inmation.js";
 import { DEFAULT_PERIOD, periodToApiTimes } from "../hm-chart-period.js";
-import { formatHmTimestamp, toEpochMs } from "../hm-time-format.js";
+import { formatHmTimestamp, formatHmTimestampUtc, toEpochMs } from "../hm-time-format.js";
 
 /** HM tree nodes use n/i/path/c/image/t — map to our UI shape. */
 export function mapHmTreeNodes(nodes) {
   if (!Array.isArray(nodes)) return [];
   return nodes.map(mapOne);
+}
+
+/** "./assets/model/classes/Relay.svg" → "Relay" */
+function typeNameFromImage(image) {
+  const s = String(image || "");
+  const m = s.match(/\/classes\/([^/.]+)\.[a-z0-9]+$/i);
+  return m ? m[1] : "";
+}
+
+/**
+ * Prefer a readable class name over numeric `t` (e.g. 97 → Relay via SVG).
+ */
+export function resolveTreeNodeType(n) {
+  const explicit = n?.Type ?? n?.type;
+  if (
+    explicit != null &&
+    String(explicit).trim() !== "" &&
+    !/^\d+$/.test(String(explicit).trim())
+  ) {
+    return String(explicit).trim();
+  }
+  const fromImg = typeNameFromImage(n?.image || n?.Image);
+  if (fromImg) return fromImg;
+  if (n?.t != null && String(n.t).trim() !== "") return String(n.t);
+  return "Object";
 }
 
 function mapOne(n) {
@@ -26,7 +51,8 @@ function mapOne(n) {
     id,
     name: n.n || n.ObjectName || n.name || id,
     path: n.path || n.Path || "",
-    type: n.Type || n.type || (n.t != null ? String(n.t) : "Object"),
+    type: resolveTreeNodeType(n),
+    classCode: n.t != null ? n.t : null,
     objectId: rawId,
     image: n.image || n.Image || "",
     children,
@@ -258,8 +284,10 @@ export async function fetchLiveNavigationTable() {
     const WorstState = unwrapStateValue(r.WorstState ?? r.worstState);
     // Keep raw State (may be bitmask number) for decodeModUserState
     const rawState = r.State ?? r.state ?? r.UserState ?? null;
+    const rawId = r.ObjectID ?? r.i ?? null;
     const mapped = {
-      id: String(r.ObjectID ?? r.i ?? r.path ?? r.Path ?? `nav-${i}`),
+      id: String(rawId ?? r.path ?? r.Path ?? `nav-${i}`),
+      objectId: rawId,
       name: r.ObjectName ?? r.n ?? r.Name ?? "—",
       path: r.Path ?? r.path ?? "",
       type: r.Type ?? r.type ?? "—",
@@ -425,6 +453,29 @@ export function siteFromRow(row) {
 }
 
 /**
+ * Known Bayer site code, or "Global" when the path/name does not match a site filter.
+ * Used by Issues & Alerts (and similar site pickers).
+ */
+export function siteLabelFromRow(row) {
+  return siteFromRow(row) || "Global";
+}
+
+/**
+ * Site codes for a filter dropdown: known sites present in rows, plus Global
+ * (always, for rows that do not match a Bayer site code).
+ */
+export function buildSiteFilterOptions(rows) {
+  const known = new Set();
+  for (const r of rows || []) {
+    const s = siteFromRow(r);
+    if (s) known.add(s);
+  }
+  const sites = [...known].sort((a, b) => a.localeCompare(b));
+  sites.unshift("Global");
+  return sites;
+}
+
+/**
  * Extract distinct known <Site> codes from ObjectName / Path
  * (Area-Country-Site-Layer-Host[-Counter]).
  * Aliases (e.g. KUN→KMN) are normalized before matching the catalog.
@@ -483,7 +534,7 @@ export function listCriticalIssues(rows) {
   return (rows || [])
     .filter((r) => classifyNavHealth(r) === "bad")
     .map((r) => ({
-      site: siteFromRow(r) || "—",
+      site: siteLabelFromRow(r),
       component: r.name || r.ObjectName || "—",
       type: r.type || r.Type || "—",
       message:
@@ -510,7 +561,7 @@ export function listCriticalIssues(rows) {
  */
 export function siteSummaryRows(rows) {
   const buckets = new Map();
-  for (const site of KNOWN_SITES) {
+  for (const site of [...KNOWN_SITES, "Global"]) {
     buckets.set(site, {
       site,
       total: 0,
@@ -522,8 +573,8 @@ export function siteSummaryRows(rows) {
     });
   }
   for (const r of rows || []) {
-    const site = siteFromRow(r);
-    if (!site || !buckets.has(site)) continue;
+    const site = siteLabelFromRow(r);
+    if (!buckets.has(site)) continue;
     const b = buckets.get(site);
     b.total += 1;
     const h = classifyNavHealth(r);
@@ -533,21 +584,23 @@ export function siteSummaryRows(rows) {
     else if (h === "disabled") b.disabled += 1;
     else b.good += 1;
   }
-  return KNOWN_SITES.map((site) => {
-    const b = buckets.get(site);
-    const score = b.total ? Math.round((b.good / b.total) * 1000) / 10 : null;
-    return {
-      site,
-      score,
-      total: b.total,
-      good: b.good,
-      problems: b.problems,
-      warnings: b.warnings,
-      unknown: b.unknown,
-      disabled: b.disabled,
-      present: b.total > 0,
-    };
-  }).filter((r) => r.present);
+  return [...KNOWN_SITES, "Global"]
+    .map((site) => {
+      const b = buckets.get(site);
+      const score = b.total ? Math.round((b.good / b.total) * 1000) / 10 : null;
+      return {
+        site,
+        score,
+        total: b.total,
+        good: b.good,
+        problems: b.problems,
+        warnings: b.warnings,
+        unknown: b.unknown,
+        disabled: b.disabled,
+        present: b.total > 0,
+      };
+    })
+    .filter((r) => r.present);
 }
 
 /** Classify issue category for Top Issue Types (from State flags). */
@@ -676,11 +729,12 @@ export function listIssuesAndAlerts(rows, now = Date.now()) {
     const started = onset[issueOnsetKey(r, health)] ?? now;
     const entry = {
       id: String(r.id || ""),
+      objectId: r.objectId ?? r.id ?? null,
       path: r.path || "",
       time: formatIssueClock(started),
       timeMs: started,
       severity: severityForHealth(health),
-      site: siteFromRow(r) || "—",
+      site: siteLabelFromRow(r),
       component: r.name || r.ObjectName || "—",
       type: issueTypeLabel(r),
       message: issueMessage(r),
@@ -706,6 +760,442 @@ export function listIssuesAndAlerts(rows, now = Date.now()) {
   return { problems, warnings, unknown, disabled };
 }
 
+/**
+ * HM Logs — `fetchLogTable` (needs starttime/endtime like WebStudio timeperiodtable).
+ * Tries absolute ISO window first; does not stop on empty successful responses.
+ */
+export async function fetchObjectLogTable(objectId, options = {}) {
+  const id = coerceObjectId(objectId) ?? objectId;
+  if (id == null || id === "") {
+    throw new Error("No ObjectID for fetchLogTable");
+  }
+  const idStr = String(id);
+  const path = options.path ? String(options.path).trim() : "";
+  const startRel = String(options.starttime || "*-1d");
+  const endRel = String(options.endtime || "*");
+  const times = periodToApiTimes({
+    start: startRel,
+    end: endRel,
+    intervals: 100,
+  });
+  const absStart = times.absolute.start_time;
+  const absEnd = times.absolute.end_time;
+
+  const attempts = [
+    { ObjectID: idStr, starttime: absStart, endtime: absEnd },
+    { ObjectID: idStr, starttime: startRel, endtime: endRel },
+  ];
+  if (path) {
+    attempts.push({
+      ObjectID: idStr,
+      Path: path,
+      starttime: absStart,
+      endtime: absEnd,
+    });
+    attempts.push({ Path: path, starttime: absStart, endtime: absEnd });
+  }
+
+  let lastErr = null;
+  let sawOk = false;
+  let emptySample = null;
+  for (const farg of attempts) {
+    try {
+      const body = await execHm("fetchLogTable", farg);
+      const rows = normalizeLogRows(body);
+      sawOk = true;
+      if (rows.length) return rows;
+      if (!emptySample) emptySample = body;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  if (sawOk) {
+    if (emptySample) {
+      console.warn(
+        "[hm-live] fetchLogTable returned empty for ObjectID",
+        idStr,
+        emptySample
+      );
+    }
+    return [];
+  }
+  throw lastErr || new Error("fetchLogTable failed");
+}
+
+function digLogField(obj, ...keys) {
+  for (const k of keys) {
+    if (obj == null) return undefined;
+    if (Object.prototype.hasOwnProperty.call(obj, k) && obj[k] != null) {
+      return unwrapLogScalar(obj[k]);
+    }
+  }
+  return undefined;
+}
+
+function unwrapLogScalar(v) {
+  if (v == null) return v;
+  if (typeof v === "object" && !Array.isArray(v) && "v" in v) {
+    return unwrapLogScalar(v.v);
+  }
+  return v;
+}
+
+function extractLogRowArrays(body) {
+  const found = [];
+  const visit = (node, depth) => {
+    if (node == null || depth > 6) return;
+    if (Array.isArray(node)) {
+      if (
+        node.length &&
+        typeof node[0] === "object" &&
+        node[0] &&
+        (node[0]._common != null ||
+          node[0].message != null ||
+          node[0].Message != null ||
+          node[0].severity != null ||
+          node[0].Severity != null ||
+          node[0].timestamp != null ||
+          node[0].time != null)
+      ) {
+        found.push(node);
+      }
+      return;
+    }
+    if (typeof node !== "object") return;
+    for (const k of ["data", "rows", "items", "logs", "table", "model"]) {
+      if (k in node) visit(node[k], depth + 1);
+    }
+  };
+  visit(body, 0);
+  visit(unwrapData(body), 0);
+  if (!found.length) return [];
+  found.sort((a, b) => b.length - a.length);
+  return found[0];
+}
+
+function normalizeLogRows(body) {
+  const rows = extractLogRowArrays(body);
+  if (!Array.isArray(rows)) return [];
+  return rows.map((r, i) => {
+    const common =
+      r?._common && typeof r._common === "object" ? r._common : null;
+    const ts =
+      digLogField(
+        r,
+        "timestamp",
+        "Timestamp",
+        "Timestamp (UTC)",
+        "TimestampUTC",
+        "t",
+        "time",
+        "Time",
+        "LocalTime",
+        "localtime"
+      ) ?? digLogField(common, "time", "timestamp", "Timestamp", "LocalTime");
+    const msg =
+      digLogField(r, "message", "Message", "msg", "Msg") ??
+      digLogField(common, "message", "Message", "msg") ??
+      "";
+    const severity =
+      digLogField(r, "severity", "Severity", "level", "Level") ??
+      digLogField(common, "severity", "Severity", "level") ??
+      "";
+    return {
+      id: String(r.id ?? r.i ?? `${i}`),
+      timestamp: ts,
+      timeMs: toEpochMs(ts),
+      message: msg == null ? "" : String(msg),
+      severity: String(severity || "").trim(),
+      raw: r,
+    };
+  });
+}
+
+/**
+ * Last 24h logs for an object with Severity Error or Warning.
+ * Display: Timestamp (UTC) · Severity · Message. Newest first, max `limit`.
+ */
+export async function fetchObjectSeverityLogs(
+  objectId,
+  { starttime = "*-1d", endtime = "*", limit = 50, path = "" } = {}
+) {
+  const logs = await fetchObjectLogTable(objectId, {
+    starttime,
+    endtime,
+    path,
+  });
+  const withSev = (logs || []).filter((e) =>
+    isErrorOrWarningSeverity(e.severity)
+  );
+  withSev.sort((a, b) => (b.timeMs || 0) - (a.timeMs || 0));
+  const capped = withSev.slice(0, Math.max(0, Number(limit) || 50));
+  return capped.map((e) => {
+    const common =
+      e.raw?._common && typeof e.raw._common === "object"
+        ? e.raw._common
+        : null;
+    const localRaw =
+      digLogField(e.raw, "LocalTime", "localtime", "localTime") ??
+      digLogField(common, "LocalTime", "localtime", "localTime", "time");
+    const logId =
+      digLogField(e.raw, "LogID", "LogId", "logId", "id") ??
+      digLogField(common, "LogID", "LogId", "logId", "id") ??
+      e.id;
+    return {
+      id: String(e.id),
+      logId: logId != null ? String(logId) : String(e.id),
+      timestampUtc:
+        e.timestamp != null ? formatHmTimestampUtc(e.timestamp) : "—",
+      localTime:
+        localRaw != null ? formatHmTimestamp(localRaw) : e.timestamp != null
+          ? formatHmTimestamp(e.timestamp)
+          : "—",
+      timeMs: e.timeMs,
+      message: e.message?.trim() ? e.message.trim() : "—",
+      severity: e.severity,
+      raw: e.raw || null,
+      sections: buildLogDetailSections(e.raw),
+    };
+  });
+}
+
+/** Pretty section title for nested log payload keys. */
+function logSectionTitle(key) {
+  const k = String(key || "").replace(/^_/, "");
+  const map = {
+    common: "Common",
+    environment: "Environment",
+    object: "Object Details",
+    objectdetails: "Object Details",
+    objectDetails: "Object Details",
+    network: "Network Peer",
+    networkpeer: "Network Peer",
+    peer: "Network Peer",
+    source: "Source",
+  };
+  if (map[k]) return map[k];
+  if (map[k.toLowerCase()]) return map[k.toLowerCase()];
+  return k
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function logFieldLabel(key) {
+  const map = {
+    time: "Timestamp (UTC)",
+    timestamp: "Timestamp (UTC)",
+    Timestamp: "Timestamp (UTC)",
+    LocalTime: "Local Time",
+    localtime: "Local Time",
+    localTime: "Local Time",
+    severity: "Severity",
+    Severity: "Severity",
+    component: "Component",
+    Component: "Component",
+    facility: "Facility",
+    Facility: "Facility",
+    code: "Code",
+    Code: "Code",
+    LogID: "Log ID",
+    LogId: "Log ID",
+    logId: "Log ID",
+    id: "Log ID",
+    Runtime: "Runtime",
+    area: "Area",
+    Area: "Area",
+    scope: "Scope",
+    Scope: "Scope",
+    group: "Group",
+    Group: "Group",
+    ObjectID: "Object ID",
+    ObjectId: "Object ID",
+    objectId: "Object ID",
+    ObjectName: "Object Name",
+    objectName: "Object Name",
+    message: "Message",
+    Message: "Message",
+    Persistent: "Persistent",
+    New: "New",
+    CounterAction: "Counter Action",
+    OperatingSystem: "Operating System",
+    Host: "Host",
+    User: "User",
+    Service: "Service",
+    RuntimeID: "Runtime ID",
+    Process: "Process",
+    PID: "PID",
+    TID: "TID",
+    FullObjectPath: "Full Object Path",
+    Path: "Full Object Path",
+    path: "Full Object Path",
+    SystemName: "System Name",
+    PropertyName: "Property Name",
+    ProtocolType: "Protocol Type",
+    Direction: "Direction",
+    LocalIP: "Local IP",
+    LocalPort: "Local Port",
+    RemoteIP: "Remote IP",
+    RemotePort: "Remote Port",
+    RemoteHost: "Remote Host",
+    RemoteUser: "Remote User",
+    ClientType: "Client Type",
+    ChannelType: "Channel Type",
+    Module: "Module",
+    Line: "Line",
+  };
+  if (map[key]) return map[key];
+  return String(key)
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ");
+}
+
+function formatLogDetailValue(key, value) {
+  if (value == null) return "";
+  if (typeof value === "boolean") return value ? "True" : "False";
+  if (typeof value === "object") {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+  const s = String(value);
+  const lk = String(key).toLowerCase();
+  if (
+    lk.includes("time") ||
+    lk.includes("timestamp") ||
+    key === "time" ||
+    key === "LocalTime"
+  ) {
+    if (lk.includes("local")) return formatHmTimestamp(s) || s;
+    return formatHmTimestampUtc(s) || s;
+  }
+  return s;
+}
+
+/**
+ * Build DataStudio-like Log Details sections from a raw fetchLogTable row.
+ * @returns {{ title: string, fields: { name: string, value: string }[] }[]}
+ */
+export function buildLogDetailSections(raw) {
+  if (!raw || typeof raw !== "object") return [];
+  const sections = [];
+  const skipKeys = new Set(["id", "i", "raw"]);
+
+  const pushSection = (title, obj) => {
+    if (!obj || typeof obj !== "object" || Array.isArray(obj)) return;
+    const fields = [];
+    for (const [k, v] of Object.entries(obj)) {
+      if (v != null && typeof v === "object" && !Array.isArray(v) && !("v" in v)) {
+        continue;
+      }
+      const val = unwrapLogScalar(v);
+      if (val == null || val === "") {
+        fields.push({ name: logFieldLabel(k), value: "" });
+        continue;
+      }
+      if (typeof val === "object") {
+        fields.push({
+          name: logFieldLabel(k),
+          value: formatLogDetailValue(k, val),
+        });
+        continue;
+      }
+      fields.push({
+        name: logFieldLabel(k),
+        value: formatLogDetailValue(k, val),
+      });
+    }
+    if (fields.length) sections.push({ title, fields });
+  };
+
+  // Prefer known nested bags (_common, _environment, …)
+  const nestedOrder = [
+    ["_common", "Common"],
+    ["common", "Common"],
+    ["_environment", "Environment"],
+    ["environment", "Environment"],
+    ["_object", "Object Details"],
+    ["object", "Object Details"],
+    ["objectdetails", "Object Details"],
+    ["_network", "Network Peer"],
+    ["network", "Network Peer"],
+    ["networkpeer", "Network Peer"],
+    ["_source", "Source"],
+    ["source", "Source"],
+  ];
+  const used = new Set();
+  for (const [key, title] of nestedOrder) {
+    if (raw[key] && typeof raw[key] === "object") {
+      pushSection(title, raw[key]);
+      used.add(key);
+    }
+  }
+
+  // Any other nested objects as sections
+  for (const [k, v] of Object.entries(raw)) {
+    if (used.has(k) || skipKeys.has(k)) continue;
+    if (v && typeof v === "object" && !Array.isArray(v) && !("v" in v)) {
+      pushSection(logSectionTitle(k), v);
+      used.add(k);
+    }
+  }
+
+  // Flat leftover scalars → Common (or append)
+  const flat = {};
+  for (const [k, v] of Object.entries(raw)) {
+    if (used.has(k) || skipKeys.has(k)) continue;
+    if (v != null && typeof v === "object" && !Array.isArray(v) && !("v" in v)) {
+      continue;
+    }
+    flat[k] = v;
+  }
+  if (Object.keys(flat).length) {
+    const existing = sections.find((s) => s.title === "Common");
+    if (existing) {
+      for (const [k, v] of Object.entries(flat)) {
+        existing.fields.push({
+          name: logFieldLabel(k),
+          value: formatLogDetailValue(k, unwrapLogScalar(v)),
+        });
+      }
+    } else {
+      pushSection("Common", flat);
+    }
+  }
+
+  return sections;
+}
+
+function isErrorOrWarningSeverity(severity) {
+  const s = String(severity || "")
+    .trim()
+    .toUpperCase();
+  if (!s) return false;
+  // Numeric codes sometimes used by log APIs
+  if (s === "3" || s === "4") return true;
+  if (
+    s === "ERROR" ||
+    s === "ERR" ||
+    s.includes("ERROR") ||
+    s === "SEV_ERROR" ||
+    s === "LOG_ERROR"
+  ) {
+    return true;
+  }
+  if (
+    s === "WARNING" ||
+    s === "WARN" ||
+    s.includes("WARNING") ||
+    s === "SEV_WARNING" ||
+    s === "LOG_WARNING"
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function scoreFromHealth(health) {
   if (health === "bad") return 40;
   if (health === "warning") return 70;
@@ -729,12 +1219,12 @@ export function navRowToDrillObject(row) {
   const health = classifyNavHealth(row);
   return {
     id: String(row?.id || row?.path || row?.name || ""),
-    site: siteFromRow(row) || "—",
+    site: siteLabelFromRow(row),
     name: row?.name || row?.ObjectName || "—",
     type: row?.type || row?.Type || "—",
     path: row?.path || row?.Path || "",
     image: row?.image || "",
-    objectId: row?.id || null,
+    objectId: row?.objectId ?? row?.id ?? null,
     worstState: displayWorstState(row, health),
     health,
     severity: health === "good" ? "Good" : severityForHealth(health),
@@ -762,8 +1252,14 @@ export function drillFilterOptions(objects) {
     if (o.site && o.site !== "—") sites.add(o.site);
     if (o.type && o.type !== "—") types.add(o.type);
   }
+  sites.add("Global");
+  const siteList = [...sites].sort((a, b) => {
+    if (a === "Global") return -1;
+    if (b === "Global") return 1;
+    return a.localeCompare(b);
+  });
   return {
-    sites: ["All", ...[...sites].sort()],
+    sites: ["All", ...siteList],
     types: ["All", ...[...types].sort()],
     severities: ["All", "High", "Medium", "Unknown", "Disabled", "Good"],
   };
